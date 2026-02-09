@@ -1,162 +1,423 @@
 ---
 name: abstract-summarizer
-description: Summarize long academic papers into structured abstracts within 250 words. Trigger when user provides a paper (PDF, text, or URL) and requests a summary, abstract, or TL;DR. Optimized for research papers, theses, and technical reports.
-version: 1.0.0
-category: Research
-tags: [abstract, summarization, academic-papers, research, nlp]
-author: AIPOCH
+description: Transform lengthy academic papers into concise, structured 250-word abstracts 
+  capturing background, methods, results, and conclusions. Optimized for research papers, 
+  theses, and technical reports across scientific disciplines.
+allowed-tools: [Read, Write, Bash, Edit]
 license: MIT
-status: Draft
-risk_level: Medium
-skill_type: Tool/Script
-owner: AIPOCH
-reviewer: 
-last_updated: 2026-02-06
+metadata:
+    skill-author: AIPOCH
 ---
 
 # Abstract Summarizer
 
-A specialized skill for condensing lengthy academic papers into concise, structured abstracts while preserving scientific accuracy.
+## Overview
 
-## Purpose
+AI-powered academic summarization tool that condenses complex research papers into publication-ready structured abstracts while preserving scientific accuracy and key findings.
 
-Transform complex academic documents (research papers, theses, technical reports) into standardized 250-word structured abstracts that capture:
-- Research background and motivation
-- Methodology and approach
-- Key findings and results
-- Conclusions and implications
+**Key Capabilities:**
+- **Multi-Format Input**: Process PDFs, text, URLs, or clipboard content
+- **Structured Output**: Background, Objective, Methods, Results, Conclusion format
+- **Word Count Enforcement**: Strict 250-word limit with validation
+- **Quantitative Preservation**: Retains key numbers, statistics, and effect sizes
+- **Discipline Adaptation**: Optimized for STEM, medical, and social sciences
+- **Batch Processing**: Summarize multiple papers efficiently
 
-## Trigger Conditions
+## When to Use
 
-Activate this skill when:
-1. User provides a paper (PDF, text, URL) and asks for summary/abstract
-2. User explicitly requests "TL;DR" or "executive summary"
-3. User needs to quickly understand a paper's core contribution
-4. Processing academic or technical documents >1000 words
+**✅ Use this skill when:**
+- Creating conference abstracts from full papers
+- Preparing literature review summaries
+- Quickly assessing paper relevance for reading decisions
+- Generating executive summaries for stakeholders
+- Drafting journal submission abstracts
+- Teaching students how to write scientific abstracts
+- Building annotated bibliographies
 
-## Input Format
+**❌ Do NOT use when:**
+- Source material is highly nuanced philosophy/literary critique → Use `humanities-text-analyzer`
+- Mathematical proofs require detailed explanation → Use `math-theorem-simplifier`
+- Legal documents or contracts → Use `legal-document-summarizer`
+- Creative writing or fiction → Use `creative-writing-editor`
+- Patient medical records (HIPAA concerns) → Use clinical documentation tools only
 
-Accepted inputs:
-- PDF file path or content
-- Plain text of paper content
-- URL to paper (will fetch content)
-- Clipboard text containing paper
+**Integration:**
+- **Upstream**: `pdf-text-extractor` (content extraction), `citation-formatter` (reference handling)
+- **Downstream**: `conference-abstract-adaptor` (format adjustment), `journal-matchmaker` (submission prep)
 
-## Output Format
+## Core Capabilities
 
-Structured abstract with exactly these sections:
+### 1. Structured Abstract Generation
 
-```
-**Background**: [1 sentence on context and problem]
-
-**Objective**: [1 sentence on research goal]
-
-**Methods**: [1-2 sentences on methodology]
-
-**Results**: [2-3 sentences on key findings]
-
-**Conclusion**: [1 sentence on implications]
-
----
-Word count: XXX/250
-```
-
-## Technical Approach
-
-### Extraction Strategy
-1. **Identify structure**: Parse paper sections (Abstract, Intro, Methods, Results, Discussion)
-2. **Key sentence extraction**: Use positional and semantic cues to identify critical sentences
-3. **Core concept identification**: Extract research questions, hypotheses, main findings
-4. **Redundancy elimination**: Remove citations, methodological details, minor results
-
-### Condensation Rules
-- Preserve technical terminology and quantitative results
-- Maintain logical flow between sections
-- Ensure standalone comprehensibility
-- Strict 250-word limit with counter validation
-
-## Difficulty Level
-
-**High** - Requires understanding of:
-- Academic writing conventions across disciplines
-- Scientific methodology terminology
-- Context-dependent information prioritization
-- Cross-domain knowledge integration
-
-## Quality Criteria
-
-A successful abstract must:
-- [ ] Accurately represent the paper's core contribution
-- [ ] Be understandable without reading the original
-- [ ] Include specific quantitative results where present
-- [ ] Maintain scientific rigor and precision
-- [ ] Stay within 250-word limit
-- [ ] Follow the structured format consistently
-
-## Limitations
-
-- May miss nuanced arguments in humanities papers
-- Complex mathematical proofs may be oversimplified
-- Domain-specific jargon requires contextual understanding
-- Multi-study papers need selective focus
-
-## Example Usage
+Extract and condense key sections into standard format:
 
 ```python
-# Direct usage
-python scripts/main.py --input paper.pdf --output summary.txt
+from scripts.summarizer import AbstractSummarizer
 
-# From text
-python scripts/main.py --text "[paste paper content]" --format structured
+summarizer = AbstractSummarizer()
+
+# Generate from PDF
+abstract = summarizer.summarize(
+    source="paper.pdf",
+    format="structured",  # structured, plain, or executive
+    word_limit=250,
+    discipline="biomedical"  # affects terminology handling
+)
+
+print(abstract.text)
+# Output: Background → Objective → Methods → Results → Conclusion
 ```
+
+**Output Structure:**
+```
+**Background**: [Context and problem statement]
+**Objective**: [Research goal and hypotheses]
+**Methods**: [Study design, sample, key methods]
+**Results**: [Primary findings with statistics]
+**Conclusion**: [Implications and significance]
+
+---
+Word count: 247/250
+```
+
+### 2. Quantitative Data Preservation
+
+Ensure numbers and statistics are accurately retained:
+
+```python
+# Extract and verify quantitative results
+quant_results = summarizer.extract_quantitative(
+    text=paper_content,
+    priority="high"  # keep all numbers vs. representative samples
+)
+
+# Validate against original
+validation = summarizer.verify_accuracy(
+    abstract=abstract,
+    source=paper_content
+)
+```
+
+**Preserves:**
+- Sample sizes (n=128)
+- Effect sizes (Cohen's d = 0.82)
+- P-values (p < 0.001)
+- Confidence intervals (95% CI: [0.45, 0.78])
+- Percentages and absolute numbers
+
+### 3. Multi-Disciplinary Adaptation
+
+Adjust extraction strategy by field:
+
+```bash
+# Biomedical paper
+python scripts/main.py --input paper.pdf --field biomedical
+
+# Physics paper  
+python scripts/main.py --input paper.pdf --field physics
+
+# Social science paper
+python scripts/main.py --input paper.pdf --field social-science
+```
+
+**Field-Specific Handling:**
+| Field | Focus Areas | Special Handling |
+|-------|-------------|------------------|
+| **Biomedical** | Study design, statistical significance, clinical relevance | Preserve P-values, effect sizes |
+| **Physics** | Theoretical framework, experimental setup, precision | Keep measurement uncertainties |
+| **CS/Engineering** | Algorithm performance, benchmarks, complexity | Retain accuracy percentages |
+| **Social Science** | Methodology, sample demographics, theoretical contribution | Preserve effect descriptions |
+
+### 4. Batch Literature Processing
+
+Summarize multiple papers for systematic reviews:
+
+```python
+from scripts.batch import BatchProcessor
+
+batch = BatchProcessor()
+
+# Process directory of papers
+summaries = batch.summarize_directory(
+    directory="literature_review/",
+    output_format="csv",  # or json, markdown
+    include_metadata=True  # title, authors, year
+)
+
+# Generate review matrix
+matrix = batch.create_summary_matrix(summaries)
+matrix.save("review_matrix.csv")
+```
+
+**Output:**
+- Individual abstract files
+- Comparative summary table
+- Key findings synthesis document
+
+## Common Patterns
+
+### Pattern 1: Clinical Trial Summary
+
+**Template for RCTs and clinical studies:**
+
+```json
+{
+  "paper_type": "clinical_trial",
+  "key_elements": [
+    "Study design (RCT, cohort, case-control)",
+    "Population (n, inclusion/exclusion)",
+    "Intervention details",
+    "Primary endpoint",
+    "Key results (efficacy, safety)",
+    "Clinical significance"
+  ],
+  "emphasis": "P-values, confidence intervals, adverse events"
+}
+```
+
+**Example Output:**
+```
+**Background**: Current treatments for X disease have limited efficacy.
+**Objective**: Evaluate Drug Y's safety and efficacy in patients with X.
+**Methods**: Double-blind RCT (n=342) comparing Drug Y vs placebo for 12 weeks.
+**Results**: Primary endpoint achieved (67% vs 32% response, p<0.001, OR=4.2). 
+            Adverse events mild (headache 12%, nausea 8%).
+**Conclusion**: Drug Y significantly improves outcomes with acceptable safety profile.
+```
+
+### Pattern 2: Basic Science Research
+
+**Template for laboratory/mechanistic studies:**
+
+```json
+{
+  "paper_type": "basic_science",
+  "key_elements": [
+    "Research question/hypothesis",
+    "Model system (cell line, animal, in vitro)",
+    "Key methods (CRISPR, Western blot, etc.)",
+    "Mechanistic findings",
+    "Biological significance"
+  ],
+  "emphasis": "Molecular mechanisms, pathway diagrams"
+}
+```
+
+**Example Output:**
+```
+**Background**: The role of Protein X in Disease Y progression is unknown.
+**Objective**: Determine if Protein X regulates Pathway Z in Disease Y.
+**Methods**: CRISPR knockout in cell lines, Western blot analysis, mouse model.
+**Results**: Protein X deletion reduced Pathway Z activation by 78% (p<0.01). 
+            In vivo, knockout mice showed 45% less disease progression.
+**Conclusion**: Protein X is a critical regulator of Pathway Z and potential therapeutic target.
+```
+
+### Pattern 3: Meta-Analysis Summary
+
+**Template for systematic reviews and meta-analyses:**
+
+```json
+{
+  "paper_type": "meta_analysis",
+  "key_elements": [
+    "Search strategy and databases",
+    "Number of studies included",
+    "Total sample size",
+    "Pooled effect size",
+    "Heterogeneity assessment",
+    "Quality of evidence"
+  ],
+  "emphasis": "I² values, funnel plots, GRADE assessment"
+}
+```
+
+**Example Output:**
+```
+**Background**: Previous trials of Intervention X show conflicting results.
+**Objective**: Systematically evaluate efficacy through meta-analysis.
+**Methods**: PRISMA-guided search of PubMed, Embase, Cochrane (through 2024). 
+            23 RCTs (n=4,847) met inclusion criteria.
+**Results**: Significant benefit observed (SMD=0.42, 95% CI [0.28, 0.56], p<0.001). 
+            Moderate heterogeneity (I²=45%). Quality: moderate.
+**Conclusion**: Intervention X shows modest efficacy with moderate certainty evidence.
+```
+
+### Pattern 4: Methodology/Algorithm Paper
+
+**Template for methods and computational papers:**
+
+```json
+{
+  "paper_type": "methodology",
+  "key_elements": [
+    "Problem with existing methods",
+    "Novel approach description",
+    "Key innovations",
+    "Performance benchmarks",
+    "Comparison to state-of-the-art"
+  ],
+  "emphasis": "Accuracy, speed, scalability metrics"
+}
+```
+
+**Example Output:**
+```
+**Background**: Current algorithms for Problem X are computationally expensive.
+**Objective**: Develop efficient method with improved accuracy.
+**Methods**: Novel graph neural network architecture with attention mechanism. 
+            Validated on 5 benchmark datasets.
+**Results**: 3.2× faster than current methods with 12% accuracy improvement 
+            (p<0.001). Scales to datasets with 10M+ nodes.
+**Conclusion**: Method achieves superior performance with practical computational requirements.
+```
+
+## Complete Workflow Example
+
+**From PDF to submission-ready abstract:**
+
+```bash
+# Step 1: Extract text from PDF
+python scripts/extract.py --input paper.pdf --output paper.txt
+
+# Step 2: Generate structured abstract
+python scripts/main.py \
+  --input paper.txt \
+  --field biomedical \
+  --format structured \
+  --word-limit 250 \
+  --output abstract.md
+
+# Step 3: Verify accuracy
+python scripts/verify.py \
+  --abstract abstract.md \
+  --source paper.txt \
+  --check-quantitative \
+  --output verification_report.txt
+
+# Step 4: Adapt for specific journal
+python scripts/adapt.py \
+  --abstract abstract.md \
+  --journal "nature_medicine" \
+  --output submission_abstract.txt
+```
+
+**Python API:**
+
+```python
+from scripts.summarizer import AbstractSummarizer
+from scripts.validator import AccuracyValidator
+
+# Initialize
+summarizer = AbstractSummarizer()
+validator = AccuracyValidator()
+
+# Summarize
+with open("paper.pdf", "rb") as f:
+    abstract = summarizer.summarize(
+        source=f,
+        discipline="clinical",
+        word_limit=250
+    )
+
+# Verify numbers are accurate
+is_accurate = validator.check_quantitative(
+    abstract=abstract,
+    source_pdf="paper.pdf"
+)
+
+if is_accurate:
+    abstract.save("final_abstract.txt")
+else:
+    discrepancies = validator.get_discrepancies()
+    print(f"Review needed: {discrepancies}")
+```
+
+## Quality Checklist
+
+**Pre-Summarization:**
+- [ ] Source document is complete (not truncated)
+- [ ] PDF/text is machine-readable (not scanned images)
+- [ ] Document is research paper (not editorial, review, or news)
+
+**During Summarization:**
+- [ ] All key sections identified (don't miss Results)
+- [ ] Quantitative data preserved accurately
+- [ ] Statistical significance indicators kept
+- [ ] No interpretation added beyond source
+
+**Post-Summarization:**
+- [ ] Word count ≤ 250
+- [ ] All 5 sections present
+- [ ] **CRITICAL**: Numbers match source document
+- [ ] Standalone comprehensibility (makes sense without paper)
+- [ ] No citations or references in abstract
+- [ ] Technical terms used correctly
+
+**Before Use:**
+- [ ] **CRITICAL**: Fact-check all numbers against original
+- [ ] Verify author names and affiliations correct
+- [ ] Ensure conclusions don't overstate findings
+
+## Common Pitfalls
+
+**Accuracy Issues:**
+- ❌ **Misrepresenting statistics** → "Significant improvement" when p>0.05
+  - ✅ Preserve exact P-values and confidence intervals
+  
+- ❌ **Oversimplifying complex findings** → "Drug works" vs nuanced efficacy data
+  - ✅ Include effect sizes and confidence intervals
+
+- ❌ **Missing adverse events** → Only reporting positive results
+  - ✅ Include safety data for clinical studies
+
+**Structure Issues:**
+- ❌ **Methods too detailed** → Protocol steps in abstract
+  - ✅ High-level study design only
+
+- ❌ **Results without context** → Numbers without interpretation
+  - ✅ Brief clinical/scientific significance
+
+- ❌ **Conclusion overstates** → "Cure for cancer" from preclinical data
+  - ✅ Match conclusion to evidence level
+
+**Word Count Issues:**
+- ❌ **Exceeding 250 words** → Journal rejection
+  - ✅ Strict enforcement with real-time counter
+
+- ❌ **Too short (<150 words)** → Missing key information
+  - ✅ Minimum thresholds by section
 
 ## References
 
-See `references/` for:
-- `abstract-templates.md`: Discipline-specific abstract templates
-- `evaluation-rubric.md`: Quality assessment criteria
-- `example-abstracts/`: Sample inputs and outputs for testing
+Available in `references/` directory:
 
-## Risk Assessment
+- `abstract_templates.md` - Discipline-specific abstract formats
+- `quantitative_checklist.md` - Number verification guidelines  
+- `disciplinary_guidelines.md` - Field-specific conventions
+- `journal_requirements.md` - Word limits by publisher
+- `example_abstracts.md` - High-quality examples by type
 
-| Risk Indicator | Assessment | Level |
-|----------------|------------|-------|
-| Code Execution | No scripts included | Low |
-| Network Access | URL fetching only with user consent | Low |
-| File System Access | Read-only within workspace | Low |
-| Instruction Tampering | Standard prompt guidelines | Low |
-| Data Exposure | Input/output within session | Low |
+## Scripts
 
-## Security Checklist
+Located in `scripts/` directory:
 
-- [ ] No hardcoded credentials or API keys
-- [ ] No unauthorized file system access (../)
-- [ ] URL fetching requires explicit user confirmation
-- [ ] Output does not expose sensitive information
-- [ ] Prompt injection protections in place
+- `main.py` - CLI interface for summarization
+- `summarizer.py` - Core abstract generation engine
+- `extractor.py` - PDF and text extraction
+- `validator.py` - Accuracy checking and verification
+- `batch_processor.py` - Multi-document processing
+- `adapter.py` - Journal-specific formatting
 
-## Evaluation Criteria
+## Limitations
 
-### Success Metrics
-- [ ] Accurately represents the paper's core contribution
-- [ ] Abstract is understandable without reading the original
-- [ ] Includes specific quantitative results where present
-- [ ] Maintains scientific rigor and precision
-- [ ] Strictly within 250-word limit
-- [ ] Follows structured format consistently
+- **Language**: Optimized for English-language papers
+- **Length**: Papers >50 pages may need section-by-section processing
+- **Complexity**: Highly mathematical content may lose nuance
+- **Figures**: Cannot interpret images, charts, or graphs (text only)
+- **Domain**: Best for empirical research; struggles with pure theory papers
+- **Context**: May miss field-specific conventions without discipline flag
 
-### Test Cases
-1. **Basic Summarization**: Input research paper → Output valid structured abstract
-2. **Word Count Limit**: Verify strict 250-word compliance
-3. **Multi-disciplinary**: Test papers from different fields (biology, physics, humanities)
-4. **Complex Data**: Input paper with heavy statistics → Accurate representation
-5. **URL Input**: Fetch and summarize from valid academic URL
+---
 
-## Lifecycle Status
-
-- **Current Stage**: Draft
-- **Next Review Date**: 2026-03-06
-- **Known Issues**: May miss nuanced arguments in humanities papers
-- **Planned Improvements**:
-  - Enhance handling of mathematical proofs
-  - Improve multi-study paper summarization
+**📝 Note: This tool generates draft abstracts for efficiency, but all summaries require human review before submission. Always verify that numbers, statistics, and conclusions accurately reflect the original paper.**

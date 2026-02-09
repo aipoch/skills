@@ -1,215 +1,421 @@
 ---
 name: adverse-event-narrative
-description: Generate CIOMS-compliant adverse event narratives for Individual Case
-  Safety Report (ICSR). Trigger when user provides adverse event data, patient information,
-  suspect drug details, or requests pharmacovigilance narrative writing. Outputs structured
-  ICSR-ready narrative following CIOMS I and E2B standards.
-version: 1.0.0
-category: Pharma
-tags: []
-author: AIPOCH
+description: Generate CIOMS-compliant adverse event narratives for Individual Case 
+  Safety Reports (ICSR). Creates structured pharmacovigilance documents following 
+  CIOMS I and ICH E2B standards from case data for regulatory submission to 
+  health authorities.
+allowed-tools: [Read, Write, Bash, Edit]
 license: MIT
-status: Draft
-risk_level: Medium
-skill_type: Tool/Script
-owner: AIPOCH
-reviewer: ''
-last_updated: '2026-02-06'
+metadata:
+    skill-author: AIPOCH
 ---
 
 # Adverse Event Narrative Generator
 
-Generate CIOMS-compliant adverse event narratives for Individual Case Safety Report (ICSR) submissions.
-
 ## Overview
 
-This skill creates structured, medically accurate narratives that meet international pharmacovigilance standards (CIOMS I, ICH E2B R3). The narrative synthesizes patient demographics, medical history, concomitant medications, suspect product details, adverse events, and outcome information into a standardized format suitable for regulatory reporting.
+Regulatory-grade narrative generation tool that transforms adverse event case data into CIOMS-compliant ICSR narratives suitable for submission to FDA, EMA, and other health authorities.
 
-## Use Cases
+**Key Capabilities:**
+- **CIOMS I Compliance**: Standardized narrative structure per international guidelines
+- **ICH E2B Integration**: Electronic submission format compatibility
+- **Temporal Analysis**: Timeline reconstruction and causality assessment
+- **Medical Accuracy**: Clinical terminology and MedDRA coding
+- **Multi-Case Processing**: Batch narrative generation for periodic reporting
+- **Quality Validation**: Automated checks for completeness and consistency
 
-- Draft ICSR narratives for regulatory submissions
-- Convert raw case data into CIOMS-compliant text
-- Standardize adverse event documentation across teams
-- Prepare safety reports for health authorities
-- Generate case summaries for signal detection
+## When to Use
 
-## Input Requirements
+**✅ Use this skill when:**
+- Drafting ICSR narratives for regulatory submissions
+- Converting safety case data to standardized text
+- Preparing adverse event reports for health authorities
+- Generating case summaries for signal detection
+- Creating pharmacovigilance documentation for clinical trials
+- Standardizing narrative format across safety teams
+- Training new drug safety associates on narrative writing
 
-### Required Fields
+**❌ Do NOT use when:**
+- Case requires medical judgment or causality assessment → Use qualified safety physician
+- Narrative for litigation or legal proceedings → Use legal documentation standards
+- Patient-facing communications → Use `lay-summary-gen`
+- Aggregate safety summaries → Use `safety-summary-reports`
+- Coding MedDRA terms from verbatim → Use `meddra-coder`
 
-| Field | Description | Format |
-|-------|-------------|--------|
-| `case_id` | Unique case identifier | String |
-| `patient_age` | Patient age at event | Number + unit (years/months) |
-| `patient_sex` | Biological sex | Male/Female/Unknown |
-| `suspect_drugs` | Suspected medications | Array of drug objects |
-| `adverse_events` | Reported reactions | Array of MedDRA PT terms |
+**Integration:**
+- **Upstream**: `meddra-coder` (MedDRA term coding), `clinical-data-cleaner` (data preparation)
+- **Downstream**: `safety-summary-reports` (aggregate analysis), `regulatory-submission-prep` (FDA/EMA filing)
 
-### Drug Object Structure
+## Core Capabilities
 
-```json
-{
-  "drug_name": "Brand/Generic name",
-  "indication": "Medical condition treated",
-  "dose": "Dosage amount",
-  "frequency": "Dosing frequency",
-  "route": "Administration route",
-  "start_date": "YYYY-MM-DD",
-  "stop_date": "YYYY-MM-DD or ongoing",
-  "lot_number": "Batch/lot number (if known)"
-}
-```
+### 1. CIOMS I Narrative Structure
 
-### Optional Fields
-
-| Field | Description |
-|-------|-------------|
-| `medical_history` | Significant pre-existing conditions |
-| `concomitant_drugs` | Other medications at time of event |
-| `diagnostic_tests` | Lab results, imaging, procedures |
-| `dechallenge` | Effect after suspect drug withdrawal |
-| `rechallenge` | Effect after re-administration |
-| `outcome` | Final status (recovered/fatal/ongoing) |
-| `causality` | Reporter's causality assessment |
-
-## Output Format
-
-The generated narrative follows CIOMS I standard sections:
-
-1. **Patient Demographics** - Age, sex, relevant characteristics
-2. **Medical History** - Significant past conditions
-3. **Suspect Drug(s)** - Details of medication(s) in question
-4. **Adverse Event** - Detailed description of reaction(s)
-5. **Diagnostic Results** - Relevant test findings
-6. **Treatment** - Medical management of the event
-7. **Outcome** - Final patient status
-8. **Causality Assessment** - Reporter's opinion on relationship
-
-## Usage
+Generate standardized sections per CIOMS guidelines:
 
 ```python
-python scripts/main.py --input case_data.json --output narrative.txt
+from scripts.narrative_generator import NarrativeGenerator
+
+generator = NarrativeGenerator()
+
+# Generate complete narrative
+narrative = generator.generate(
+    case_data=case_json,
+    format="cioms_i",  # or "ich_e2b", "fda_medwatch"
+    include_meddra=True
+)
+
+narrative.save("ICSR_2024_001_narrative.txt")
 ```
 
-### JSON Input Example
+**Standard Sections:**
+1. **Patient Demographics** - Age, sex, weight, relevant characteristics
+2. **Medical History** - Significant pre-existing conditions
+3. **Concomitant Medications** - Other drugs at time of event
+4. **Suspect Drug(s)** - Medication(s) in question with dosing
+5. **Adverse Event** - Detailed reaction description with MedDRA terms
+6. **Diagnostic Results** - Lab values, imaging, procedures
+7. **Treatment** - Medical management of the event
+8. **Dechallenge/Rechallenge** - Effect of drug withdrawal/reintroduction
+9. **Outcome** - Final patient status and sequelae
+10. **Causality Assessment** - Reporter's relationship evaluation
+
+### 2. Temporal Relationship Analysis
+
+Reconstruct timeline and assess temporal plausibility:
+
+```python
+# Analyze temporal relationships
+timeline = generator.analyze_timeline(
+    drug_start="2024-01-15",
+    drug_stop="2024-02-01",
+    ae_onset="2024-01-28",
+    dechallenge_date="2024-02-01",
+    rechallenge_date=None
+)
+
+# Output shows temporal assessment
+# "AE onset 13 days after drug initiation, positive dechallenge within 24h"
+```
+
+**Assessments Generated:**
+- Time to onset (latency period)
+- Dechallenge response (positive/negative/unknown)
+- Rechallenge response (if applicable)
+- Temporal plausibility (consistent with known drug profile)
+
+### 3. Causality Evaluation Support
+
+Structure causality assessment per WHO-UMC criteria:
+
+```python
+# Generate causality section
+causality = generator.assess_causality(
+    case_data=case,
+    criteria="who_umc",  # or "naranjo", "cochrane"
+    include_rationale=True
+)
+
+# Output structured assessment with points for each criterion
+```
+
+**WHO-UMC Categories:**
+- **Certain** - Event reproduced on rechallenge
+- **Probable/Likely** - Reasonable time, positive dechallenge, alternative causes unlikely
+- **Possible** - Compatible time, but alternative causes possible
+- **Unlikely** - Incompatible time or alternative cause probable
+- **Conditional/Unclassified** - Insufficient information
+- **Unassessable/Unclassifiable** - Data contradictory or incomplete
+
+### 4. Multi-Format Output
+
+Generate narratives for different regulatory contexts:
+
+```python
+# FDA MedWatch Form 3500A
+fda_narrative = generator.generate(
+    case_data=case,
+    format="fda_medwatch",
+    max_length=2000  # Character limit
+)
+
+# EMA E2B(R3) electronic format
+ema_narrative = generator.generate(
+    case_data=case,
+    format="ich_e2b",
+    version="R3"
+)
+
+# CIOMS I paper format
+cioms_narrative = generator.generate(
+    case_data=case,
+    format="cioms_i"
+)
+```
+
+## Common Patterns
+
+### Pattern 1: Serious Adverse Event (Hospitalization)
+
+**Scenario**: Patient hospitalized for severe drug reaction.
 
 ```json
 {
-  "case_id": "2024-ICSR-001",
+  "case_id": "2024-SAE-001",
   "patient_age": "58 years",
   "patient_sex": "Female",
-  "weight_kg": 65,
-  "height_cm": 165,
-  "medical_history": ["Hypertension", "Type 2 diabetes mellitus"],
-  "suspect_drugs": [
-    {
-      "drug_name": "Metformin",
-      "indication": "Type 2 diabetes mellitus",
-      "dose": "1000 mg",
-      "frequency": "twice daily",
-      "route": "oral",
-      "start_date": "2024-01-15",
-      "stop_date": "2024-02-01"
-    }
-  ],
-  "concomitant_drugs": [
-    {
-      "drug_name": "Lisinopril",
-      "indication": "Hypertension"
-    }
-  ],
-  "adverse_events": [
-    {
-      "meddra_pt": "Lactic acidosis",
-      "onset_date": "2024-01-28",
-      "severity": "Severe",
-      "seriousness": "Hospitalization"
-    }
-  ],
-  "diagnostic_tests": [
-    {
-      "test": "Serum lactate",
-      "value": "8.5 mmol/L",
-      "reference_range": "0.5-2.2 mmol/L",
-      "date": "2024-01-29"
-    }
-  ],
-  "dechallenge": "Positive - lactate normalized after discontinuation",
-  "rechallenge": "Not performed",
-  "outcome": "Recovered with sequelae",
-  "causality": "Probable"
+  "suspect_drugs": [{
+    "drug_name": "Metformin",
+    "dose": "1000 mg BID",
+    "dates": "2024-01-15 to 2024-02-01"
+  }],
+  "adverse_events": [{
+    "meddra_pt": "Lactic acidosis",
+    "seriousness": "Hospitalization",
+    "onset": "2024-01-28"
+  }],
+  "outcome": "Recovered with sequelae"
 }
 ```
 
-## Technical Notes
+**Narrative Emphasis:**
+- Hospitalization details (admission/discharge dates)
+- Severity markers (ICU stay, intubation)
+- Lactate levels and trend
+- Renal function status
+- Complete recovery timeline
 
-**Difficulty:** High ⚠️
+### Pattern 2: Fatal Outcome Case
 
-This skill requires:
-- Medical domain knowledge for accurate terminology
-- Understanding of pharmacovigilance regulations
-- Temporal relationship assessment
-- MedDRA coding awareness
-- Causality evaluation principles
+**Scenario**: Death suspected to be drug-related.
 
-**Limitations:**
-- Does not replace qualified healthcare professional review
-- Requires verification of medical facts
-- Causality assessment is based on reporter input, not independent evaluation
-- Temporal associations do not establish causation
+```python
+# Fatal case handling
+narrative = generator.generate(
+    case_data=fatal_case,
+    format="cioms_i",
+    include_autopsy=True,
+    cause_of_death_analysis=True
+)
+```
+
+**Critical Elements:**
+- Complete medical history relevant to death
+- Concomitant medications contributing
+- Autopsy findings (if performed)
+- Cause of death per death certificate
+- Alternative causes ruled out
+- Reporter's opinion on contribution to death
+
+### Pattern 3: Rechallenge Case
+
+**Scenario**: Positive rechallenge confirms drug causation.
+
+**Key Documentation:**
+- First exposure dates and reaction
+- Dechallenge response
+- Rechallenge dates and circumstances
+- Recurrence of same reaction
+- Any differences in severity
+- Conclusion on causality
+
+**Narrative Structure:**
+```
+First Exposure:
+- Drug X initiated [date]
+- AE occurred [date], [description]
+- Drug discontinued [date]
+- Dechallenge: [positive/negative]
+
+Rechallenge:
+- Drug X reintroduced [date]
+- Same AE recurred [date]
+- Drug discontinued [date]
+- Outcome: [status]
+
+Causality: Certain (positive rechallenge)
+```
+
+### Pattern 4: Multi-Drug Reaction
+
+**Scenario**: Multiple suspect drugs, need to identify most likely culprit.
+
+**Analysis Approach:**
+- Temporal sequence of drug initiations
+- Time to onset for each drug
+- Known adverse reaction profiles
+- Dechallenge attempts (if any)
+- Rechallenge data (if any)
+- Reporter's primary suspect
+
+**Narrative Organization:**
+1. List all suspect drugs with indication and dates
+2. Describe temporal relationship for each
+3. Discuss dechallenge/rechallenge for each
+4. Present reporter's causality assessment
+5. Include alternative explanations
+
+## Complete Workflow Example
+
+**From case data to regulatory submission:**
+
+```bash
+# Step 1: Generate narrative
+python scripts/main.py \
+  --input case_data.json \
+  --format cioms_i \
+  --output narrative.txt
+
+# Step 2: Validate completeness
+python scripts/validate.py \
+  --narrative narrative.txt \
+  --check cioms_completeness \
+  --output validation_report.txt
+
+# Step 3: Generate E2B format for electronic submission
+python scripts/main.py \
+  --input case_data.json \
+  --format ich_e2b \
+  --output e2b_narrative.xml
+
+# Step 4: Medical review markup
+python scripts/review.py \
+  --narrative narrative.txt \
+  --output review_version.txt
+```
+
+**Python API:**
+
+```python
+from scripts.narrative_generator import NarrativeGenerator
+from scripts.validator import NarrativeValidator
+
+# Initialize
+generator = NarrativeGenerator()
+validator = NarrativeValidator()
+
+# Load case data
+import json
+with open("case_001.json", "r") as f:
+    case = json.load(f)
+
+# Generate narrative
+narrative = generator.generate(
+    case_data=case,
+    format="cioms_i",
+    include_meddra=True,
+    language="en"
+)
+
+# Validate
+validation = validator.check(
+    narrative=narrative,
+    criteria=["cioms_completeness", "temporal_logic", "meddra_accuracy"]
+)
+
+if validation.passed:
+    with open("final_narrative.txt", "w") as f:
+        f.write(narrative.text)
+    print("✓ Narrative validated and saved")
+else:
+    print(f"⚠ Issues: {validation.issues}")
+```
+
+## Quality Checklist
+
+**Pre-Generation:**
+- [ ] Case ID unique and formatted per SOP
+- [ ] Patient age/sex complete
+- [ ] Suspect drug(s) clearly identified
+- [ ] Adverse event(s) coded with MedDRA PT
+- [ ] Dates consistent (no future dates)
+- [ ] Reporter information included
+
+**Narrative Content:**
+- [ ] All CIOMS I sections present
+- [ ] Temporal sequence clear and logical
+- [ ] Dechallenge/rechallenge described (if applicable)
+- [ ] Lab values with reference ranges
+- [ ] Concomitant medications listed
+- [ ] Medical history relevant to event
+- [ ] Outcome clearly stated
+- [ ] Causality assessment justified
+
+**Post-Generation:**
+- [ ] MedDRA terms accurate and current
+- [ ] No contradictory information
+- [ ] Language objective and factual
+- [ ] No speculation or opinion (except causality section)
+- [ ] Patient identifiers removed or de-identified
+- [ ] **CRITICAL**: Medical review completed
+- [ ] **CRITICAL**: Causality assessment by qualified physician
+
+## Common Pitfalls
+
+**Completeness Issues:**
+- ❌ **Missing dechallenge information** → Cannot assess causality
+  - ✅ Always document effect after drug discontinuation
+
+- ❌ **Vague temporal information** → "Recently started" vs. specific dates
+  - ✅ Use exact dates when available
+
+- ❌ **Incomplete concomitant medication list** → Alternative causes missed
+  - ✅ Include all medications within relevant timeframe
+
+**Medical Accuracy Issues:**
+- ❌ **Incorrect MedDRA coding** → Wrong medical concept
+  - ✅ Use current MedDRA version; verify with medical reviewer
+
+- ❌ **Confusing correlation with causation** → Temporal = causal
+  - ✅ Clearly state "temporally associated" vs. "causally related"
+
+- ❌ **Omitting alternative diagnoses** → Biased toward drug causation
+  - ✅ Include all differential diagnoses considered
+
+**Regulatory Issues:**
+- ❌ **Opinion in narrative body** → "Clearly caused by drug"
+  - ✅ Reserve opinion for causality section; narrative should be factual
+
+- ❌ **Patient identifiers** → HIPAA/privacy violation
+  - ✅ De-identify per regulatory requirements
+
+- ❌ **Abbreviations not defined** → Assumes reader knowledge
+  - ✅ Spell out on first use in each narrative
 
 ## References
 
-- CIOMS I: International Reporting of Adverse Drug Reactions
-- ICH E2B(R3): Electronic Transmission of Individual Case Safety Reports
-- MedDRA: Medical Dictionary for Regulatory Activities
-- GVP Module VI: Collection, Management and Submission of Reports of Suspected Adverse Reactions
+Available in `references/` directory:
 
-See `references/` folder for detailed guidelines and templates.
+- `cioms_i_guidelines.pdf` - CIOMS I international reporting standards
+- `ich_e2b_specifications.md` - ICH E2B(R3) electronic format details
+- `meddra_coding_guide.md` - MedDRA terminology and coding principles
+- `who_umc_causality.md` - WHO causality assessment criteria
+- `fda_medwatch_guide.md` - FDA Form 3500A instructions
+- `gvp_module_vi.md` - EU Good Pharmacovigilance Practices
+- `narrative_templates.md` - Example narratives by case type
 
-## Risk Assessment
+## Scripts
 
-| Risk Indicator | Assessment | Level |
-|----------------|------------|-------|
-| Code Execution | Python/R scripts executed locally | Medium |
-| Network Access | No external API calls | Low |
-| File System Access | Read input files, write output files | Medium |
-| Instruction Tampering | Standard prompt guidelines | Low |
-| Data Exposure | Output files saved to workspace | Low |
+Located in `scripts/` directory:
 
-## Security Checklist
+- `main.py` - CLI interface for narrative generation
+- `narrative_generator.py` - Core narrative composition engine
+- `temporal_analyzer.py` - Timeline reconstruction and analysis
+- `causality_assessor.py` - Causality evaluation support
+- `meddra_integrator.py` - Medical terminology and coding
+- `validator.py` - Completeness and quality checks
+- `format_converter.py` - Convert between CIOMS, E2B, MedWatch formats
+- `batch_processor.py` - Multi-case narrative generation
 
-- [ ] No hardcoded credentials or API keys
-- [ ] No unauthorized file system access (../)
-- [ ] Output does not expose sensitive information
-- [ ] Prompt injection protections in place
-- [ ] Input file paths validated (no ../ traversal)
-- [ ] Output directory restricted to workspace
-- [ ] Script execution in sandboxed environment
-- [ ] Error messages sanitized (no stack traces exposed)
-- [ ] Dependencies audited
-## Prerequisites
+## Limitations
 
-No additional Python packages required.
+- **Medical Review Required**: Generates draft only; requires physician review before submission
+- **Causality Assessment**: Structures reporter's assessment; does not perform independent causality evaluation
+- **MedDRA Version**: Uses installed MedDRA version; may not have latest terms
+- **Language**: Optimized for English; other languages may need translation
+- **Literature Integration**: Does not automatically search literature for similar cases
+- **Signal Detection**: Individual case narratives only; aggregate analysis requires other tools
+- **Legal Proceedings**: Not suitable for litigation support or expert witness reports
 
-## Evaluation Criteria
+---
 
-### Success Metrics
-- [ ] Successfully executes main functionality
-- [ ] Output meets quality standards
-- [ ] Handles edge cases gracefully
-- [ ] Performance is acceptable
-
-### Test Cases
-1. **Basic Functionality**: Standard input → Expected output
-2. **Edge Case**: Invalid input → Graceful error handling
-3. **Performance**: Large dataset → Acceptable processing time
-
-## Lifecycle Status
-
-- **Current Stage**: Draft
-- **Next Review Date**: 2026-03-06
-- **Known Issues**: None
-- **Planned Improvements**: 
-  - Performance optimization
-  - Additional feature support
+**⚠️ CRITICAL: This tool generates draft narratives for efficiency. All adverse event narratives require review by qualified drug safety physicians before regulatory submission. Causality assessment must be performed by healthcare professionals with access to complete medical records.**

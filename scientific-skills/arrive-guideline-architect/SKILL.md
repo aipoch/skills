@@ -1,155 +1,430 @@
 ---
 name: arrive-guideline-architect
-description: Design impeccable animal experiment protocols based on ARRIVE 2.0 guidelines.
-  Ensures compliance with international animal research reporting standards for transparency,
-  reproducibility, and scientific rigor.
-version: 1.0.0
-category: Wet Lab
-tags: []
-author: AIPOCH
+description: Generate ARRIVE 2.0 compliant animal research protocols with structured 
+  experimental design, sample size calculations, and reporting checklists. Ensures 
+  transparency, reproducibility, and ethical compliance in in vivo studies.
+allowed-tools: [Read, Write, Bash, Edit]
 license: MIT
-status: Draft
-risk_level: Medium
-skill_type: Tool/Script
-owner: AIPOCH
-reviewer: ''
-last_updated: '2026-02-06'
+metadata:
+    skill-author: AIPOCH
 ---
 
 # ARRIVE Guideline Architect
 
-## Function Description
+## Overview
 
-Based on the ARRIVE 2.0 (Animal Research: Reporting of In Vivo Experiments) international standard, provides impeccable protocol architecture for animal experiment design. Ensures experimental design complies with international animal research reporting standards, improving research transparency, reproducibility, and scientific rigor.
+AI-powered protocol design tool that creates publication-ready animal research protocols compliant with ARRIVE 2.0 guidelines (Animal Research: Reporting of In Vivo Experiments). Generates structured documentation for ethical review, transparent reporting, and reproducible science.
 
-## ARRIVE 2.0 Core Framework
+**Key Capabilities:**
+- **Protocol Generation**: Complete ARRIVE 2.0 compliant study protocols
+- **Sample Size Calculator**: Statistical power analysis with justification
+- **Compliance Checker**: Validate existing protocols against ARRIVE standards
+- **Randomization Schemes**: Generate and document allocation strategies
+- **Ethics Support**: IACUC protocol templates and animal welfare documentation
+- **Reporting Templates**: Manuscript preparation with required elements
 
-### Essential 10 (Required Ten Items)
-1. **Study Design** - Research design: Clear experimental design and number of animals per group
-2. **Sample Size** - Sample size: Explanation of sample size calculation basis
-3. **Inclusion/Exclusion Criteria** - Inclusion/Exclusion criteria
-4. **Randomisation** - Randomization: Methods for allocation and assessment randomization
-5. **Blinding** - Blinding: Who, when, and how blinding was implemented
-6. **Outcome Measures** - Outcome measures: Primary and secondary endpoints
-7. **Statistical Methods** - Statistical methods: Descriptive and inferential statistics
-8. **Experimental Animals** - Experimental animals: Species, strain, source, housing conditions
-9. **Experimental Procedures** - Experimental procedures: Detailed operation process
-10. **Results** - Results: Complete reporting of data for each group
+## When to Use
 
-### Recommended Set (Recommended Items)
-- Animal welfare ethics approval
-- Housing and husbandry conditions
-- Animal care and monitoring
-- Endpoint setting
-- Data sharing statement
-- Conflict of interest statement
-- Funding statement
+**✅ Use this skill when:**
+- Designing new animal studies requiring ethical approval
+- Preparing IACUC (Institutional Animal Care and Use Committee) applications
+- Writing manuscripts for journals requiring ARRIVE compliance (PLOS, Nature, etc.)
+- Validating existing protocols for transparency and completeness
+- Training researchers on animal research best practices
+- Planning multi-site studies requiring standardized protocols
+- Reviewing protocols for grant applications
 
-## Usage
+**❌ Do NOT use when:**
+- Human clinical trials → Use `clinical-protocol-designer`
+- In vitro studies (cell culture only) → No ARRIVE requirements apply
+- Field studies on wild animals → Use specialized wildlife research guidelines
+- Veterinary clinical cases → Use veterinary case report standards
+- Systematic reviews/meta-analyses → Use PRISMA guidelines
 
-### Interactive Experiment Design
-```bash
-python scripts/main.py --interactive
+**Integration:**
+- **Upstream**: `sample-size-power-calculator` (statistical design)
+- **Downstream**: `iacuc-protocol-drafter` (ethics submission), `manuscript-prep-assistant` (publication)
+
+## Core Capabilities
+
+### 1. ARRIVE 2.0 Protocol Builder
+
+Generate complete protocols covering all Essential 10 items:
+
+```python
+from scripts.arrive_builder import ARRIVEBuilder
+
+builder = ARRIVEBuilder()
+
+# Generate full protocol
+protocol = builder.generate_protocol(
+    title="Efficacy of Compound X in Type 2 Diabetes Mouse Model",
+    species="Mus musculus",
+    strain="db/db",
+    groups=[
+        {"name": "Control", "n": 15, "treatment": "Vehicle"},
+        {"name": "Low Dose", "n": 15, "treatment": "10 mg/kg"},
+        {"name": "High Dose", "n": 15, "treatment": "50 mg/kg"}
+    ],
+    primary_endpoint="Fasting blood glucose reduction",
+    duration_days=28
+)
+
+protocol.save("protocol.md")
 ```
 
-### Generate Protocol from Input File
-```bash
-python scripts/main.py --input study_brief.json --output protocol.md
+**Generates:**
+1. **Study Design**: Experimental groups, timelines, endpoints
+2. **Sample Size**: Power calculations with justification
+3. **Inclusion/Exclusion**: Animal selection criteria
+4. **Randomization**: Allocation method (software/hardware)
+5. **Blinding**: Who, when, how blinding implemented
+6. **Outcome Measures**: Primary, secondary, exploratory endpoints
+7. **Statistical Methods**: Analysis plan, software, significance level
+8. **Experimental Animals**: Species, strain, sex, age, weight, source
+9. **Experimental Procedures**: Detailed methods with timing
+10. **Results Reporting**: Data presentation templates
+
+### 2. Sample Size Calculator
+
+Statistical power analysis with ARRIVE-compliant justification:
+
+```python
+from scripts.sample_size import SampleSizeCalculator
+
+calc = SampleSizeCalculator()
+
+# Calculate with effect size
+result = calc.calculate(
+    test_type="two_sample_t_test",
+    effect_size=0.8,  # Cohen's d
+    alpha=0.05,
+    power=0.80,
+    expected_dropout=0.10  # 10% attrition
+)
+
+# Output: n=26 per group (total 78, accounting for 10% dropout)
 ```
 
-### Validate Existing Protocol
+**Features:**
+- **Effect Size Selection**: Cohen's d, odds ratio, hazard ratio
+- **Multiple Comparisons**: Bonferroni, FDR corrections
+- **Dropout Adjustment**: Account for expected attrition
+- **Justification Text**: Auto-generate sample size rationale
+- **Power Curves**: Visualize power vs. sample size
+
+### 3. Compliance Validator
+
+Check existing protocols against ARRIVE 2.0:
+
 ```bash
-python scripts/main.py --validate existing_protocol.md
+python scripts/validate.py --input my_protocol.md --format markdown
 ```
 
-### Generate Checklist
-```bash
-python scripts/main.py --checklist --format pdf
+**Output:**
+```
+✅ Essential 10: 10/10 complete
+⚠️  Recommended Set: 8/15 complete
+   Missing: Data sharing statement, Conflict of interest
+
+Detailed Report:
+- Item 1 (Study Design): Complete
+- Item 2 (Sample Size): Complete  
+- Item 3 (Inclusion Criteria): Missing - add exclusion criteria
+- ...
 ```
 
-## Input Format (study_brief.json)
+**Validation Levels:**
+- **Essential 10**: Required for all publications
+- **Recommended Set**: Required by top-tier journals
+- **Journal-Specific**: Custom checks for specific publishers
+
+### 4. Randomization & Blinding Generator
+
+Create allocation schemes with documentation:
+
+```python
+from scripts.randomization import RandomizationGenerator
+
+gen = RandomizationGenerator()
+
+# Generate allocation
+allocation = gen.generate(
+    n_animals=45,
+    n_groups=3,
+    method="block_randomization",  # or "simple", "stratified"
+    block_size=6,
+    seed=42  # For reproducibility
+)
+
+# Output allocation table
+allocation.save("allocation_table.csv")
+allocation.generate_blinding_key("blinding_key.xlsx")
+```
+
+**Methods Supported:**
+- Simple randomization
+- Block randomization (fixed/random block sizes)
+- Stratified randomization (by sex, age, baseline)
+- Covariate-adaptive minimization
+
+## Common Patterns
+
+### Pattern 1: Drug Efficacy Study
+
+**Template for therapeutic intervention studies:**
 
 ```json
 {
-  "title": "Efficacy Study of Drug X on Diabetic Mouse Model",
+  "study_type": "efficacy",
   "species": "Mus musculus",
-  "strain": "db/db",
-  "age": "8-10 weeks",
-  "sex": "Male",
-  "sample_size_per_group": 15,
+  "model": "Disease model (e.g., db/db diabetic mice)",
+  "intervention": "Test compound",
   "groups": [
-    {"name": "Control Group", "treatment": "Saline"},
-    {"name": "Low Dose Group", "treatment": "Drug X 10mg/kg"},
-    {"name": "High Dose Group", "treatment": "Drug X 50mg/kg"}
+    "Sham control",
+    "Disease control (vehicle)",
+    "Positive control (reference drug)",
+    "Test compound (low dose)",
+    "Test compound (high dose)"
   ],
-  "primary_endpoint": "Fasting blood glucose level",
-  "secondary_endpoints": ["HbA1c", "Weight change", "Insulin sensitivity"],
-  "study_duration_days": 28
+  "primary_endpoint": "Disease biomarker",
+  "secondary_endpoints": ["Safety markers", "Histopathology"],
+  "sampling_timepoints": ["Baseline", "Week 2", "Week 4"]
 }
 ```
 
-## Output Content
+**Key Considerations:**
+- Include positive control for assay validation
+- Multiple doses to establish dose-response
+- Power calculation based on expected effect size
+- Sample size accounts for disease variability
 
-- Complete experimental protocol document (Markdown/PDF)
-- ARRIVE 2.0 compliance checklist
-- Sample size calculation recommendations
-- Randomization protocol template
-- Statistical analysis method recommendations
-- Ethics application auxiliary materials
+### Pattern 2: Toxicology Study
 
-## Dependencies
+**Template for safety assessment:**
 
-- Python 3.8+
-- No external dependencies (pure Python implementation)
+```json
+{
+  "study_type": "toxicology",
+  "species": "Rat",
+  "duration": "28-day repeat dose",
+  "dose_levels": ["Vehicle", "Low", "Mid", "High", "Limit"],
+  "endpoints": [
+    "Clinical observations (daily)",
+    "Body weight (twice weekly)",
+    "Food consumption",
+    "Clinical pathology (hematology, chemistry)",
+    "Necropsy and organ weights",
+    "Histopathology"
+  ],
+  "recovery_groups": true  # 14-day recovery period
+}
+```
+
+**Key Considerations:**
+- Dose selection based on MTD (maximum tolerated dose)
+- Recovery groups for reversibility assessment
+- Comprehensive clinical pathology panels
+- Histopathology on all high-dose and control animals
+
+### Pattern 3: Behavioral Study
+
+**Template for neuroscience/behavioral research:**
+
+```json
+{
+  "study_type": "behavioral",
+  "species": "C57BL/6 mice",
+  "tests": [
+    "Open field (anxiety/locomotion)",
+    "Elevated plus maze (anxiety)",
+    "Novel object recognition (memory)",
+    "Fear conditioning (learning)"
+  ],
+  "controls": [
+    "Positive pharmacological control",
+    "Negative control (vehicle)"
+  ],
+  "blinding": "Video analysis performed blinded",
+  "randomization": "Latin square design for test order"
+}
+```
+
+**Key Considerations:**
+- Counterbalance test order (learning effects)
+- Blind video analysis to prevent bias
+- Standardized testing environment (lighting, noise)
+- Experimenter training and reliability testing
+
+### Pattern 4: Surgical Model Study
+
+**Template for procedure-based research:**
+
+```json
+{
+  "study_type": "surgical",
+  "procedure": "Myocardial infarction (LAD ligation)",
+  "species": "Sprague-Dawley rats",
+  "sham_control": true,
+  "perioperative_care": {
+    "analgesia": "Buprenorphine SR",
+    "antibiotics": "Enrofloxacin",
+    "monitoring": "Temperature, respiration, pain scoring"
+  },
+  "outcome_measures": [
+    "Survival rate",
+    "Echocardiography",
+    "Histological infarct size"
+  ],
+  "humane_endpoints": ["Severe distress", "Inability to ambulate"]
+}
+```
+
+**Key Considerations:**
+- Detailed surgical protocol with timing
+- Comprehensive perioperative care
+- Clear humane endpoints (refinement)
+- Sham surgery controls for procedure effects
+- Pain management per IACUC guidelines
+
+## Complete Workflow Example
+
+**From study concept to IACUC submission:**
+
+```bash
+# Step 1: Create study brief
+cat > study_brief.json << EOF
+{
+  "title": "Novel Compound X in Diabetic Nephropathy",
+  "species": "Mouse",
+  "strain": "db/db",
+  "groups": 4,
+  "primary_endpoint": "Albuminuria reduction",
+  "duration_weeks": 12
+}
+EOF
+
+# Step 2: Generate protocol
+python scripts/main.py \
+  --input study_brief.json \
+  --output protocol.md \
+  --include-checklist
+
+# Step 3: Calculate sample size
+python scripts/sample_size.py \
+  --test t_test \
+  --effect-size 0.8 \
+  --alpha 0.05 \
+  --power 0.80 \
+  --dropout 0.10
+
+# Step 4: Generate randomization
+python scripts/randomize.py \
+  --n-total 64 \
+  --n-groups 4 \
+  --method block \
+  --output allocation.csv
+
+# Step 5: Validate ARRIVE compliance
+python scripts/validate.py \
+  --input protocol.md \
+  --format pdf \
+  --output compliance_report.pdf
+```
+
+**Output Files:**
+```
+output/
+├── protocol.md                    # Complete ARRIVE protocol
+├── sample_size_justification.txt  # Statistical rationale
+├── allocation.csv                 # Randomization table
+├── blinding_key.xlsx             # Blinding documentation
+├── compliance_report.pdf         # ARRIVE checklist
+└├── iacuc_supplemental.pdf       # Ethics committee materials
+```
+
+## Quality Checklist
+
+**Pre-Study:**
+- [ ] **CRITICAL**: IACUC approval obtained before starting
+- [ ] Sample size adequately powered (≥80%)
+- [ ] Randomization method documented and reproducible
+- [ ] Blinding plan clear for all assessors
+- [ ] Humane endpoints defined with clear criteria
+- [ ] Inclusion/exclusion criteria prespecified
+
+**During Study:**
+- [ ] Randomization followed without deviations
+- [ ] Blinding maintained (unblinding only for safety)
+- [ ] All animals accounted for (CONSORT-style flow diagram)
+- [ ] Adverse events documented and reported to IACUC
+- [ ] Sample collection at predetermined timepoints
+
+**Reporting:**
+- [ ] All Essential 10 items addressed in manuscript
+- [ ] CONSORT-style flow diagram for animal studies
+- [ ] Raw data available (or sharing statement)
+- [ ] Conflict of interest disclosed
+- [ ] Funding sources acknowledged
+
+## Common Pitfalls
+
+**Design Issues:**
+- ❌ **Inadequate controls** → Cannot distinguish treatment from confounding effects
+  - ✅ Always include appropriate controls (vehicle, positive, sham)
+  
+- ❌ **Convenience sampling** → Selection bias
+  - ✅ Random allocation to treatment groups
+
+- ❌ **Unblinded assessment** → Observer bias
+  - ✅ Blinded outcome assessment whenever possible
+
+**Sample Size Issues:**
+- ❌ **No power calculation** → Underpowered study, false negatives
+  - ✅ Calculate sample size a priori with justification
+
+- ❌ **Ignoring dropout** → Final sample too small
+  - ✅ Account for expected attrition (typically 10-20%)
+
+**Reporting Issues:**
+- ❌ **Selective outcome reporting** → Publication bias
+  - ✅ Pre-register primary and secondary endpoints
+
+- ❌ **Missing animal numbers** → Transparency concerns
+  - ✅ Report n for every analysis
 
 ## References
 
-- ARRIVE 2.0 Guidelines: https://arriveguidelines.org/
-- PLOS Biology Publication: doi:10.1371/journal.pbio.3000411
+Available in `references/` directory:
 
-## Risk Assessment
+- `arrive_2.0_guidelines.md` - Official ARRIVE 2.0 checklist and explanations
+- `sample_size_guidelines.md` - Statistical methods for animal studies
+- `species_specific_requirements.md` - Mouse, rat, zebrafish considerations
+- `journal_compliance.md` - Requirements by publisher (Nature, Science, Cell)
+- `statistical_methods.md` - Analysis approaches for common designs
+- `iacuc_templates.md` - Ethics committee application templates
+- `example_protocols.md` - Published compliant protocols as examples
 
-| Risk Indicator | Assessment | Level |
-|----------------|------------|-------|
-| Code Execution | Python/R scripts executed locally | Medium |
-| Network Access | No external API calls | Low |
-| File System Access | Read input files, write output files | Medium |
-| Instruction Tampering | Standard prompt guidelines | Low |
-| Data Exposure | Output files saved to workspace | Low |
+## Scripts
 
-## Security Checklist
+Located in `scripts/` directory:
 
-- [ ] No hardcoded credentials or API keys
-- [ ] No unauthorized file system access (../)
-- [ ] Output does not expose sensitive information
-- [ ] Prompt injection protections in place
-- [ ] Input file paths validated (no ../ traversal)
-- [ ] Output directory restricted to workspace
-- [ ] Script execution in sandboxed environment
-- [ ] Error messages sanitized (no stack traces exposed)
-- [ ] Dependencies audited
-## Prerequisites
+- `main.py` - Protocol generation CLI
+- `arrive_builder.py` - Core protocol builder
+- `sample_size.py` - Power analysis calculator
+- `randomization.py` - Allocation scheme generator
+- `validate.py` - ARRIVE compliance checker
+- `checklist_generator.py` - Interactive checklist tool
+- `export.py` - Multi-format output (PDF, Word, Markdown)
 
-No additional Python packages required.
+## Limitations
 
-## Evaluation Criteria
+- **Template-Based**: Generates standard protocols; highly specialized studies may need customization
+- **No Statistical Analysis**: Calculates sample size but does not perform analysis
+- **No Real-Time Monitoring**: Protocol generation only; does not track actual experiments
+- **Species Coverage**: Optimized for mice and rats; other species may need adaptation
+- **Regulatory Variation**: IACUC requirements vary by institution; may need local customization
 
-### Success Metrics
-- [ ] Successfully executes main functionality
-- [ ] Output meets quality standards
-- [ ] Handles edge cases gracefully
-- [ ] Performance is acceptable
+---
 
-### Test Cases
-1. **Basic Functionality**: Standard input → Expected output
-2. **Edge Case**: Invalid input → Graceful error handling
-3. **Performance**: Large dataset → Acceptable processing time
-
-## Lifecycle Status
-
-- **Current Stage**: Draft
-- **Next Review Date**: 2026-03-06
-- **Known Issues**: None
-- **Planned Improvements**: 
-  - Performance optimization
-  - Additional feature support
+**🐾 Remember: The 3Rs (Replacement, Reduction, Refinement) are ethical imperatives. This tool supports Reduction (optimal sample sizes) and Refinement (better experimental design), but consider Replacement alternatives (in vitro, in silico) whenever possible.**
