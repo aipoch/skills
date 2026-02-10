@@ -23,7 +23,7 @@ Total: 215 skills
 | bmi-bsa-calculator | Calculates Body Mass Index and Body Surface Area for dosing. | Utility | Others | Tool/Script | Medium | Draft | Others/bmi-bsa-calculator |
 | bio-ontology-mapper | Map unstructured biomedical data (symptoms, diseases, procedures) to standardize... | Bioinfo | Data analysis | Hybrid (Tool/Script + Network/API) | High | First Batch | Data analysis/bio-ontology-mapper |
 | biotech-pitch-deck-narrative | Transform complex scientific data into investor-friendly narratives for biotech ... | Business | Others | Tool/Script | Medium | Draft | Others/biotech-pitch-deck-narrative |
-| blind-review-sanitizer | One-click removal of author names, affiliations, acknowledgments, and excessive ... | Writing | Academic writing | Tool/Script | Medium | First Batch | blind-review-sanitizer |
+| blind-review-sanitizer | One-click removal of author names, affiliations, acknowledgments, and excessive ... | Writing | Academic writing | Tool/Script | Medium | First Batch | Academic writing/blind-review-sanitizer |
 | buffer-calculator | Calculate complex buffer recipes with precise measurements | Wet Lab | Protocol design | Tool/Script | Medium | Draft | Protocol design/buffer-calculator |
 | cnv-caller-plotter | Call copy number variations from WGS data and generate genome-wide CNV plots | Bioinfo | Data analysis | Tool/Script | Medium | Draft | Data analysis/cnv-caller-plotter |
 | co2-tank-monitor | IoT monitoring simulation to predict CO2 tank depletion and prevent weekend cell... | Operations | Protocol design | Tool/Script | Medium | Draft | Protocol design/co2-tank-monitor |
