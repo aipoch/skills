@@ -300,7 +300,7 @@ convert_ids <- function(genes, from_type, to_type, orgdb_pkg) {{
     
     db <- get(orgdb_pkg)
     conv <- bitr(genes, fromType = from_type, toType = to_type, OrgDb = db)
-    return(conv${to_type})
+    return(conv$to_type)
 }}
 
 # Convert to ENTREZID for analysis
