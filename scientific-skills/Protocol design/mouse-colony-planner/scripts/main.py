@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-Mouse Colony Planner - 转基因小鼠繁育规划工具
+Mouse Colony Planner - Transgenic Mouse Breeding Planning Tool
 
-功能:
-- 计算繁育时间轴
-- 估算笼位需求
-- 预测繁育成本
+Features:
+- Calculate breeding timelines
+- Estimate cage requirements
+- Predict breeding costs
 """
 
 import argparse
@@ -16,38 +16,38 @@ from enum import Enum
 
 
 class BreedingScheme(Enum):
-    """繁育方案类型"""
-    HETEROZYGOTE = "heterozygote"  # 杂合子 x 野生型
-    HOMOZYGOTE = "homozygote"      # 杂合子 x 杂合子
-    CONDITIONAL = "conditional"    # 条件敲除 (Cre/loxp)
+    """Breeding scheme types"""
+    HETEROZYGOTE = "heterozygote"  # Heterozygote x Wild type
+    HOMOZYGOTE = "homozygote"      # Heterozygote x Heterozygote
+    CONDITIONAL = "conditional"    # Conditional knockout (Cre/loxp)
 
 
 @dataclass
 class BreedingParams:
-    """繁育参数"""
-    gestation_days: int = 21       # 妊娠期
-    weaning_days: int = 21         # 断奶日龄
-    sexual_maturity_days: int = 42 # 性成熟日龄
-    litter_size: int = 8           # 平均每胎仔数
-    female_puberty: int = 35       # 雌鼠青春期(可交配)
-    male_puberty: int = 35         # 雄鼠青春期(可交配)
+    """Breeding parameters"""
+    gestation_days: int = 21       # Gestation period
+    weaning_days: int = 21         # Weaning age
+    sexual_maturity_days: int = 42 # Sexual maturity age
+    litter_size: int = 8           # Average litter size
+    female_puberty: int = 35       # Female puberty (breeding age)
+    male_puberty: int = 35         # Male puberty (breeding age)
     
-    # 基因型比例
-    het_ratio: float = 0.5         # 杂合子比例
-    homo_ratio: float = 0.25       # 纯合子比例 (het x het)
+    # Genotype ratios
+    het_ratio: float = 0.5         # Heterozygote ratio
+    homo_ratio: float = 0.25       # Homozygote ratio (het x het)
     
 
 @dataclass
 class CostParams:
-    """成本参数"""
-    cage_cost_per_day: float = 3.0      # 每笼每天费用(元)
-    genotyping_cost: float = 15.0       # 每只基因鉴定费(元)
-    mouse_purchase_cost: float = 50.0   # 每只小鼠购买费(元)
+    """Cost parameters"""
+    cage_cost_per_day: float = 3.0      # Cost per cage per day (USD)
+    genotyping_cost: float = 15.0       # Genotyping cost per mouse (USD)
+    mouse_purchase_cost: float = 50.0   # Mouse purchase cost (USD)
 
 
 @dataclass
 class Phase:
-    """繁育阶段"""
+    """Breeding phase"""
     name: str
     duration_days: int
     cages_needed: int
@@ -56,7 +56,7 @@ class Phase:
 
 @dataclass
 class ColonyPlan:
-    """繁育计划结果"""
+    """Breeding plan results"""
     scheme: BreedingScheme
     phases: List[Phase]
     total_days: int
@@ -76,19 +76,19 @@ def calculate_breeding_plan(
     cage_capacity: int = 5
 ) -> ColonyPlan:
     """
-    计算繁育计划
+    Calculate breeding plan
     
     Args:
-        scheme: 繁育方案
-        initial_females: 起始雌鼠数
-        initial_males: 起始雄鼠数
-        target_pups: 目标获得特定基因型小鼠数
-        breeding_params: 繁育参数
-        cost_params: 成本参数
-        cage_capacity: 每笼最大容量
+        scheme: Breeding scheme
+        initial_females: Starting number of females
+        initial_males: Starting number of males
+        target_pups: Target number of specific genotype mice
+        breeding_params: Breeding parameters
+        cost_params: Cost parameters
+        cage_capacity: Maximum cage capacity
     
     Returns:
-        ColonyPlan: 繁育计划
+        ColonyPlan: Breeding plan
     """
     if breeding_params is None:
         breeding_params = BreedingParams()
@@ -97,114 +97,114 @@ def calculate_breeding_plan(
     
     phases = []
     
-    # 计算需要的繁育对数
+    # Calculate required breeding pairs
     if scheme == BreedingScheme.HETEROZYGOTE:
-        # 杂合子 x 野生型 → 50% 杂合子
+        # Heterozygote x Wild type → 50% heterozygotes
         pups_per_pair = breeding_params.litter_size * breeding_params.het_ratio
         breeding_pairs_needed = math.ceil(target_pups / pups_per_pair)
         
     elif scheme == BreedingScheme.HOMOZYGOTE:
-        # 杂合子 x 杂合子 → 25% 纯合子
+        # Heterozygote x Heterozygote → 25% homozygotes
         pups_per_pair = breeding_params.litter_size * breeding_params.homo_ratio
         breeding_pairs_needed = math.ceil(target_pups / pups_per_pair)
         
     else:  # CONDITIONAL
-        # 两步繁育: 第一步获得flox/+，第二步与Cre交配
-        # 简化为需要更多繁育对
+        # Two-step breeding: first get flox/+, then mate with Cre
+        # Simplified to require more breeding pairs
         pups_per_pair = breeding_params.litter_size * breeding_params.homo_ratio * 0.5
         breeding_pairs_needed = math.ceil(target_pups / pups_per_pair)
     
-    # 确保有足够的小鼠
+    # Ensure sufficient mice
     breeding_pairs = min(
         initial_females,
         initial_males,
         breeding_pairs_needed
     )
     
-    # 阶段1: 适应性饲养 (3-7天)
+    # Phase 1: Acclimation (3-7 days)
     adapt_duration = 7
     adapt_cages = math.ceil((initial_females + initial_males) / cage_capacity)
     phases.append(Phase(
-        name="适应性饲养",
+        name="Acclimation",
         duration_days=adapt_duration,
         cages_needed=adapt_cages,
-        description="新引进小鼠适应环境，观察健康状况"
+        description="New mice acclimate to environment, health observation"
     ))
     
-    # 阶段2: 繁育 (妊娠 + 哺乳期)
-    # 一胎时间 = 妊娠 + 哺乳 = 21 + 21 = 42天
+    # Phase 2: Breeding (gestation + lactation)
+    # One litter time = gestation + weaning = 21 + 21 = 42 days
     breed_duration = breeding_params.gestation_days + breeding_params.weaning_days
     breed_cages = math.ceil((breeding_pairs * 2 + breeding_pairs * breeding_params.litter_size) / cage_capacity)
     
-    # 可能需要多胎
+    # May need multiple litters
     litters_needed = math.ceil(breeding_pairs_needed / breeding_pairs)
     actual_breed_duration = breed_duration * litters_needed
     
     phases.append(Phase(
-        name="繁育阶段",
+        name="Breeding Phase",
         duration_days=actual_breed_duration,
         cages_needed=max(breed_cages, adapt_cages),
-        description=f"配种、妊娠、分娩、哺乳（预计{litters_needed}胎）"
+        description=f"Mating, gestation, delivery, lactation (estimated {litters_needed} litters)"
     ))
     
-    # 阶段3: 断奶后分笼饲养
-    wean_duration = 21  # 断奶后饲养到基因鉴定/分笼
+    # Phase 3: Post-weaning housing
+    wean_duration = 21  # Post-weaning to genotyping/separation
     
     if scheme == BreedingScheme.CONDITIONAL:
-        # 条件敲除需要额外步骤
-        wean_duration += breeding_params.sexual_maturity_days  # 需要等到性成熟再交配
+        # Conditional knockout requires additional step
+        wean_duration += breeding_params.sexual_maturity_days  # Need to reach sexual maturity before mating
         
-        # 第二阶段繁育笼位
+        # Second phase breeding cages
         cond_breed_cages = math.ceil(target_pups / cage_capacity)
         phases.append(Phase(
-            name="条件敲除第二阶段",
+            name="Conditional Knockout Phase 2",
             duration_days=breeding_params.gestation_days + breeding_params.weaning_days,
             cages_needed=cond_breed_cages,
-            description="flox小鼠与Cre工具鼠交配获得条件敲除小鼠"
+            description="Flox mice mated with Cre driver to obtain conditional knockout mice"
         ))
     
-    # 断奶后分笼
+    # Post-weaning separation
     pups_per_litter = breeding_pairs * breeding_params.litter_size * litters_needed
     wean_cages = math.ceil(pups_per_litter / cage_capacity)
     phases.append(Phase(
-        name="断奶后饲养",
+        name="Post-weaning Housing",
         duration_days=wean_duration,
         cages_needed=wean_cages,
-        description="断奶后分笼饲养，准备基因鉴定"
+        description="Post-weaning separation, preparation for genotyping"
     ))
     
-    # 阶段4: 基因鉴定
-    geno_duration = 3  # 取样+检测时间
-    geno_cages = wean_cages  # 鉴定期间仍需笼位
+    # Phase 4: Genotyping
+    geno_duration = 3  # Sampling + testing time
+    geno_cages = wean_cages  # Still need cages during genotyping
     phases.append(Phase(
-        name="基因鉴定",
+        name="Genotyping",
         duration_days=geno_duration,
         cages_needed=geno_cages,
-        description="提取DNA进行PCR基因型鉴定"
+        description="DNA extraction and PCR genotyping"
     ))
     
-    # 计算总时间和总笼位
+    # Calculate total time and max cages
     total_days = sum(p.duration_days for p in phases)
     max_cages = max(p.cages_needed for p in phases)
     
-    # 计算成本
-    # 笼位费 = 各阶段笼位天数总和 × 单价
+    # Calculate costs
+    # Cage cost = sum of (cage days per phase) × unit price
     cage_days = sum(p.duration_days * p.cages_needed for p in phases)
     cage_cost = cage_days * cost_params.cage_cost_per_day
     
-    # 基因鉴定费
+    # Genotyping cost
     total_pups = breeding_pairs * breeding_params.litter_size * litters_needed
     if scheme == BreedingScheme.CONDITIONAL:
-        genotyping_cost = total_pups * cost_params.genotyping_cost * 2  # 需要两次鉴定
+        genotyping_cost = total_pups * cost_params.genotyping_cost * 2  # Need two rounds of genotyping
     else:
         genotyping_cost = total_pups * cost_params.genotyping_cost
     
-    # 小鼠购买费 (初始小鼠)
+    # Mouse purchase cost (initial mice)
     purchase_cost = (initial_females + initial_males) * cost_params.mouse_purchase_cost
     
     total_cost = cage_cost + genotyping_cost + purchase_cost
     
-    # 计算预期获得的目标基因型小鼠数量
+    # Calculate expected target genotype mice
     if scheme == BreedingScheme.HETEROZYGOTE:
         expected_target = int(total_pups * breeding_params.het_ratio)
     elif scheme == BreedingScheme.HOMOZYGOTE:
@@ -224,33 +224,33 @@ def calculate_breeding_plan(
 
 
 def format_plan_output(plan: ColonyPlan) -> str:
-    """格式化输出繁育计划"""
+    """Format breeding plan output"""
     lines = []
     lines.append("=" * 60)
-    lines.append(f"🐭 转基因小鼠繁育计划 - {plan.scheme.value}")
+    lines.append(f"🐭 Transgenic Mouse Breeding Plan - {plan.scheme.value}")
     lines.append("=" * 60)
     lines.append("")
     
-    lines.append("📋 繁育阶段:")
+    lines.append("📋 Breeding Phases:")
     lines.append("-" * 40)
     for i, phase in enumerate(plan.phases, 1):
-        lines.append(f"  阶段{i}: {phase.name}")
-        lines.append(f"    持续时间: {phase.duration_days} 天")
-        lines.append(f"    所需笼位: {phase.cages_needed} 笼")
-        lines.append(f"    说明: {phase.description}")
+        lines.append(f"  Phase {i}: {phase.name}")
+        lines.append(f"    Duration: {phase.duration_days} days")
+        lines.append(f"    Cages needed: {phase.cages_needed}")
+        lines.append(f"    Description: {phase.description}")
         lines.append("")
     
     lines.append("-" * 40)
-    lines.append(f"⏱️  预计总时间: {plan.total_days} 天 ({plan.total_days/30:.1f} 个月)")
-    lines.append(f"🏠 最大笼位数: {plan.total_cages} 笼")
-    lines.append(f"🧬 繁育对数: {plan.breeding_pairs} 对")
+    lines.append(f"⏱️  Estimated Total Time: {plan.total_days} days ({plan.total_days/30:.1f} months)")
+    lines.append(f"🏠 Maximum Cages: {plan.total_cages}")
+    lines.append(f"🧬 Breeding Pairs: {plan.breeding_pairs}")
     lines.append("")
     
-    lines.append("💰 费用估算:")
+    lines.append("💰 Cost Estimate:")
     lines.append("-" * 40)
-    lines.append(f"  预计获得目标基因型小鼠: {plan.expected_target_genotype} 只")
-    lines.append(f"  单只成本: {plan.total_cost/max(plan.expected_target_genotype, 1):.1f} 元")
-    lines.append(f"  💵 总费用: {plan.total_cost:.2f} 元")
+    lines.append(f"  Expected target genotype mice: {plan.expected_target_genotype}")
+    lines.append(f"  Cost per mouse: ${plan.total_cost/max(plan.expected_target_genotype, 1):.1f}")
+    lines.append(f"  💵 Total Cost: ${plan.total_cost:.2f}")
     lines.append("")
     
     lines.append("=" * 60)
@@ -259,12 +259,12 @@ def format_plan_output(plan: ColonyPlan) -> str:
 
 
 def parse_arguments():
-    """解析命令行参数"""
+    """Parse command line arguments"""
     parser = argparse.ArgumentParser(
-        description="Mouse Colony Planner - 转基因小鼠繁育规划工具",
+        description="Mouse Colony Planner - Transgenic Mouse Breeding Planning Tool",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
-示例:
+Examples:
   python main.py --scheme heterozygote --females 10 --males 5 --target-pups 10
   python main.py --scheme homozygote --females 20 --males 10 --target-pups 20
   python main.py --scheme conditional --females 15 --males 15 --target-pups 15
@@ -276,96 +276,96 @@ def parse_arguments():
         type=str,
         required=True,
         choices=[s.value for s in BreedingScheme],
-        help="繁育方案类型"
+        help="Breeding scheme type"
     )
     
     parser.add_argument(
         "--females",
         type=int,
         required=True,
-        help="起始雌鼠数量"
+        help="Starting number of females"
     )
     
     parser.add_argument(
         "--males",
         type=int,
         required=True,
-        help="起始雄鼠数量"
+        help="Starting number of males"
     )
     
     parser.add_argument(
         "--target-pups",
         type=int,
         default=10,
-        help="目标获得特定基因型小鼠数量 (默认: 10)"
+        help="Target number of specific genotype mice (default: 10)"
     )
     
     parser.add_argument(
         "--gestation",
         type=int,
         default=21,
-        help="妊娠期(天) (默认: 21)"
+        help="Gestation period (days) (default: 21)"
     )
     
     parser.add_argument(
         "--weaning",
         type=int,
         default=21,
-        help="断奶日龄(天) (默认: 21)"
+        help="Weaning age (days) (default: 21)"
     )
     
     parser.add_argument(
         "--sexual-maturity",
         type=int,
         default=42,
-        help="性成熟日龄(天) (默认: 42)"
+        help="Sexual maturity age (days) (default: 42)"
     )
     
     parser.add_argument(
         "--cage-capacity",
         type=int,
         default=5,
-        help="每笼最大存栏数 (默认: 5)"
+        help="Maximum cage capacity (default: 5)"
     )
     
     parser.add_argument(
         "--cage-cost",
         type=float,
         default=3.0,
-        help="每笼每天费用(元) (默认: 3.0)"
+        help="Cost per cage per day (USD) (default: 3.0)"
     )
     
     parser.add_argument(
         "--genotyping-cost",
         type=float,
         default=15.0,
-        help="每只小鼠基因鉴定费(元) (默认: 15.0)"
+        help="Genotyping cost per mouse (USD) (default: 15.0)"
     )
     
     return parser.parse_args()
 
 
 def main():
-    """主函数"""
+    """Main function"""
     args = parse_arguments()
     
-    # 创建繁育参数
+    # Create breeding parameters
     breeding_params = BreedingParams(
         gestation_days=args.gestation,
         weaning_days=args.weaning,
         sexual_maturity_days=args.sexual_maturity
     )
     
-    # 创建成本参数
+    # Create cost parameters
     cost_params = CostParams(
         cage_cost_per_day=args.cage_cost,
         genotyping_cost=args.genotyping_cost
     )
     
-    # 解析繁育方案
+    # Parse breeding scheme
     scheme = BreedingScheme(args.scheme)
     
-    # 计算繁育计划
+    # Calculate breeding plan
     plan = calculate_breeding_plan(
         scheme=scheme,
         initial_females=args.females,
@@ -376,7 +376,7 @@ def main():
         cage_capacity=args.cage_capacity
     )
     
-    # 输出结果
+    # Output results
     print(format_plan_output(plan))
 
 
