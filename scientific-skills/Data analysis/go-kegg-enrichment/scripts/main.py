@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """
-GO/KEGG Enrichment Analysis Pipeline
+GO/KEGG Enrichment Analysis Pipeline (Pure Python)
 
 Automated pipeline for Gene Ontology and KEGG pathway enrichment analysis.
+Uses gseapy (Python) instead of clusterProfiler (R).
 Supports multiple organisms, ID types, and generates comprehensive visualizations.
 
 Author: AI Assistant
@@ -12,58 +13,78 @@ Technical Difficulty: High
 import argparse
 import os
 import sys
-import subprocess
-import json
 from pathlib import Path
 from typing import List, Dict, Optional, Tuple
 import pandas as pd
+import numpy as np
 
+# Try to import gseapy
+try:
+    import gseapy as gp
+    from gseapy.plot import barplot, dotplot
+    GSEAPY_AVAILABLE = True
+except ImportError:
+    GSEAPY_AVAILABLE = False
+    print("⚠️  Warning: gseapy not installed. Install with: pip install gseapy")
+
+try:
+    import matplotlib.pyplot as plt
+    MATPLOTLIB_AVAILABLE = True
+except ImportError:
+    MATPLOTLIB_AVAILABLE = False
 
 # Organism mapping configuration
 ORGANISM_CONFIG = {
     "human": {
         "scientific_name": "Homo sapiens",
         "kegg_code": "hsa",
-        "orgdb": "org.Hs.eg.db",
-        "tax_id": "9606"
+        "tax_id": "9606",
+        "enrichr_library": "Human"
     },
     "mouse": {
         "scientific_name": "Mus musculus", 
         "kegg_code": "mmu",
-        "orgdb": "org.Mm.eg.db",
-        "tax_id": "10090"
+        "tax_id": "10090",
+        "enrichr_library": "Mouse"
     },
     "rat": {
         "scientific_name": "Rattus norvegicus",
         "kegg_code": "rno", 
-        "orgdb": "org.Rn.eg.db",
-        "tax_id": "10116"
+        "tax_id": "10116",
+        "enrichr_library": "Rat"
     },
     "zebrafish": {
         "scientific_name": "Danio rerio",
         "kegg_code": "dre",
-        "orgdb": "org.Dr.eg.db",
-        "tax_id": "7955"
+        "tax_id": "7955",
+        "enrichr_library": "Zebrafish"
     },
     "fly": {
         "scientific_name": "Drosophila melanogaster",
         "kegg_code": "dme",
-        "orgdb": "org.Dm.eg.db",
-        "tax_id": "7227"
+        "tax_id": "7227",
+        "enrichr_library": "Fly"
     },
     "yeast": {
         "scientific_name": "Saccharomyces cerevisiae",
         "kegg_code": "sce",
-        "orgdb": "org.Sc.sgd.db",
-        "tax_id": "4932"
+        "tax_id": "4932",
+        "enrichr_library": "Yeast"
     }
+}
+
+# GO Enrichr library mapping
+GO_LIBRARIES = {
+    "BP": "GO_Biological_Process_2021",
+    "MF": "GO_Molecular_Function_2021",
+    "CC": "GO_Cellular_Component_2021"
 }
 
 
 def parse_arguments() -> argparse.Namespace:
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(
-        description="GO/KEGG Enrichment Analysis Pipeline",
+        description="GO/KEGG Enrichment Analysis Pipeline (Pure Python)",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -75,6 +96,9 @@ Examples:
   
   # GO only with specific ontologies
   python main.py --genes genes.txt --analysis go --go-ontologies BP,MF
+  
+  # Use Enrichr (online, faster)
+  python main.py --genes genes.txt --use-enrichr --organism human
         """
     )
     
@@ -83,7 +107,7 @@ Examples:
         "--genes", "-g",
         type=str,
         required=True,
-        help="Path to gene list file (one gene per line)"
+        help="Path to gene list file (one gene per line) or comma-separated gene list"
     )
     
     # Optional arguments
@@ -141,9 +165,9 @@ Examples:
     parser.add_argument(
         "--format",
         type=str,
-        default="all",
+        default="csv",
         choices=["csv", "tsv", "excel", "all"],
-        help="Output format (default: all)"
+        help="Output format (default: csv)"
     )
     parser.add_argument(
         "--top-n",
@@ -154,14 +178,19 @@ Examples:
     parser.add_argument(
         "--min-genes",
         type=int,
-        default=10,
-        help="Minimum genes in category (default: 10)"
+        default=5,
+        help="Minimum genes in category (default: 5)"
     )
     parser.add_argument(
         "--max-genes",
         type=int,
         default=500,
         help="Maximum genes in category (default: 500)"
+    )
+    parser.add_argument(
+        "--use-enrichr",
+        action="store_true",
+        help="Use Enrichr API instead of local gseapy (faster, no download needed)"
     )
     parser.add_argument(
         "--verbose", "-v",
@@ -174,8 +203,12 @@ Examples:
 
 def validate_inputs(args: argparse.Namespace) -> Tuple[bool, str]:
     """Validate input files and parameters."""
-    # Check gene file exists
-    if not os.path.exists(args.genes):
+    # Check if gseapy is available
+    if not GSEAPY_AVAILABLE and not args.use_enrichr:
+        return False, "gseapy not installed. Install with: pip install gseapy"
+    
+    # Check gene file exists or is a comma-separated list
+    if not os.path.exists(args.genes) and ',' not in args.genes:
         return False, f"Gene list file not found: {args.genes}"
     
     # Check background file if provided
@@ -188,30 +221,34 @@ def validate_inputs(args: argparse.Namespace) -> Tuple[bool, str]:
     if not 0 < args.qvalue_cutoff <= 1:
         return False, "Q-value cutoff must be between 0 and 1"
     
-    # Check R is installed
-    try:
-        subprocess.run(["Rscript", "--version"], 
-                      capture_output=True, check=True)
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        return False, "R is not installed or not in PATH"
-    
     return True, "Validation passed"
 
 
-def read_gene_list(filepath: str) -> List[str]:
-    """Read gene list from file."""
+def read_gene_list(input_data: str) -> List[str]:
+    """Read gene list from file or string."""
     genes = []
-    with open(filepath, 'r') as f:
-        for line in f:
-            line = line.strip()
-            if line and not line.startswith('#'):
-                # Handle CSV/TSV format
-                if ',' in line:
-                    genes.append(line.split(',')[0])
-                elif '\t' in line:
-                    genes.append(line.split('\t')[0])
-                else:
-                    genes.append(line)
+    
+    # Check if it's a file path or comma-separated list
+    if os.path.exists(input_data):
+        # Read from file
+        with open(input_data, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith('#'):
+                    # Handle CSV/TSV format
+                    if ',' in line:
+                        genes.append(line.split(',')[0])
+                    elif '\t' in line:
+                        genes.append(line.split('\t')[0])
+                    else:
+                        genes.append(line)
+    elif ',' in input_data:
+        # Comma-separated list
+        genes = [g.strip() for g in input_data.split(',') if g.strip()]
+    else:
+        # Single gene
+        genes = [input_data.strip()]
+    
     return list(set(genes))  # Remove duplicates
 
 
@@ -221,8 +258,7 @@ def create_output_directories(base_path: str) -> Dict[str, str]:
         'base': base_path,
         'go': os.path.join(base_path, 'go_enrichment'),
         'kegg': os.path.join(base_path, 'kegg_enrichment'),
-        'visualization': os.path.join(base_path, 'visualization'),
-        'pathview': os.path.join(base_path, 'kegg_enrichment', 'pathview')
+        'visualization': os.path.join(base_path, 'visualization')
     }
     
     for path in dirs.values():
@@ -231,286 +267,420 @@ def create_output_directories(base_path: str) -> Dict[str, str]:
     return dirs
 
 
-def generate_r_script(args: argparse.Namespace, 
-                      gene_list: List[str],
-                      output_dirs: Dict[str, str]) -> str:
-    """Generate R script for enrichment analysis."""
+def run_go_enrichment_local(
+    gene_list: List[str],
+    organism: str,
+    ontology: str,
+    output_dir: str,
+    args: argparse.Namespace
+) -> Optional[pd.DataFrame]:
+    """Run GO enrichment analysis using gseapy locally."""
     
-    organism_config = ORGANISM_CONFIG[args.organism]
-    gene_list_str = '", "'.join(gene_list)
-    
-    # Determine analysis components
-    do_go = args.analysis in ["go", "all"]
-    do_kegg = args.analysis in ["kegg", "all"]
-    
-    # Parse GO ontologies
-    go_ontologies = args.go_ontologies.split(',')
-    
-    # Prepare background genes
-    background_str = ""
-    if args.background:
-        bg_genes = read_gene_list(args.background)
-        background_str = '", "'.join(bg_genes)
-    
-    r_script = f'''
-# GO/KEGG Enrichment Analysis Script
-# Auto-generated by go-kegg-enrichment pipeline
-
-suppressMessages(library(clusterProfiler))
-suppressMessages(library(org.Hs.eg.db))
-suppressMessages(library(org.Mm.eg.db))
-suppressMessages(library(org.Rn.eg.db))
-suppressMessages(library(org.Dr.eg.db))
-suppressMessages(library(org.Dm.eg.db))
-suppressMessages(library(org.Sc.sgd.db))
-suppressMessages(library(enrichplot))
-suppressMessages(library(ggplot2))
-suppressMessages(library(dplyr))
-suppressMessages(library(readr))
-
-# Configuration
-organism <- "{args.organism}"
-kegg_code <- "{organism_config['kegg_code']}"
-orgdb <- "{organism_config['orgdb']}"
-id_type <- "{args.id_type}"
-pvalue_cutoff <- {args.pvalue_cutoff}
-qvalue_cutoff <- {args.qvalue_cutoff}
-top_n <- {args.top_n}
-min_genes <- {args.min_genes}
-max_genes <- {args.max_genes}
-
-# Load gene list
-genes <- c("{gene_list_str}")
-
-# Load background if provided
-{background_str and f'background <- c("{background_str}")' or 'background <- NULL'}
-
-# ID type mapping
-id_type_map <- list(
-    symbol = "SYMBOL",
-    entrez = "ENTREZID", 
-    ensembl = "ENSEMBL",
-    refseq = "REFSEQ"
-)
-keytype <- id_type_map[[id_type]]
-
-# Convert gene IDs if needed
-convert_ids <- function(genes, from_type, to_type, orgdb_pkg) {{
-    if (from_type == to_type) return(genes)
-    
-    db <- get(orgdb_pkg)
-    conv <- bitr(genes, fromType = from_type, toType = to_type, OrgDb = db)
-    return(conv$to_type)
-}}
-
-# Convert to ENTREZID for analysis
-genes_entrez <- convert_ids(genes, keytype, "ENTREZID", orgdb)
-if (!is.null(background)) {{
-    bg_entrez <- convert_ids(background, keytype, "ENTREZID", orgdb)
-}} else {{
-    bg_entrez <- NULL
-}}
-
-results_summary <- list()
-
-# GO Enrichment Analysis
-if ({str(do_go).lower()}) {{
-    cat("\\n=== Running GO Enrichment Analysis ===\\n")
-    
-    ontologies <- c({', '.join([f'"{o.strip().upper()}"' for o in go_ontologies])})
-    
-    for (ont in ontologies) {{
-        cat(paste("\\nProcessing", ont, "...\\n"))
-        
-        tryCatch({{
-            ego <- enrichGO(
-                gene = genes_entrez,
-                OrgDb = get(orgdb),
-                ont = ont,
-                pAdjustMethod = "BH",
-                pvalueCutoff = pvalue_cutoff,
-                qvalueCutoff = qvalue_cutoff,
-                readable = TRUE,
-                minGSSize = min_genes,
-                maxGSSize = max_genes,
-                universe = bg_entrez
-            )
-            
-            if (!is.null(ego) && nrow(ego@result) > 0) {{
-                # Save results
-                result_file <- file.path("{output_dirs['go']}", 
-                                        paste0("GO_", ont, "_results.csv"))
-                write.csv(ego@result, result_file, row.names = FALSE)
-                cat(paste("Saved:", result_file, "\\n"))
-                
-                # Store summary
-                results_summary[[paste0("GO_", ont)]] <- list(
-                    total = nrow(ego@result),
-                    significant = sum(ego@result$p.adjust < qvalue_cutoff),
-                    top_terms = head(ego@result$Description, 5)
-                )
-                
-                # Bar plot
-                if (nrow(ego@result) > 0) {{
-                    p <- barplot(ego, showCategory = top_n) +
-                        ggtitle(paste("GO", ont, "Enrichment")) +
-                        theme(axis.text.y = element_text(size = 8))
-                    ggsave(file.path("{output_dirs['go']}", 
-                                    paste0("GO_", ont, "_barplot.pdf")),
-                           p, width = 10, height = 8)
-                }}
-                
-                # Dot plot
-                if (nrow(ego@result) > 0) {{
-                    p <- dotplot(ego, showCategory = top_n) +
-                        ggtitle(paste("GO", ont, "Enrichment"))
-                    ggsave(file.path("{output_dirs['go']}", 
-                                    paste0("GO_", ont, "_dotplot.pdf")),
-                           p, width = 10, height = 8)
-                }}
-                
-            }} else {{
-                cat(paste("No significant", ont, "terms found\\n"))
-                results_summary[[paste0("GO_", ont)]] <- list(
-                    total = 0,
-                    significant = 0,
-                    top_terms = character(0)
-                )
-            }}
-            
-        }}, error = function(e) {{
-            cat(paste("Error in GO", ont, ":", e$message, "\\n"))
-            results_summary[[paste0("GO_", ont)]] <- list(
-                total = 0,
-                significant = 0,
-                error = e$message
-            )
-        }})
-    }}
-}}
-
-# KEGG Enrichment Analysis
-if ({str(do_kegg).lower()}) {{
-    cat("\\n=== Running KEGG Enrichment Analysis ===\\n")
-    
-    tryCatch({{
-        kk <- enrichKEGG(
-            gene = genes_entrez,
-            organism = kegg_code,
-            pAdjustMethod = "BH",
-            pvalueCutoff = pvalue_cutoff,
-            qvalueCutoff = qvalue_cutoff,
-            minGSSize = min_genes,
-            maxGSSize = max_genes,
-            universe = bg_entrez
-        )
-        
-        if (!is.null(kk) && nrow(kk@result) > 0) {{
-            # Convert to gene symbols
-            kk <- setReadable(kk, OrgDb = get(orgdb), keyType = "ENTREZID")
-            
-            # Save results
-            result_file <- file.path("{output_dirs['kegg']}", "KEGG_results.csv")
-            write.csv(kk@result, result_file, row.names = FALSE)
-            cat(paste("Saved:", result_file, "\\n"))
-            
-            # Store summary
-            results_summary[["KEGG"]] <- list(
-                total = nrow(kk@result),
-                significant = sum(kk@result$p.adjust < qvalue_cutoff),
-                top_pathways = head(kk@result$Description, 5)
-            )
-            
-            # Bar plot
-            p <- barplot(kk, showCategory = top_n) +
-                ggtitle("KEGG Pathway Enrichment") +
-                theme(axis.text.y = element_text(size = 8))
-            ggsave(file.path("{output_dirs['kegg']}", "KEGG_barplot.pdf"),
-                   p, width = 10, height = 8)
-            
-            # Dot plot
-            p <- dotplot(kk, showCategory = top_n) +
-                ggtitle("KEGG Pathway Enrichment")
-            ggsave(file.path("{output_dirs['kegg']}", "KEGG_dotplot.pdf"),
-                   p, width = 10, height = 8)
-            
-            # Gene-Concept Network
-            if (nrow(kk@result) >= 3) {{
-                tryCatch({{
-                    p <- cnetplot(kk, categorySize = "pvalue", 
-                                 showCategory = min(5, nrow(kk@result)))
-                    ggsave(file.path("{output_dirs['kegg']}", "KEGG_cnetplot.pdf"),
-                           p, width = 12, height = 10)
-                }}, error = function(e) {{
-                    cat("Could not create cnetplot\\n")
-                }})
-            }}
-            
-        }} else {{
-            cat("No significant KEGG pathways found\\n")
-            results_summary[["KEGG"]] <- list(
-                total = 0,
-                significant = 0,
-                top_pathways = character(0)
-            )
-        }}
-        
-    }}, error = function(e) {{
-        cat(paste("Error in KEGG:", e$message, "\\n"))
-        results_summary[["KEGG"]] <- list(
-            total = 0,
-            significant = 0,
-            error = e$message
-        )
-    }})
-}}
-
-# Save summary
-summary_file <- file.path("{output_dirs['base']}", "analysis_summary.json")
-write(jsonlite::toJSON(results_summary, pretty = TRUE, auto_unbox = TRUE),
-      summary_file)
-cat(paste("\\nSummary saved to:", summary_file, "\\n"))
-
-cat("\\n=== Analysis Complete ===\\n")
-'''
-    return r_script
-
-
-def run_r_script(script_content: str, verbose: bool = False) -> Tuple[bool, str]:
-    """Execute R script and capture output."""
-    script_path = Path("temp_enrichment_analysis.R")
+    print(f"\n  Processing {ontology}...")
     
     try:
-        # Write script to file
-        script_path.write_text(script_content)
+        # Map organism to gseapy organism
+        organism_map = {
+            "human": "human",
+            "mouse": "mouse",
+            "rat": "rat",
+            "zebrafish": "zebrafish",
+            "fly": "fly",
+            "yeast": "yeast"
+        }
         
-        # Execute R script
-        cmd = ["Rscript", str(script_path)]
-        if verbose:
-            print(f"Executing: {' '.join(cmd)}")
+        gsea_organism = organism_map.get(organism, "human")
         
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True
+        # Run enrichment
+        enr = gp.enrichGO(
+            gene_list=gene_list,
+            organism=gsea_organism,
+            geneid=args.id_type.upper() if args.id_type != 'symbol' else 'SYMBOL',
+            ont=ontology,
+            pvalue_cutoff=args.pvalue_cutoff,
+            qvalue_cutoff=args.qvalue_cutoff,
+            min_gene_size=args.min_genes,
+            max_gene_size=args.max_genes,
+            background=args.background if args.background else None,
+            outdir=None,  # We'll handle output ourselves
+            verbose=args.verbose
         )
         
-        if verbose:
-            print(result.stdout)
+        if enr is None or enr.res2d is None or len(enr.res2d) == 0:
+            print(f"    No significant {ontology} terms found")
+            return None
         
-        if result.returncode != 0:
-            return False, f"R script error:\n{result.stderr}"
+        # Get results
+        results = enr.res2d.copy()
         
-        return True, result.stdout
+        # Save results
+        output_file = os.path.join(output_dir, f"GO_{ontology}_results.csv")
         
-    finally:
-        # Cleanup
-        if script_path.exists():
-            script_path.unlink()
+        # Format output
+        if args.format in ["csv", "all"]:
+            results.to_csv(output_file, index=False)
+            print(f"    Saved: {output_file}")
+        
+        if args.format in ["tsv", "all"]:
+            tsv_file = os.path.join(output_dir, f"GO_{ontology}_results.tsv")
+            results.to_csv(tsv_file, sep='\t', index=False)
+        
+        if args.format in ["excel", "all"]:
+            excel_file = os.path.join(output_dir, f"GO_{ontology}_results.xlsx")
+            results.to_excel(excel_file, index=False)
+        
+        # Create visualizations
+        if MATPLOTLIB_AVAILABLE and len(results) > 0:
+            create_visualizations(results, ontology, "GO", output_dir, args)
+        
+        return results
+        
+    except Exception as e:
+        print(f"    Error in GO {ontology}: {str(e)}")
+        return None
 
 
-def generate_summary_report(output_dirs: Dict[str, str], 
-                           args: argparse.Namespace) -> str:
+def run_kegg_enrichment_local(
+    gene_list: List[str],
+    organism: str,
+    output_dir: str,
+    args: argparse.Namespace
+) -> Optional[pd.DataFrame]:
+    """Run KEGG enrichment analysis using gseapy locally."""
+    
+    print(f"\n  Processing KEGG pathways...")
+    
+    try:
+        # Get organism code
+        kegg_code = ORGANISM_CONFIG[organism]["kegg_code"]
+        
+        # Run enrichment
+        enr = gp.enrichKEGG(
+            gene_list=gene_list,
+            organism=kegg_code,
+            geneid=args.id_type.upper() if args.id_type != 'symbol' else 'SYMBOL',
+            pvalue_cutoff=args.pvalue_cutoff,
+            qvalue_cutoff=args.qvalue_cutoff,
+            min_gene_size=args.min_genes,
+            max_gene_size=args.max_genes,
+            background=args.background if args.background else None,
+            outdir=None,
+            verbose=args.verbose
+        )
+        
+        if enr is None or enr.res2d is None or len(enr.res2d) == 0:
+            print(f"    No significant KEGG pathways found")
+            return None
+        
+        # Get results
+        results = enr.res2d.copy()
+        
+        # Save results
+        output_file = os.path.join(output_dir, "KEGG_results.csv")
+        
+        # Format output
+        if args.format in ["csv", "all"]:
+            results.to_csv(output_file, index=False)
+            print(f"    Saved: {output_file}")
+        
+        if args.format in ["tsv", "all"]:
+            tsv_file = os.path.join(output_dir, "KEGG_results.tsv")
+            results.to_csv(tsv_file, sep='\t', index=False)
+        
+        if args.format in ["excel", "all"]:
+            excel_file = os.path.join(output_dir, "KEGG_results.xlsx")
+            results.to_excel(excel_file, index=False)
+        
+        # Create visualizations
+        if MATPLOTLIB_AVAILABLE and len(results) > 0:
+            create_visualizations(results, "Pathway", "KEGG", output_dir, args)
+        
+        return results
+        
+    except Exception as e:
+        print(f"    Error in KEGG: {str(e)}")
+        return None
+
+
+def run_enrichr_analysis(
+    gene_list: List[str],
+    organism: str,
+    analysis_type: str,
+    go_ontologies: List[str],
+    output_dirs: Dict[str, str],
+    args: argparse.Namespace
+) -> Dict[str, pd.DataFrame]:
+    """Run enrichment analysis using Enrichr API."""
+    
+    results_summary = {}
+    
+    # Map organism
+    organism_map = {
+        "human": "Human",
+        "mouse": "Mouse",
+        "rat": "Rat",
+        "zebrafish": "Zebrafish",
+        "fly": "Fly",
+        "yeast": "Yeast"
+    }
+    
+    enrichr_organism = organism_map.get(organism, "Human")
+    
+    # GO Enrichment
+    if analysis_type in ["go", "all"]:
+        print("\n=== Running GO Enrichment Analysis (Enrichr) ===")
+        
+        for ontology in go_ontologies:
+            library = GO_LIBRARIES.get(ontology.upper())
+            if not library:
+                continue
+            
+            print(f"\n  Processing {ontology}...")
+            
+            try:
+                # Run Enrichr
+                enr = gp.enrichr(
+                    gene_list=gene_list,
+                    gene_sets=library,
+                    organism=enrichr_organism,
+                    outdir=None,
+                    cutoff=args.pvalue_cutoff
+                )
+                
+                if enr is None or enr.res2d is None or len(enr.res2d) == 0:
+                    print(f"    No significant {ontology} terms found")
+                    results_summary[f"GO_{ontology}"] = None
+                    continue
+                
+                # Get results
+                results = enr.res2d.copy()
+                
+                # Filter by q-value
+                if 'Adjusted P-value' in results.columns:
+                    results = results[results['Adjusted P-value'] <= args.qvalue_cutoff]
+                
+                if len(results) == 0:
+                    print(f"    No significant {ontology} terms after filtering")
+                    results_summary[f"GO_{ontology}"] = None
+                    continue
+                
+                # Save results
+                output_file = os.path.join(output_dirs['go'], f"GO_{ontology}_results.csv")
+                
+                if args.format in ["csv", "all"]:
+                    results.to_csv(output_file, index=False)
+                    print(f"    Saved: {output_file}")
+                
+                if args.format in ["tsv", "all"]:
+                    results.to_csv(output_file.replace('.csv', '.tsv'), sep='\t', index=False)
+                
+                # Create visualizations
+                if MATPLOTLIB_AVAILABLE:
+                    create_enrichr_visualizations(results, ontology, output_dirs['go'], args)
+                
+                results_summary[f"GO_{ontology}"] = results
+                
+            except Exception as e:
+                print(f"    Error in GO {ontology}: {str(e)}")
+                results_summary[f"GO_{ontology}"] = None
+    
+    # KEGG Enrichment
+    if analysis_type in ["kegg", "all"]:
+        print("\n=== Running KEGG Enrichment Analysis (Enrichr) ===")
+        
+        try:
+            # KEGG library names vary by organism
+            kegg_library = f"KEGG_{enrichr_organism}_2019"
+            
+            enr = gp.enrichr(
+                gene_list=gene_list,
+                gene_sets=kegg_library,
+                organism=enrichr_organism,
+                outdir=None,
+                cutoff=args.pvalue_cutoff
+            )
+            
+            if enr is None or enr.res2d is None or len(enr.res2d) == 0:
+                print(f"    No significant KEGG pathways found")
+                results_summary["KEGG"] = None
+            else:
+                results = enr.res2d.copy()
+                
+                # Filter by q-value
+                if 'Adjusted P-value' in results.columns:
+                    results = results[results['Adjusted P-value'] <= args.qvalue_cutoff]
+                
+                if len(results) == 0:
+                    print(f"    No significant KEGG pathways after filtering")
+                    results_summary["KEGG"] = None
+                else:
+                    # Save results
+                    output_file = os.path.join(output_dirs['kegg'], "KEGG_results.csv")
+                    
+                    if args.format in ["csv", "all"]:
+                        results.to_csv(output_file, index=False)
+                        print(f"    Saved: {output_file}")
+                    
+                    if args.format in ["tsv", "all"]:
+                        results.to_csv(output_file.replace('.csv', '.tsv'), sep='\t', index=False)
+                    
+                    # Create visualizations
+                    if MATPLOTLIB_AVAILABLE:
+                        create_enrichr_visualizations(results, "Pathway", output_dirs['kegg'], args)
+                    
+                    results_summary["KEGG"] = results
+                    
+        except Exception as e:
+            print(f"    Error in KEGG: {str(e)}")
+            results_summary["KEGG"] = None
+    
+    return results_summary
+
+
+def create_visualizations(
+    results: pd.DataFrame,
+    category: str,
+    analysis_type: str,
+    output_dir: str,
+    args: argparse.Namespace
+):
+    """Create visualization plots."""
+    
+    if not MATPLOTLIB_AVAILABLE:
+        return
+    
+    try:
+        # Prepare data for plotting
+        plot_data = results.head(args.top_n).copy()
+        
+        if len(plot_data) == 0:
+            return
+        
+        # Bar plot
+        fig, ax = plt.subplots(figsize=(10, 8))
+        
+        # Use Term or Description column
+        term_col = 'Term' if 'Term' in plot_data.columns else 'Description'
+        pval_col = 'pvalue' if 'pvalue' in plot_data.columns else 'P-value'
+        
+        y_pos = np.arange(len(plot_data))
+        
+        # Color by p-value
+        colors = plt.cm.RdYlBu_r(np.linspace(0.2, 0.8, len(plot_data)))
+        
+        ax.barh(y_pos, -np.log10(plot_data[pval_col]), color=colors)
+        ax.set_yticks(y_pos)
+        ax.set_yticklabels(plot_data[term_col], fontsize=8)
+        ax.invert_yaxis()
+        ax.set_xlabel('-log10(p-value)', fontsize=10)
+        ax.set_title(f'{analysis_type} {category} Enrichment', fontsize=12)
+        ax.grid(axis='x', alpha=0.3)
+        
+        plt.tight_layout()
+        barplot_file = os.path.join(output_dir, f"{analysis_type}_{category}_barplot.png")
+        plt.savefig(barplot_file, dpi=300, bbox_inches='tight')
+        plt.close()
+        print(f"    Created barplot: {barplot_file}")
+        
+        # Dot plot
+        fig, ax = plt.subplots(figsize=(10, 8))
+        
+        # Get gene ratio
+        if 'GeneRatio' in plot_data.columns:
+            ratio_col = 'GeneRatio'
+        elif 'Overlap' in plot_data.columns:
+            ratio_col = 'Overlap'
+        else:
+            ratio_col = None
+        
+        if ratio_col:
+            # Convert ratio to numeric if needed
+            if plot_data[ratio_col].dtype == object:
+                plot_data['ratio_numeric'] = plot_data[ratio_col].apply(
+                    lambda x: eval(x) if '/' in str(x) else float(x)
+                )
+            else:
+                plot_data['ratio_numeric'] = plot_data[ratio_col]
+            
+            scatter = ax.scatter(
+                plot_data['ratio_numeric'],
+                y_pos,
+                s=100,
+                c=-np.log10(plot_data[pval_col]),
+                cmap='RdYlBu_r',
+                alpha=0.7
+            )
+            
+            ax.set_yticks(y_pos)
+            ax.set_yticklabels(plot_data[term_col], fontsize=8)
+            ax.invert_yaxis()
+            ax.set_xlabel('Gene Ratio', fontsize=10)
+            ax.set_title(f'{analysis_type} {category} Enrichment (Dot Plot)', fontsize=12)
+            
+            cbar = plt.colorbar(scatter, ax=ax)
+            cbar.set_label('-log10(p-value)', rotation=270, labelpad=15)
+            
+            plt.tight_layout()
+            dotplot_file = os.path.join(output_dir, f"{analysis_type}_{category}_dotplot.png")
+            plt.savefig(dotplot_file, dpi=300, bbox_inches='tight')
+            plt.close()
+            print(f"    Created dotplot: {dotplot_file}")
+        
+    except Exception as e:
+        print(f"    Warning: Could not create visualizations: {e}")
+
+
+def create_enrichr_visualizations(
+    results: pd.DataFrame,
+    category: str,
+    output_dir: str,
+    args: argparse.Namespace
+):
+    """Create visualizations for Enrichr results."""
+    
+    if not MATPLOTLIB_AVAILABLE:
+        return
+    
+    try:
+        # Prepare data
+        plot_data = results.head(args.top_n).copy()
+        
+        if len(plot_data) == 0:
+            return
+        
+        # Get column names
+        term_col = 'Term' if 'Term' in plot_data.columns else 'Description'
+        pval_col = 'P-value' if 'P-value' in plot_data.columns else 'Adjusted P-value'
+        
+        # Bar plot
+        fig, ax = plt.subplots(figsize=(10, 8))
+        
+        y_pos = np.arange(len(plot_data))
+        colors = plt.cm.RdYlBu_r(np.linspace(0.2, 0.8, len(plot_data)))
+        
+        ax.barh(y_pos, -np.log10(plot_data[pval_col]), color=colors)
+        ax.set_yticks(y_pos)
+        ax.set_yticklabels(plot_data[term_col].str[:50], fontsize=8)
+        ax.invert_yaxis()
+        ax.set_xlabel('-log10(p-value)', fontsize=10)
+        ax.set_title(f'{category} Enrichment', fontsize=12)
+        ax.grid(axis='x', alpha=0.3)
+        
+        plt.tight_layout()
+        barplot_file = os.path.join(output_dir, f"{category}_barplot.png")
+        plt.savefig(barplot_file, dpi=300, bbox_inches='tight')
+        plt.close()
+        print(f"    Created barplot: {barplot_file}")
+        
+    except Exception as e:
+        print(f"    Warning: Could not create visualizations: {e}")
+
+
+def generate_summary_report(
+    results_summary: Dict[str, Optional[pd.DataFrame]],
+    output_dirs: Dict[str, str],
+    args: argparse.Namespace
+) -> str:
     """Generate human-readable summary report."""
     
     report_lines = [
@@ -519,6 +689,7 @@ def generate_summary_report(output_dirs: Dict[str, str],
         "=" * 60,
         "",
         f"Analysis Date: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}",
+        f"Analysis Method: {'Enrichr API' if args.use_enrichr else 'Local gseapy'}",
         f"Organism: {ORGANISM_CONFIG[args.organism]['scientific_name']}",
         f"Gene ID Type: {args.id_type}",
         f"Analysis Type: {args.analysis}",
@@ -526,25 +697,46 @@ def generate_summary_report(output_dirs: Dict[str, str],
         f"Q-value Cutoff: {args.qvalue_cutoff}",
         "",
         "-" * 60,
-        "OUTPUT FILES",
+        "ENRICHMENT RESULTS SUMMARY",
         "-" * 60,
         "",
     ]
     
+    # Summarize results
+    for analysis_name, results in results_summary.items():
+        if results is not None and len(results) > 0:
+            report_lines.append(f"{analysis_name}:")
+            report_lines.append(f"  - Significant terms: {len(results)}")
+            
+            # Show top terms
+            term_col = 'Term' if 'Term' in results.columns else 'Description'
+            top_terms = results[term_col].head(5).tolist()
+            report_lines.append(f"  - Top terms: {', '.join(top_terms)}")
+            report_lines.append("")
+        else:
+            report_lines.append(f"{analysis_name}: No significant results")
+            report_lines.append("")
+    
+    report_lines.extend([
+        "-" * 60,
+        "OUTPUT FILES",
+        "-" * 60,
+        "",
+    ])
+    
     # List generated files
-    for root, dirs, files in os.walk(output_dirs['base']):
-        level = root.replace(output_dirs['base'], '').count(os.sep)
-        indent = '  ' * level
-        subdir = os.path.basename(root)
-        if subdir:
-            report_lines.append(f"{indent}{subdir}/")
-        
-        subindent = '  ' * (level + 1)
-        for file in sorted(files):
-            filepath = os.path.join(root, file)
-            size = os.path.getsize(filepath)
-            size_str = f"{size:,} bytes" if size < 1024*1024 else f"{size/(1024*1024):.2f} MB"
-            report_lines.append(f"{subindent}{file} ({size_str})")
+    if os.path.exists(output_dirs['base']):
+        for root, dirs, files in os.walk(output_dirs['base']):
+            level = root.replace(output_dirs['base'], '').count(os.sep)
+            indent = '  ' * level
+            subdir = os.path.basename(root)
+            if subdir and subdir != os.path.basename(output_dirs['base']):
+                report_lines.append(f"{indent}{subdir}/")
+            
+            subindent = '  ' * (level + 1)
+            for file in sorted(files):
+                if not file.startswith('.'):
+                    report_lines.append(f"{subindent}{file}")
     
     report_lines.extend([
         "",
@@ -559,14 +751,11 @@ def generate_summary_report(output_dirs: Dict[str, str],
         "",
         "2. KEGG Pathway Results:",
         "   - Shows affected metabolic and signaling pathways",
-        "   - Pathview diagrams show gene expression on pathway maps",
         "",
         "3. Key Statistics:",
         "   - GeneRatio: Proportion of input genes in the term",
-        "   - BgRatio: Proportion of background genes in the term",
-        "   - pvalue: Statistical significance",
-        "   - p.adjust: Benjamini-Hochberg corrected p-value",
-        "   - qvalue: FDR-corrected p-value",
+        "   - P-value: Statistical significance",
+        "   - Adjusted P-value: Benjamini-Hochberg corrected p-value",
         "",
         "=" * 60,
     ])
@@ -577,7 +766,7 @@ def generate_summary_report(output_dirs: Dict[str, str],
 def main():
     """Main entry point."""
     print("=" * 60)
-    print("GO/KEGG Enrichment Analysis Pipeline")
+    print("GO/KEGG Enrichment Analysis Pipeline (Pure Python)")
     print("=" * 60)
     
     # Parse arguments
@@ -604,28 +793,49 @@ def main():
     if len(genes) < 5:
         print("WARNING: Very few genes provided. Results may be limited.")
     
+    if args.verbose:
+        print(f"First 10 genes: {', '.join(genes[:10])}")
+    
     # Create output directories
     print(f"\nCreating output directory: {args.output}")
     output_dirs = create_output_directories(args.output)
     
-    # Generate and execute R script
-    print("\nGenerating enrichment analysis script...")
-    r_script = generate_r_script(args, genes, output_dirs)
+    # Parse GO ontologies
+    go_ontologies = [o.strip().upper() for o in args.go_ontologies.split(',')]
     
-    print("Running enrichment analysis (this may take a few minutes)...")
-    print("-" * 40)
+    # Run enrichment analysis
+    results_summary = {}
     
-    success, output = run_r_script(r_script, args.verbose)
-    print(output)
-    
-    if not success:
-        print(f"\nERROR: Analysis failed\n{output}")
-        sys.exit(1)
-    
-    print("-" * 40)
+    if args.use_enrichr:
+        # Use Enrichr API
+        print("\nRunning enrichment analysis using Enrichr API...")
+        results_summary = run_enrichr_analysis(
+            genes, args.organism, args.analysis, go_ontologies, output_dirs, args
+        )
+    else:
+        # Use local gseapy
+        print("\nRunning enrichment analysis using local gseapy...")
+        
+        # GO Enrichment
+        if args.analysis in ["go", "all"]:
+            print("\n=== Running GO Enrichment Analysis ===")
+            for ontology in go_ontologies:
+                results = run_go_enrichment_local(
+                    genes, args.organism, ontology, output_dirs['go'], args
+                )
+                results_summary[f"GO_{ontology}"] = results
+        
+        # KEGG Enrichment
+        if args.analysis in ["kegg", "all"]:
+            print("\n=== Running KEGG Enrichment Analysis ===")
+            results = run_kegg_enrichment_local(
+                genes, args.organism, output_dirs['kegg'], args
+            )
+            results_summary["KEGG"] = results
     
     # Generate summary report
-    report = generate_summary_report(output_dirs, args)
+    print("\nGenerating summary report...")
+    report = generate_summary_report(results_summary, output_dirs, args)
     report_path = os.path.join(output_dirs['base'], 'REPORT.txt')
     with open(report_path, 'w') as f:
         f.write(report)
@@ -640,7 +850,7 @@ def main():
     print(f"\nResults available in: {os.path.abspath(args.output)}")
     print("\nNext steps:")
     print("  1. Review CSV files for detailed statistics")
-    print("  2. Check PDF visualizations in each folder")
+    print("  2. Check PNG visualizations in output folders")
     print("  3. Read REPORT.txt for interpretation guidance")
 
 
