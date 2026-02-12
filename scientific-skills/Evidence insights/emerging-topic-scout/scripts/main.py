@@ -26,10 +26,22 @@ from textblob import TextBlob
 # Constants
 BIORXIV_RSS = "https://www.biorxiv.org/rss/recent.rss"
 MEDRXIV_RSS = "https://www.medrxiv.org/rss/recent.rss"
+ARXIV_QBIO_RSS = "https://export.arxiv.org/rss/q-bio"  # arXiv Quantitative Biology
 BIORXIV_API = "https://api.biorxiv.org/details/biorxiv"
 MEDRXIV_API = "https://api.medrxiv.org/details/medrxiv"
 DATA_DIR = Path(__file__).parent.parent / "data"
 DATA_DIR.mkdir(exist_ok=True)
+
+# Request headers to bypass simple bot detection
+BROWSER_HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+    'Accept-Language': 'en-US,en;q=0.5',
+    'Accept-Encoding': 'gzip, deflate, br',
+    'DNT': '1',
+    'Connection': 'keep-alive',
+    'Upgrade-Insecure-Requests': '1'
+}
 
 
 @dataclass
@@ -89,7 +101,8 @@ class PreprintFetcher:
         cutoff_date = datetime.now() - timedelta(days=days_back)
         
         try:
-            feed = feedparser.parse(url)
+            # Use browser headers to bypass bot detection
+            feed = feedparser.parse(url, request_headers=BROWSER_HEADERS)
             for entry in feed.entries:
                 try:
                     # Parse publication date
@@ -575,7 +588,7 @@ def main():
     parser.add_argument(
         "--sources",
         nargs="+",
-        choices=["biorxiv", "medrxiv", "all"],
+        choices=["biorxiv", "medrxiv", "arxiv", "all"],
         default=["biorxiv", "medrxiv"],
         help="Data sources to monitor"
     )
@@ -636,7 +649,8 @@ def main():
     
     source_urls = {
         "biorxiv": BIORXIV_RSS,
-        "medrxiv": MEDRXIV_RSS
+        "medrxiv": MEDRXIV_RSS,
+        "arxiv": ARXIV_QBIO_RSS  # arXiv as alternative source
     }
     
     for source in sources:
