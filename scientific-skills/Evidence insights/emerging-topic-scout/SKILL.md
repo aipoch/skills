@@ -22,11 +22,25 @@ A real-time monitoring system for identifying "incubation period" research hotsp
 ## Overview
 
 This skill continuously monitors:
-- **bioRxiv**: Biology preprints via RSS/API
-- **medRxiv**: Medicine preprints via RSS/API
+- **bioRxiv**: Biology preprints via RSS/API ⚠️ *Currently blocked by Cloudflare*
+- **medRxiv**: Medicine preprints via RSS/API ⚠️ *Currently blocked by Cloudflare*
+- **arXiv**: Quantitative Biology preprints via RSS ✅ *Recommended alternative*
 - **Academic discussions**: Social media and forum mentions
 
 It uses trend analysis algorithms to detect sudden spikes in topic frequency, cross-platform mentions, and emerging keyword clusters.
+
+### ⚠️ Network Access Notice
+
+**bioRxiv and medRxiv** are currently protected by Cloudflare JavaScript Challenge, which prevents programmatic RSS access. As a workaround, this skill now supports **arXiv q-bio** (Quantitative Biology) as an alternative data source.
+
+**Recommended usage:**
+```bash
+# Use arXiv for reliable data fetching
+python scripts/main.py --sources arxiv --days 30
+
+# bioRxiv/medRxiv may return 0 results due to Cloudflare protection
+python scripts/main.py --sources biorxiv medrxiv --days 30  # May not work
+```
 
 ## Installation
 
@@ -37,13 +51,31 @@ pip install -r scripts/requirements.txt
 
 ## Usage
 
-### Basic Scan
+### Basic Scan (Recommended: Use arXiv)
+
+```bash
+python scripts/main.py --sources arxiv --days 7 --output json
+```
+
+### Legacy bioRxiv/medRxiv (May not work due to Cloudflare)
 
 ```bash
 python scripts/main.py --sources biorxiv medrxiv --days 7 --output json
 ```
 
-### Advanced Configuration
+### Advanced Configuration (arXiv Recommended)
+
+```bash
+python scripts/main.py \
+  --sources arxiv \
+  --keywords "CRISPR,gene editing,machine learning" \
+  --days 14 \
+  --min-score 0.7 \
+  --output markdown \
+  --notify
+```
+
+### Legacy Configuration (bioRxiv/medRxiv - May not work)
 
 ```bash
 python scripts/main.py \
@@ -53,13 +85,13 @@ python scripts/main.py \
   --min-score 0.7 \
   --output markdown \
   --notify
-```
+# Note: bioRxiv/medRxiv may return 0 results due to Cloudflare protection
 
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `--sources` | list | `biorxiv,medrxiv` | Data sources to monitor |
+| `--sources` | list | `arxiv` | Data sources to monitor (arxiv recommended due to Cloudflare issues with biorxiv/medrxiv) |
 | `--keywords` | string | (auto-detect) | Comma-separated keywords to track |
 | `--days` | int | `7` | Lookback period in days |
 | `--min-score` | float | `0.6` | Minimum trending score (0-1) |
@@ -130,14 +162,20 @@ Create `config.yaml` for persistent settings:
 
 ```yaml
 sources:
-  biorxiv:
+  arxiv:
     enabled: true
+    rss_url: "https://export.arxiv.org/rss/q-bio"
+    description: "arXiv Quantitative Biology - Recommended (no Cloudflare)"
+  biorxiv:
+    enabled: false  # Disabled due to Cloudflare protection
     rss_url: "https://www.biorxiv.org/rss/recent.rss"
     api_endpoint: "https://api.biorxiv.org/details/"
+    note: "Currently blocked by Cloudflare JavaScript Challenge"
   medrxiv:
-    enabled: true
+    enabled: false  # Disabled due to Cloudflare protection
     rss_url: "https://www.medrxiv.org/rss/recent.rss"
     api_endpoint: "https://api.medrxiv.org/details/"
+    note: "Currently blocked by Cloudflare JavaScript Challenge"
 
 trending:
   min_papers_threshold: 5
@@ -195,11 +233,17 @@ Historical data is stored in `data/history.json` for:
 
 ## Examples
 
-### Example 1: Quick Daily Scan
+### Example 1: Quick Daily Scan (arXiv - Recommended)
 
 ```bash
-python scripts/main.py --days 1 --output markdown
+python scripts/main.py --sources arxiv --days 1 --output markdown
 ```
+
+### Example 2: Daily Scan with bioRxiv (May not work)
+
+```bash
+python scripts/main.py --sources biorxiv --days 1 --output markdown
+# Note: May return 0 results due to Cloudflare protection
 
 ### Example 2: Weekly Deep Analysis
 
@@ -221,13 +265,43 @@ python scripts/main.py \
   --min-score 0.5
 ```
 
+## Known Issues
+
+### bioRxiv/medRxiv Cloudflare Protection
+**Status:** ❌ Blocked  
+**Issue:** bioRxiv and medRxiv RSS feeds are protected by Cloudflare JavaScript Challenge, which prevents programmatic access. The site returns an HTML page requiring JavaScript execution and cookie validation.
+
+**Attempted Solutions:**
+1. ✅ Added browser User-Agent headers → **Failed** (Cloudflare detects bot)
+2. ✅ Added complete browser headers (Accept, Accept-Language, etc.) → **Failed** 
+3. ❌ Browser automation (Selenium/Playwright) → **Not implemented** (complex, heavy dependency)
+
+**Workaround:** ✅ **Use arXiv instead**
+- arXiv q-bio (Quantitative Biology) RSS is accessible without protection
+- Contains computational biology, bioinformatics, and quantitative biology papers
+- Successfully tested: 35+ papers fetched in 30-day window
+
+**Usage:**
+```bash
+# Recommended: Use arXiv
+python scripts/main.py --sources arxiv --days 30
+
+# Not working: bioRxiv/medRxiv
+python scripts/main.py --sources biorxiv medrxiv --days 30  # Returns 0 papers
+```
+
 ## Troubleshooting
 
 ### Rate Limiting
 If you encounter rate limits, increase the `--delay` parameter (default: 1s between requests).
 
-### Missing Papers
-Ensure RSS feeds are accessible. Some institutional firewalls may block preprint servers.
+### Missing Papers (0 results from bioRxiv/medRxiv)
+This is expected due to Cloudflare protection. **Use `--sources arxiv` instead.**
+
+### RSS Feed Access Denied
+Some institutional firewalls may block preprint servers. Ensure you can access:
+- ✅ `https://export.arxiv.org/rss/q-bio` (should work)
+- ❌ `https://www.biorxiv.org/rss/recent.rss` (Cloudflare blocked)
 
 ### Low Trending Scores
 For niche topics, lower `--min-score` threshold or increase `--days` for more data.
@@ -291,7 +365,11 @@ pip install -r requirements.txt
 
 - **Current Stage**: Draft
 - **Next Review Date**: 2026-03-06
-- **Known Issues**: None
+- **Known Issues**:
+  - ⚠️ **bioRxiv/medRxiv blocked by Cloudflare** (use arXiv as workaround)
+  - Network access limitations for some RSS feeds
 - **Planned Improvements**: 
+  - Investigate bioRxiv/medRxiv API alternatives
+  - Consider browser automation for Cloudflare bypass
+  - Add more arXiv categories (q-bio subcategories)
   - Performance optimization
-  - Additional feature support
