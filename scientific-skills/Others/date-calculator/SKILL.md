@@ -29,20 +29,50 @@ Calculates medical date windows.
 - Visit scheduling
 - Date adjustments
 
-## Input Parameters
+## Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `start_date` | str | Yes | Start date (YYYY-MM-DD) |
-| `calculation_type` | str | Yes | "gestational", "followup" |
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--type`, `-t` | string | - | Yes | Calculation type (gestational or followup) |
+| `--date`, `-d` | string | - | Yes | Date in YYYY-MM-DD format |
+| `--weeks` | int | 4 | No | Number of weeks for follow-up |
+| `--window-days` | int | 7 | No | Follow-up window size in days |
+| `--output`, `-o` | string | - | No | Output JSON file path |
+
+## Usage
+
+```bash
+# Calculate gestational age
+python scripts/main.py --type gestational --date 2024-01-15
+
+# Calculate 4-week follow-up window
+python scripts/main.py --type followup --date 2024-03-01
+
+# Calculate custom follow-up (6 weeks)
+python scripts/main.py --type followup --date 2024-03-01 --weeks 6
+```
 
 ## Output Format
 
+**Gestational calculation:**
 ```json
 {
-  "result_date": "string",
-  "weeks": "int",
-  "window": "string"
+  "lmp_date": "2024-01-15",
+  "gestational_age": "12 weeks 3 days",
+  "gestational_age_days": 87,
+  "estimated_delivery_date": "2024-10-21",
+  "calculation_date": "2024-04-12"
+}
+```
+
+**Follow-up calculation:**
+```json
+{
+  "start_date": "2024-03-01",
+  "followup_weeks": 4,
+  "window_start": "2024-03-29",
+  "window_end": "2024-04-05",
+  "window_range": "2024-03-29 to 2024-04-05"
 }
 ```
 
