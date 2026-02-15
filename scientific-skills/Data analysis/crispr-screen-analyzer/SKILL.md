@@ -993,6 +993,83 @@ Located in `scripts/` directory:
 | **Comparative** | Cell A vs Cell B | Lineage-specific dependencies | 10-14 days |
 | **Sensitizer** | Drug A+B vs Drug A | Combination targets | 10-14 days |
 
+## Parameters
+
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--counts`, `-c` | string | - | Yes | sgRNA count matrix file |
+| `--samples`, `-s` | string | - | Yes | Sample annotation file |
+| `--control` | string | - | No | Control samples (comma-separated) |
+| `--treatment`, `-t` | string | - | No | Treatment samples (comma-separated) |
+| `--output`, `-o` | string | - | No | Output directory |
+| `--fdr` | float | 0.05 | No | FDR threshold |
+
+## Usage
+
+### Basic Usage
+
+```bash
+# Analyze CRISPR screen data
+python scripts/main.py --counts sgrna_counts.txt --samples samplesheet.csv
+
+# With specific control and treatment
+python scripts/main.py --counts counts.txt --samples samples.csv --control "Ctrl1,Ctrl2" --treatment "Treat1,Treat2"
+
+# Custom FDR threshold
+python scripts/main.py --counts counts.txt --samples samples.csv --fdr 0.01 --output ./results
+```
+
+## Risk Assessment
+
+| Risk Indicator | Assessment | Level |
+|----------------|------------|-------|
+| Code Execution | Python script executed locally | Low |
+| Network Access | No external API calls | Low |
+| File System Access | Read count files, write results | Low |
+| Data Exposure | Processes genomic screening data | Medium |
+| PHI Risk | May contain cell line genetic info | Low |
+
+## Security Checklist
+
+- [x] No hardcoded credentials or API keys
+- [x] No unauthorized file system access
+- [x] Input validation for file paths
+- [x] Output directory restricted
+- [x] Error messages sanitized
+- [x] Script execution in sandboxed environment
+
+## Prerequisites
+
+```bash
+# Python 3.7+
+numpy
+pandas
+scipy
+```
+
+## Evaluation Criteria
+
+### Success Metrics
+- [x] Successfully loads sgRNA count matrices
+- [x] Calculates QC metrics (Gini index, zero counts)
+- [x] Performs RRA analysis
+- [x] Identifies significant hits with FDR control
+
+### Test Cases
+1. **Basic Analysis**: Count matrix + samplesheet → QC metrics + hit list
+2. **RRA Analysis**: Control vs Treatment → Ranked gene list with p-values
+3. **QC Metrics**: Count data → Gini scores, zero sgRNA counts
+
+## Lifecycle Status
+
+- **Current Stage**: Active
+- **Next Review Date**: 2026-03-09
+- **Known Issues**: None
+- **Planned Improvements**:
+  - Add MAGeCK integration
+  - Support for multiple analysis methods
+  - Enhanced visualization
+
 ---
 
 **Last Updated**: 2026-02-09  
