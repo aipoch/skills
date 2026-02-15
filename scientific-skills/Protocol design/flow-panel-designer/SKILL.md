@@ -25,9 +25,13 @@ Fluorophore selection optimizer.
 - Spectral flow setup
 
 ## Parameters
-- `markers`: Target antigens
-- `instrument`: Cytometer model
-- `n_colors`: Number of fluorophores
+
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--markers` | string | - | Yes | Comma-separated target antigens |
+| `--instrument` | string | - | No | Cytometer model |
+| `--n-colors` | int | 8 | No | Number of fluorophores |
+| `--output`, `-o` | string | stdout | No | Output file path |
 
 ## Returns
 - Optimal fluorophore assignments
