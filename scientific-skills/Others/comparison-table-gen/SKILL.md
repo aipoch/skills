@@ -30,12 +30,28 @@ Generates comparison tables for medical content.
 - Drug comparison templates
 - Study result comparisons
 
-## Input Parameters
+## Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `items` | list | Yes | Items to compare |
-| `attributes` | list | Yes | Comparison attributes |
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--items`, `-i` | string | - | Yes | Items to compare (comma-separated) |
+| `--attributes`, `-a` | string | - | Yes | Comparison attributes (comma-separated) |
+| `--output`, `-o` | string | - | No | Output JSON file path |
+
+## Usage
+
+```bash
+# Compare two drugs
+python scripts/main.py --items "Drug A,Drug B" --attributes "Mechanism,Dose,Side Effects"
+
+# Save to file
+python scripts/main.py --items "Surgery,Chemo,Radiation" --attributes "Cost,Efficacy" --output comparison.json
+```
+
+## Input Format
+
+- **items**: Comma-separated list of items to compare (e.g., "Drug A,Drug B")
+- **attributes**: Comma-separated list of comparison attributes (e.g., "Mechanism,Dose")
 
 ## Output Format
 
