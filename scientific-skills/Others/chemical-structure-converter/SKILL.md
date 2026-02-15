@@ -863,6 +863,82 @@ Located in `scripts/` directory:
 - C first, then H, then alphabetical
 - Example: C6H12O6 (glucose)
 
+## Parameters
+
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--name`, `-n` | string | - | No | Compound name |
+| `--smiles`, `-s` | string | - | No | SMILES string |
+| `--iupac`, `-i` | string | - | No | IUPAC name |
+| `--validate` | flag | - | No | Validate SMILES syntax |
+| `--list`, `-l` | flag | - | No | List available compounds |
+
+## Usage
+
+### Basic Usage
+
+```bash
+# Convert by compound name
+python scripts/main.py --name aspirin
+
+# Convert SMILES to IUPAC
+python scripts/main.py --smiles "CC(=O)Oc1ccccc1C(=O)O"
+
+# Validate SMILES
+python scripts/main.py --smiles "CCO" --validate
+
+# List all compounds
+python scripts/main.py --list
+```
+
+## Risk Assessment
+
+| Risk Indicator | Assessment | Level |
+|----------------|------------|-------|
+| Code Execution | Python script executed locally | Low |
+| Network Access | No external API calls | Low |
+| File System Access | No file access | Low |
+| Data Exposure | No sensitive data | Low |
+
+## Security Checklist
+
+- [x] No hardcoded credentials or API keys
+- [x] No file system access
+- [x] Input validation for chemical identifiers
+- [x] Output does not expose sensitive information
+- [x] Error messages sanitized
+- [x] Script execution in sandboxed environment
+
+## Prerequisites
+
+```bash
+# Python 3.7+
+# No additional packages required (uses standard library)
+```
+
+## Evaluation Criteria
+
+### Success Metrics
+- [x] Successfully converts between chemical formats
+- [x] Validates SMILES syntax
+- [x] Retrieves compound information by name
+- [x] Lists available compounds
+
+### Test Cases
+1. **Name Lookup**: Aspirin → Returns SMILES, IUPAC, formula
+2. **SMILES Conversion**: Valid SMILES → IUPAC name
+3. **Validation**: Invalid SMILES → Error message
+
+## Lifecycle Status
+
+- **Current Stage**: Active
+- **Next Review Date**: 2026-03-09
+- **Known Issues**: Limited compound database (mock data)
+- **Planned Improvements**:
+  - Integrate with PubChem API
+  - Add 2D/3D structure generation
+  - Expand compound database
+
 ---
 
 **Last Updated**: 2026-02-09  
