@@ -18,6 +18,12 @@ last_updated: '2026-02-06'
 
 Check consistency of figure references in manuscripts.
 
+## Parameters
+
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--manuscript`, `-m` | string | - | Yes | Path to manuscript file |
+
 ## Usage
 
 ```bash
