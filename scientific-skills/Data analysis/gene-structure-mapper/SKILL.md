@@ -24,6 +24,16 @@ Visualize gene structure with exons and introns.
 python scripts/main.py --gene TP53 --format svg
 ```
 
+## Parameters
+
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--gene` | string | - | Yes | Gene symbol (e.g., TP53, BRCA1) |
+| `--format` | string | svg | No | Output format (svg, png, pdf) |
+| `--output`, `-o` | string | stdout | No | Output file path |
+| `--domains` | flag | false | No | Include domain annotation |
+| `--mutations` | string | - | No | Mutation positions to mark (comma-separated) |
+
 ## Features
 
 - Exon-intron visualization
