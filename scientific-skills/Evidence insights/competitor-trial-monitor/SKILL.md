@@ -30,6 +30,38 @@ Monitor competitor clinical trial progress and alert on market risks.
 - **EU Clinical Trials Register** - EU Clinical Trials Registry
 - **WHO ICTRP** - International Clinical Trials Registry Platform
 
+## Parameters
+
+### Commands
+
+| Command | Description | Parameters |
+|---------|-------------|------------|
+| `add` | Add trial to watchlist | `--nct` (required), `--company`, `--drug`, `--indication` |
+| `list` | List all monitored trials | None |
+| `remove` | Remove trial from watchlist | `--nct` (required) |
+| `scan` | Scan for updates | None |
+| `report` | Generate risk report | `--days` (default: 30) |
+
+### Command Parameters
+
+**add command:**
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--nct` | string | - | Yes | ClinicalTrials.gov NCT ID |
+| `--company` | string | Unknown | No | Competitor company name |
+| `--drug` | string | Unknown | No | Drug name |
+| `--indication` | string | Unknown | No | Indication/disease |
+
+**remove command:**
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--nct` | string | - | Yes | NCT ID to remove |
+
+**report command:**
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--days` | int | 30 | No | Report time range in days |
+
 ## Usage
 
 ### Add Monitoring Target

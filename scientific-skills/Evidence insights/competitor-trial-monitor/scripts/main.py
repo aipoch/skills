@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Competitor Trial Monitor - 竞品临床试验监控
+Competitor Trial Monitor - Competitor Clinical Trial Monitor
 监控竞品临床试验进度，预警市场风险。
 """
 
@@ -140,7 +140,7 @@ def assess_risk(old_info: Optional[Dict], new_info: Dict) -> Optional[Dict]:
 
 
 def cmd_add(args):
-    """添加监控目标"""
+    """Add monitoring target"""
     watchlist = load_watchlist()
     
     # 检查是否已存在
@@ -176,7 +176,7 @@ def cmd_add(args):
 
 
 def cmd_list(args):
-    """列出监控目标"""
+    """List monitoring targets"""
     watchlist = load_watchlist()
     
     if not watchlist:
@@ -198,7 +198,7 @@ def cmd_list(args):
 
 
 def cmd_remove(args):
-    """删除监控目标"""
+    """Remove monitoring target"""
     watchlist = load_watchlist()
     
     original_len = len(watchlist)
@@ -213,7 +213,7 @@ def cmd_remove(args):
 
 
 def cmd_scan(args):
-    """扫描更新"""
+    """Scan for updates"""
     watchlist = load_watchlist()
     
     if not watchlist:
@@ -272,7 +272,7 @@ def cmd_scan(args):
 
 
 def cmd_report(args):
-    """生成风险报告"""
+    """Generate risk report"""
     watchlist = load_watchlist()
     days = args.days or 30
     
@@ -331,14 +331,14 @@ def cmd_report(args):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Competitor Trial Monitor - 竞品临床试验监控",
+        description="Competitor Trial Monitor - Competitor Clinical Trial Monitor",
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
     
-    subparsers = parser.add_subparsers(dest="command", help="可用命令")
+    subparsers = parser.add_subparsers(dest="command", help="Available commands")
     
     # add 命令
-    add_parser = subparsers.add_parser("add", help="添加监控目标")
+    add_parser = subparsers.add_parser("add", help="Add monitoring target")
     add_parser.add_argument("--nct", required=True, help="ClinicalTrials.gov NCT ID")
     add_parser.add_argument("--company", help="竞品公司名称")
     add_parser.add_argument("--drug", help="药物名称")
@@ -346,20 +346,20 @@ def main():
     add_parser.set_defaults(func=cmd_add)
     
     # list 命令
-    list_parser = subparsers.add_parser("list", help="列出监控目标")
+    list_parser = subparsers.add_parser("list", help="List monitoring targets")
     list_parser.set_defaults(func=cmd_list)
     
     # remove 命令
-    remove_parser = subparsers.add_parser("remove", help="删除监控目标")
+    remove_parser = subparsers.add_parser("remove", help="Remove monitoring target")
     remove_parser.add_argument("--nct", required=True, help="要删除的NCT ID")
     remove_parser.set_defaults(func=cmd_remove)
     
     # scan 命令
-    scan_parser = subparsers.add_parser("scan", help="扫描更新")
+    scan_parser = subparsers.add_parser("scan", help="Scan for updates")
     scan_parser.set_defaults(func=cmd_scan)
     
     # report 命令
-    report_parser = subparsers.add_parser("report", help="生成风险报告")
+    report_parser = subparsers.add_parser("report", help="Generate risk report")
     report_parser.add_argument("--days", type=int, default=30, help="报告时间范围(天)")
     report_parser.set_defaults(func=cmd_report)
     
