@@ -32,12 +32,14 @@ Medical drug name pronunciation assistant with IPA phonetics and syllable breakd
 - Audio generation markers (SSML-compatible)
 - Coverage of 1000+ common medications
 
-## Input Parameters
+## Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `drug_name` | str | Yes | Generic or brand drug name |
-| `format` | str | No | Output format: "ipa", "simple", "detailed" |
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--drug`, `-d` | string | - | Yes | Drug name (generic or brand) |
+| `--format`, `-f` | string | detailed | No | Output format (ipa, simple, detailed) |
+| `--list`, `-l` | flag | - | No | List all available drugs |
+| `--output`, `-o` | string | - | No | Output JSON file path |
 
 ## Output Format
 
