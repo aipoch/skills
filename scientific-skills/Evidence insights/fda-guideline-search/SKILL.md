@@ -43,16 +43,16 @@ Quickly search and retrieve FDA industry guidelines by therapeutic area.
 python scripts/main.py --area <therapeutic_area> [options]
 ```
 
-### Parameters
+## Parameters
 
-| Parameter | Description | Required |
-|-----------|-------------|----------|
-| `--area` | Therapeutic area (e.g., oncology, cardiology, rare-disease) | Yes |
-| `--type` | Document type: all, draft, final, ich | No (default: all) |
-| `--year` | Filter by year (e.g., 2023, 2020-2024) | No |
-| `--download` | Download PDF to local cache | No |
-| `--search` | Search term within documents | No |
-| `--limit` | Max results (1-100) | No (default: 20) |
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--area` | string | - | Yes | Therapeutic area (oncology, cardiology, rare-disease) |
+| `--type` | string | all | No | Document type (all, draft, final, ich) |
+| `--year` | string | - | No | Filter by year (e.g., 2023, 2020-2024) |
+| `--download` | flag | false | No | Download PDF to local cache |
+| `--search` | string | - | No | Search term within documents |
+| `--limit` | int | 20 | No | Max results (1-100) |
 
 ### Examples
 
