@@ -67,16 +67,16 @@ results = anonymizer.anonymize_directory("input_folder/", "output_folder/")
 
 ## Parameters
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `--input`, `-i` | string | required | Input DICOM file or directory path |
-| `--output`, `-o` | string | required | Output DICOM file or directory path |
-| `--batch`, `-b` | flag | false | Enable batch/directory processing |
-| `--preserve-studies` | flag | false | Maintain study relationships with pseudonyms |
-| `--keep-tags` | string | - | Comma-separated list of tags to preserve |
-| `--remove-private` | flag | true | Remove private/unknown tags |
-| `--audit-log` | string | - | Path for JSON audit log |
-| `--overwrite` | flag | false | Overwrite existing output files |
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--input`, `-i` | string | - | Yes | Input DICOM file or directory path |
+| `--output`, `-o` | string | - | Yes | Output DICOM file or directory path |
+| `--batch`, `-b` | flag | false | No | Enable batch/directory processing |
+| `--preserve-studies` | flag | false | No | Maintain study relationships with pseudonyms |
+| `--keep-tags` | string | - | No | Comma-separated list of tags to preserve |
+| `--remove-private` | flag | true | No | Remove private/unknown tags |
+| `--audit-log` | string | - | No | Path for JSON audit log |
+| `--overwrite` | flag | false | No | Overwrite existing output files |
 
 ## Anonymized DICOM Tags
 
