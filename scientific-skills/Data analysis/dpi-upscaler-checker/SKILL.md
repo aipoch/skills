@@ -61,20 +61,24 @@ python scripts/main.py upscale --input image.jpg --output upscaled.jpg --scale 4
 python scripts/main.py upscale --input ./images/ --output ./output/ --min-dpi 300 --scale 2
 ```
 
-## Parameter Description
+## Parameters
 
 ### Check Command
-- `--input`: Input image path or folder (required)
-- `--output`: Output report path (optional, default stdout)
-- `--target-dpi`: Target DPI (default 300)
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--input` | string | - | Yes | Input image path or folder |
+| `--output` | string | stdout | No | Output report path |
+| `--target-dpi` | int | 300 | No | Target DPI threshold |
 
 ### Upscale Command
-- `--input`: Input image path or folder (required)
-- `--output`: Output path (required)
-- `--scale`: Scale factor (2/3/4, default 2)
-- `--min-dpi`: Only process images below this DPI (optional)
-- `--denoise`: Denoise level (0-3, default 0)
-- `--face-enhance`: Enable face enhancement (optional)
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--input` | string | - | Yes | Input image path or folder |
+| `--output` | string | - | Yes | Output path |
+| `--scale` | int | 2 | No | Scale factor (2/3/4) |
+| `--min-dpi` | int | - | No | Only process images below this DPI |
+| `--denoise` | int | 0 | No | Denoise level (0-3) |
+| `--face-enhance` | flag | false | No | Enable face enhancement |
 
 ## Output Description
 
