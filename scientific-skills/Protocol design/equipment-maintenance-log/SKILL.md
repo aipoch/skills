@@ -27,11 +27,16 @@ python scripts/main.py --check
 
 ## Parameters
 
-- `--add`: Add new equipment
-- `--calibration-date`: Last calibration date (YYYY-MM-DD)
-- `--interval`: Calibration interval in months
-- `--check`: Check for upcoming maintenance
-- `--list`: List all equipment
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--add` | string | - | * | Equipment name to add |
+| `--calibration-date` | string | - | * | Last calibration date (YYYY-MM-DD) |
+| `--interval` | int | - | * | Calibration interval in months |
+| `--check` | flag | - | ** | Check for upcoming maintenance |
+| `--list` | flag | - | ** | List all equipment |
+
+\* Required when adding equipment  
+\** Alternative to --add (mutually exclusive)
 
 ## Output
 
