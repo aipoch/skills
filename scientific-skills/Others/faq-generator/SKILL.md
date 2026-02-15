@@ -25,12 +25,14 @@ Creates FAQ lists from medical documents.
 - Patient-friendly language
 - Structured formatting
 
-## Input Parameters
+## Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `document` | str | Yes | Source document |
-| `audience` | str | No | "patients", "researchers" |
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--input`, `-i` | string | - | Yes | Source document file path |
+| `--audience`, `-a` | string | general | No | Target audience (patients, researchers, general) |
+| `--output`, `-o` | string | stdout | No | Output file path |
+| `--format`, `-f` | string | json | No | Output format (json, markdown, text) |
 
 ## Output Format
 
