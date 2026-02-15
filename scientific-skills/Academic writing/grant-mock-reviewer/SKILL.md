@@ -68,18 +68,18 @@ print(result.scores)
 
 ## Parameters
 
-| Parameter | Description | Options |
-|-----------|-------------|---------|
-| `--input` | Path to proposal file (PDF, DOCX, TXT, MD) | File path |
-| `--format` | Input file format | `pdf`, `docx`, `txt`, `md` |
-| `--section` | Section to review | `full`, `aims`, `significance`, `innovation`, `approach` |
-| `--grant-type` | Grant mechanism | `R01`, `R21`, `R03`, `K99`, `F32` |
-| `--focus` | Focus on specific criterion | `significance`, `investigator`, `innovation`, `approach`, `environment` |
-| `--scores-only` | Output scores only (JSON) | Flag |
-| `--output` | Output file path | File path |
-| `--original` | Original proposal for comparison | File path |
-| `--revised` | Revised proposal for comparison | File path |
-| `--compare` | Enable comparison mode | Flag |
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--input` | string | - | Yes | Path to proposal file (PDF, DOCX, TXT, MD) |
+| `--format` | string | auto | No | Input file format (pdf, docx, txt, md) |
+| `--section` | string | full | No | Section to review (full, aims, significance, innovation, approach) |
+| `--grant-type` | string | R01 | No | Grant mechanism (R01, R21, R03, K99, F32) |
+| `--focus` | string | - | No | Focus on specific criterion (significance, investigator, innovation, approach, environment) |
+| `--scores-only` | flag | false | No | Output scores only (JSON) |
+| `--output`, `-o` | string | stdout | No | Output file path |
+| `--original` | string | - | No | Original proposal for comparison |
+| `--revised` | string | - | No | Revised proposal for comparison |
+| `--compare` | flag | false | No | Enable comparison mode |
 
 ## NIH Scoring System
 
