@@ -26,10 +26,28 @@ python scripts/main.py --interests "genomics,AI,drug-discovery" --schedule sched
 
 ## Parameters
 
-- `--interests`: Comma-separated topic interests
-- `--schedule`: Conference schedule JSON file
-- `--must-attend`: Session IDs that must be included
-- `--output`: Optimized schedule output
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--interests`, `-i` | string | - | Yes | Comma-separated topic interests |
+| `--schedule`, `-s` | string | - | Yes | Conference schedule JSON file |
+| `--must-attend`, `-m` | string | - | No | Comma-separated must-attend session IDs |
+| `--output`, `-o` | string | - | No | Optimized schedule output file |
+
+### Input JSON Format
+
+```json
+{
+  "sessions": [
+    {
+      "id": "S001",
+      "title": "Session Title",
+      "start": "2026-03-15T09:00:00",
+      "topics": ["genomics", "AI"],
+      "room": "Hall A"
+    }
+  ]
+}
+```
 
 ## Features
 
