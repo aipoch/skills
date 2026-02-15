@@ -46,14 +46,14 @@ python scripts/main.py --type general --title "Protein Purification Experiment" 
 
 ## Parameters
 
-| Parameter | Type | Required | Description |
-|------|------|------|------|
-| `--type` | string | Yes | Experiment type: general, molecular-biology, chemistry, cell-culture, animal-study |
-| `--output` | string | No | Output file path, default output to stdout |
-| `--title` | string | No | Experiment title |
-| `--researcher` | string | No | Researcher name |
-| `--date` | string | No | Experiment date (YYYY-MM-DD) |
-| `--project` | string | No | Project name/number |
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--type` | string | - | Yes | Experiment type (general, molecular-biology, chemistry, cell-culture, animal-study) |
+| `--output`, `-o` | string | stdout | No | Output file path |
+| `--title` | string | - | No | Experiment title |
+| `--researcher` | string | - | No | Researcher name |
+| `--date` | string | - | No | Experiment date (YYYY-MM-DD) |
+| `--project` | string | - | No | Project name/number |
 
 ## Supported Experiment Types
 
