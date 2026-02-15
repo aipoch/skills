@@ -25,18 +25,42 @@ Conference-specific abstract formatting.
 - Deadline management
 
 ## Parameters
-- `original_abstract`: Source text
-- `conference`: Target venue
-- `max_words`: Limit (if known)
+
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--abstract`, `-a` | string | - | Yes | Abstract text file path |
+| `--conference`, `-c` | string | - | Yes | Target conference (ASGCT, ASCO, SfN, AACR, ASM) |
+| `--output`, `-o` | string | - | No | Output file path |
+| `--list-conferences`, `-l` | flag | - | No | List supported conferences |
+
+## Usage
+
+```bash
+# Adapt abstract for ASCO
+python scripts/main.py --abstract my_abstract.txt --conference ASCO
+
+# Save adapted abstract to file
+python scripts/main.py --abstract my_abstract.txt --conference ASGCT --output adapted.txt
+
+# List all supported conferences
+python scripts/main.py --list-conferences
+```
+
+## Supported Conferences
+
+| Conference | Word Limit | Format |
+|-----------|------------|--------|
+| **ASGCT** | 250 words | Structured (Background/Methods/Results/Conclusion) |
+| **ASCO** | 260 words | Structured (Background/Methods/Results/Conclusion) |
+| **SfN** | 2000 chars | Single abstract |
+| **AACR** | 300 words | Structured (Background/Methods/Results/Conclusion) |
+| **ASM** | 300 words | Single abstract |
 
 ## Returns
 - Reformatted abstract
 - Word count verification
 - Required sections checklist
 - Submission-ready text
-
-## Example
-ASCO format: 2500 characters, structured
 
 ## Risk Assessment
 
