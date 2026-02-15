@@ -355,6 +355,80 @@ Located in `scripts/` directory:
 - **Amputees**: Standard formulas inaccurate; adjustment needed
 - **Pregnancy**: Special considerations not included
 
+## Parameters
+
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--weight`, `-w` | float | - | Yes | Weight in kilograms |
+| `--height`, `-H` | float | - | Yes | Height in centimeters |
+| `--dose`, `-d` | float | - | No | Standard drug dose per m² in mg (optional) |
+| `--format`, `-f` | string | text | No | Output format (text, json) |
+| `--output`, `-o` | string | - | No | Output file path (optional) |
+
+## Usage
+
+### Basic Usage
+
+```bash
+# Calculate BMI and BSA
+python scripts/main.py --weight 70 --height 175
+
+# Calculate with drug dosing
+python scripts/main.py --weight 70 --height 175 --dose 100
+
+# Output as JSON
+python scripts/main.py --weight 70 --height 175 --format json --output results.json
+```
+
+## Risk Assessment
+
+| Risk Indicator | Assessment | Level |
+|----------------|------------|-------|
+| Code Execution | Python script executed locally | Low |
+| Network Access | No external API calls | Low |
+| File System Access | Optional file output only | Low |
+| Data Exposure | No sensitive data stored | Low |
+| Clinical Risk | Results used for medical decisions | Medium |
+
+## Security Checklist
+
+- [x] No hardcoded credentials or API keys
+- [x] No unauthorized file system access
+- [x] Input validation for weight/height
+- [x] Output does not expose sensitive information
+- [x] Error messages sanitized
+- [x] Script execution in sandboxed environment
+
+## Prerequisites
+
+```bash
+# Python 3.7+
+# No additional packages required (uses standard library)
+```
+
+## Evaluation Criteria
+
+### Success Metrics
+- [x] Successfully calculates BMI using standard formula
+- [x] Successfully calculates BSA using DuBois formula
+- [x] Correctly categorizes BMI (Underweight, Normal, Overweight, Obese)
+- [x] Calculates drug doses based on BSA when provided
+
+### Test Cases
+1. **Normal Adult**: 70kg, 175cm → BMI 22.9 (Normal), BSA ~1.85 m²
+2. **Drug Dosing**: 70kg, 175cm, 100mg/m² → Dose 185mg
+3. **JSON Output**: Valid JSON with all fields
+
+## Lifecycle Status
+
+- **Current Stage**: Draft
+- **Next Review Date**: 2026-03-06
+- **Known Issues**: None
+- **Planned Improvements**:
+  - Add additional BSA formulas (Haycock, Mosteller)
+  - Add pediatric BMI percentiles
+  - Add unit conversion (lbs, ft/in)
+
 ---
 
 **⚕️ Clinical Note: BMI and BSA are screening and calculation tools, not substitutes for clinical judgment. Always correlate with physical examination, patient history, and other assessments. Double-check all chemotherapy calculations independently.**

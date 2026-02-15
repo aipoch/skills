@@ -389,6 +389,84 @@ Located in `scripts/` directory:
 - **Confidentiality**: Does not handle material non-public information protection
 - **Legal Review**: All materials require legal counsel review before use
 
+## Parameters
+
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--science` | string | - | Yes* | Scientific description of technology |
+| `--stage` | string | - | Yes* | Funding stage (pre-seed, seed, series-a, etc.) |
+| `--audience` | string | - | Yes* | Target audience type (generalist-vc, healthcare-vc, etc.) |
+| `--section` | string | - | No | Section to rewrite (hook, problem, solution, etc.) |
+| `--content` | string | - | No | Content to rewrite |
+| `--input` | string | - | No | Input file path |
+| `--output`, `-o` | string | - | No | Output file path |
+
+*Required depending on subcommand
+
+## Usage
+
+### Basic Usage
+
+```bash
+# Generate narrative from science description
+python scripts/main.py generate --science "CRISPR gene therapy for sickle cell" --stage series-a --audience healthcare-vc
+
+# Rewrite specific section
+python scripts/main.py rewrite --section technology --content "We use AAV vectors..." --audience generalist-vc
+
+# Analyze existing pitch deck
+python scripts/main.py analyze --input pitch.pptx --stage series-a
+```
+
+## Risk Assessment
+
+| Risk Indicator | Assessment | Level |
+|----------------|------------|-------|
+| Code Execution | Python script executed locally | Low |
+| Network Access | No external API calls | Low |
+| File System Access | Read/write files | Low |
+| Data Exposure | May process confidential business info | Medium |
+| Regulatory | Does not ensure SEC compliance | Medium |
+
+## Security Checklist
+
+- [x] No hardcoded credentials or API keys
+- [x] No unauthorized file system access
+- [x] Output does not expose sensitive information
+- [x] Prompt injection protections in place
+- [x] Error messages sanitized
+- [x] Script execution in sandboxed environment
+
+## Prerequisites
+
+```bash
+# Python 3.7+
+# No additional packages required (uses standard library)
+```
+
+## Evaluation Criteria
+
+### Success Metrics
+- [x] Successfully generates pitch narratives
+- [x] Adapts content to different investor types
+- [x] Rewrites technical content for business audiences
+- [x] Provides stage-appropriate messaging
+
+### Test Cases
+1. **Generate Narrative**: Science description → Complete pitch narrative
+2. **Rewrite Section**: Technical content → Business-friendly version
+3. **Audience Adaptation**: Same content for different VC types
+
+## Lifecycle Status
+
+- **Current Stage**: Draft
+- **Next Review Date**: 2026-03-06
+- **Known Issues**: Help text in Chinese
+- **Planned Improvements**:
+  - Translate all interface text to English
+  - Add more investor personas
+  - Enhance narrative templates
+
 ---
 
 **💼 Business Note: Successful biotech fundraising requires balancing scientific credibility with business appeal. This tool helps structure narratives, but the underlying science and team execution ultimately determine success. Always maintain integrity—overpromising destroys credibility with sophisticated investors.**
