@@ -88,16 +88,18 @@ print(result.treatment_course)
 print(result.discharge_orders)
 ```
 
-## Input Parameters
+## Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `admission_record` | string | Yes | Patient admission record text |
-| `progress_notes` | string | Yes | Daily progress notes during hospitalization |
-| `exam_results` | string | Yes | Laboratory and imaging examination results |
-| `patient_info` | dict | Yes | Basic patient information |
-| `template` | string | No | Custom template path (uses default if not provided) |
-| `language` | string | No | Output language, default: "zh-CN" |
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--admission` | string | - | Yes | Patient admission record text file |
+| `--progress` | string | - | Yes | Daily progress notes text file |
+| `--exams` | string | - | Yes | Laboratory and imaging examination results file |
+| `--json-input` | string | - | No | JSON input file with patient data |
+| `--output`, `-o` | string | - | No | Output discharge summary file path |
+| `--interactive` | flag | - | No | Run in interactive mode |
+| `--template` | string | default | No | Custom template path |
+| `--language` | string | zh-CN | No | Output language (zh-CN, en) |
 
 ## Output Format
 
