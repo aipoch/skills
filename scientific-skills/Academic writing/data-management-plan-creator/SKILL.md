@@ -74,19 +74,19 @@ creator.save_to_file("dmsp_output.md")
 
 ## Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `--project-title` | string | Yes | Title of the research project |
-| `--pi-name` | string | Yes | Name of the Principal Investigator |
-| `--institution` | string | Yes | Research institution or organization |
-| `--data-types` | string | Yes | Comma-separated list of data types (e.g., "genomic,imaging,clinical") |
-| `--estimated-size` | float | No | Estimated data size in GB |
-| `--repository` | string | Yes | Comma-separated list of target repositories |
-| `--sharing-timeline` | string | No | When data will be shared (default: "No later than the end of the award period") |
-| `--access-restrictions` | string | No | Any access restrictions (e.g., "controlled-access for sensitive data") |
-| `--format-standards` | string | No | Data format standards to be used |
-| `--output` | string | No | Output file path (default: dmsp_[timestamp].md) |
-| `--interactive` | flag | No | Run in interactive mode |
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--project-title` | string | - | Yes | Title of the research project |
+| `--pi-name` | string | - | Yes | Name of the Principal Investigator |
+| `--institution` | string | - | Yes | Research institution or organization |
+| `--data-types` | string | - | Yes | Comma-separated list of data types (e.g., "genomic,imaging,clinical") |
+| `--estimated-size` | float | - | No | Estimated data size in GB |
+| `--repository` | string | - | Yes | Comma-separated list of target repositories |
+| `--sharing-timeline` | string | No later than the end of the award period | No | When data will be shared |
+| `--access-restrictions` | string | - | No | Any access restrictions (e.g., "controlled-access for sensitive data") |
+| `--format-standards` | string | - | No | Data format standards to be used |
+| `--output` | string | dmsp_[timestamp].md | No | Output file path |
+| `--interactive` | flag | - | No | Run in interactive mode |
 
 ## NIH DMSP Required Elements
 
