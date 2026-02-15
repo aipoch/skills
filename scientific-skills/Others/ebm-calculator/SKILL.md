@@ -34,15 +34,25 @@ Evidence-Based Medicine diagnostic test calculator.
 - Number Needed to Treat (NNT)
 - Pre/post-test probability conversion
 
-## Input Parameters
+## Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `true_positives` | int | Yes | True positive count |
-| `false_negatives` | int | Yes | False negative count |
-| `true_negatives` | int | Yes | True negative count |
-| `false_positives` | int | Yes | False positive count |
-| `prevalence` | float | No | Disease prevalence (0-1) |
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--mode`, `-m` | string | diagnostic | No | Calculation mode (diagnostic, nnt, probability) |
+| `--tp`, `--true-pos` | int | - | * | True positives (diagnostic mode) |
+| `--fn`, `--false-neg` | int | - | * | False negatives (diagnostic mode) |
+| `--tn`, `--true-neg` | int | - | * | True negatives (diagnostic mode) |
+| `--fp`, `--false-pos` | int | - | * | False positives (diagnostic mode) |
+| `--prevalence`, `-p` | float | - | No | Disease prevalence 0-1 (diagnostic mode) |
+| `--control-rate` | float | - | ** | Control event rate 0-1 (nnt mode) |
+| `--experimental-rate` | float | - | ** | Experimental event rate 0-1 (nnt mode) |
+| `--pretest` | float | - | *** | Pre-test probability 0-1 (probability mode) |
+| `--lr` | float | - | *** | Likelihood ratio (probability mode) |
+| `--output`, `-o` | string | stdout | No | Output file path |
+
+\* Required for diagnostic mode  
+\** Required for nnt mode  
+\*** Required for probability mode
 
 ## Output Format
 

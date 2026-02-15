@@ -1,8 +1,15 @@
 #!/usr/bin/env python3
-"""EBM Calculator - Evidence-Based Medicine diagnostic statistics."""
+"""EBM Calculator - Evidence-Based Medicine diagnostic statistics calculator.
 
+Calculates sensitivity, specificity, PPV, NPV, likelihood ratios, and NNT
+for clinical decision making and biostatistics education.
+"""
+
+import argparse
 import json
-from typing import Dict
+import sys
+from typing import Dict, Optional
+
 
 class EBMCalculator:
     """Calculates EBM diagnostic test statistics."""
@@ -85,19 +92,86 @@ class EBMCalculator:
             "probability_change": round(posttest_prob - pretest_prob, 4)
         }
 
+
 def main():
-    import sys
+    parser = argparse.ArgumentParser(
+        description="EBM Calculator - Evidence-Based Medicine diagnostic statistics",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  # Calculate diagnostic test statistics
+  python main.py --tp 90 --fn 10 --tn 80 --fp 20
+  
+  # With prevalence adjustment
+  python main.py --tp 90 --fn 10 --tn 80 --fp 20 --prevalence 0.1
+  
+  # Calculate NNT
+  python main.py --mode nnt --control-rate 0.25 --experimental-rate 0.15
+  
+  # Pre-test to post-test probability
+  python main.py --mode probability --pretest 0.3 --lr 4.5
+        """
+    )
+    
+    parser.add_argument(
+        "--mode", "-m",
+        type=str,
+        choices=["diagnostic", "nnt", "probability"],
+        default="diagnostic",
+        help="Calculation mode (default: diagnostic)"
+    )
+    
+    # Diagnostic test parameters
+    parser.add_argument("--tp", "--true-pos", type=int, help="True positives")
+    parser.add_argument("--fn", "--false-neg", type=int, help="False negatives")
+    parser.add_argument("--tn", "--true-neg", type=int, help="True negatives")
+    parser.add_argument("--fp", "--false-pos", type=int, help="False positives")
+    parser.add_argument("--prevalence", "-p", type=float, help="Disease prevalence (0-1)")
+    
+    # NNT parameters
+    parser.add_argument("--control-rate", type=float, help="Control event rate (0-1)")
+    parser.add_argument("--experimental-rate", type=float, help="Experimental event rate (0-1)")
+    
+    # Probability parameters
+    parser.add_argument("--pretest", type=float, help="Pre-test probability (0-1)")
+    parser.add_argument("--lr", type=float, help="Likelihood ratio")
+    
+    parser.add_argument("--output", "-o", type=str, help="Output JSON file path (optional)")
+    
+    args = parser.parse_args()
+    
     calc = EBMCalculator()
     
-    if len(sys.argv) >= 5:
-        tp, fn, tn, fp = map(int, sys.argv[1:5])
-        prev = float(sys.argv[5]) if len(sys.argv) > 5 else None
-        result = calc.calculate(tp, fn, tn, fp, prev)
-    else:
-        # Demo
-        result = calc.calculate(tp=90, fn=10, tn=80, fp=20, prevalence=0.1)
+    # Execute based on mode
+    if args.mode == "diagnostic":
+        # Check required parameters
+        if None in [args.tp, args.fn, args.tn, args.fp]:
+            print("Error: Diagnostic mode requires --tp, --fn, --tn, --fp", file=sys.stderr)
+            sys.exit(1)
+        result = calc.calculate(args.tp, args.fn, args.tn, args.fp, args.prevalence)
     
-    print(json.dumps(result, indent=2))
+    elif args.mode == "nnt":
+        if None in [args.control_rate, args.experimental_rate]:
+            print("Error: NNT mode requires --control-rate and --experimental-rate", file=sys.stderr)
+            sys.exit(1)
+        result = calc.calculate_nnt(args.control_rate, args.experimental_rate)
+    
+    elif args.mode == "probability":
+        if None in [args.pretest, args.lr]:
+            print("Error: Probability mode requires --pretest and --lr", file=sys.stderr)
+            sys.exit(1)
+        result = calc.pretest_to_posttest(args.pretest, args.lr)
+    
+    # Output
+    output = json.dumps(result, indent=2)
+    
+    if args.output:
+        with open(args.output, 'w', encoding='utf-8') as f:
+            f.write(output)
+        print(f"Results saved to: {args.output}")
+    else:
+        print(output)
+
 
 if __name__ == "__main__":
     main()
