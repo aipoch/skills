@@ -90,12 +90,15 @@ Generate standardized, clinically accurate hospital discharge summaries by integ
 python scripts/main.py --input patient_data.json --output discharge_summary.md --format standard
 ```
 
-### Options
-- `--input`: Path to JSON file containing patient data (required)
-- `--output`: Output file path (default: discharge_summary.md)
-- `--format`: Output format - `standard`, `structured`, or `json` (default: standard)
-- `--template`: Custom template file path (optional)
-- `--language`: Output language - `zh` or `en` (default: zh)
+## Parameters
+
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--input` | string | - | Yes | Path to JSON file containing patient data |
+| `--output` | string | discharge_summary.md | No | Output file path |
+| `--format` | string | standard | No | Output format (standard, structured, json) |
+| `--template` | string | - | No | Custom template file path |
+| `--language` | string | zh | No | Output language (zh or en) |
 
 ## Output Formats
 
