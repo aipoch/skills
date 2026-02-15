@@ -44,6 +44,16 @@ python scripts/main.py \
   --purpose "cell sorting"
 ```
 
+## Parameters
+
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--cell-types` | string | - | Yes | Comma-separated list of cell types (e.g., "CD4+ T cells,CD8+ T cells") |
+| `--fluorophores` | string | - | Yes | Comma-separated list of fluorophores (e.g., "FITC,PE,APC") |
+| `--instrument` | string | - | No | Flow cytometer model (e.g., "BD FACSCanto II") |
+| `--purpose` | string | analysis | No | Purpose (analysis, cell sorting, screening) |
+| `--output`, `-o` | string | stdout | No | Output file path for JSON results |
+
 ### Output Format
 
 ```json
