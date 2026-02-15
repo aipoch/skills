@@ -104,6 +104,20 @@ forecast = forecaster.predict_trends(years=5)
 forecaster.export_report(output_path='report.pdf', format='pdf')
 ```
 
+## Parameters
+
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--analyze-all` | flag | false | No | Run full analysis workflow on all sources |
+| `--source` | string | - | No | Specific agency to analyze (nih, nsf, horizon_europe) |
+| `--months` | int | 6 | No | Number of months of historical data to analyze |
+| `--years` | int | 5 | No | Years ahead for trend prediction |
+| `--visualize` | flag | false | No | Generate visualization charts |
+| `--forecast` | flag | false | No | Generate trend forecast |
+| `--input`, `-i` | string | - | No | Input data file path (for visualization/forecast) |
+| `--output`, `-o` | string | - | No | Output file path |
+| `--config` | string | config.json | No | Path to configuration file |
+
 ## Data Sources
 
 | Agency | Data Source URL | Update Frequency |
