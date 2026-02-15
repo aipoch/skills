@@ -98,6 +98,62 @@ Sample location information is stored in JSON files:
 }
 ```
 
+## Parameters
+
+### Global Parameters
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `command` | string | - | Yes | Command to execute (add, search, list, update, delete, export, stats) |
+| `--config` | string | - | No | Path to configuration file |
+
+### Add Command
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--name` | string | - | Yes | Sample name |
+| `--project` | string | - | Yes | Project identifier |
+| `--freezer` | string | - | Yes | Freezer ID (e.g., F01) |
+| `--level` | int | - | Yes | Shelf level number |
+| `--rack` | string | - | Yes | Rack identifier |
+| `--box` | string | - | Yes | Box number |
+| `--position` | string | - | Yes | Position within box (e.g., A1) |
+| `--quantity` | int | 1 | No | Sample quantity |
+| `--notes` | string | - | No | Additional notes |
+
+### Search Command
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--name` | string | - | No | Search by sample name (fuzzy) |
+| `--project` | string | - | No | Search by project (exact) |
+| `--freezer` | string | - | No | Search by freezer ID |
+| `--id` | string | - | No | Search by sample UUID |
+
+### List Command
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--freezer` | string | - | No | Filter by freezer ID |
+
+### Update Command
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--id` | string | - | Yes | Sample UUID to update |
+| `--position` | string | - | No | New position |
+| `--quantity` | int | - | No | New quantity |
+| `--notes` | string | - | No | New notes |
+
+### Delete Command
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--id` | string | - | Yes | Sample UUID to delete |
+
+### Export Command
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--output`, `-o` | string | - | Yes | Output file path |
+| `--freezer` | string | - | No | Filter by freezer ID |
+
+### Stats Command
+No additional parameters required.
+
 ## Usage
 
 ## 🚀 Usage Guide
