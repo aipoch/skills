@@ -965,6 +965,100 @@ Located in `scripts/` directory:
 
 **Cell:** #1B9E77, #D95F02, #7570B3, #E7298A, #66A61E, #E6AB02
 
+## Parameters
+
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--data` | string | - | Yes | Input data file (TSV/CSV format) |
+| `--output`, `-o` | string | circos.svg | No | Output SVG file path |
+| `--type` | string | variation | No | Plot type (variation, cell-communication) |
+| `--colors` | string | default | No | Color scheme (default, nature, lancet, cell) |
+| `--radius` | float | 400 | No | Plot radius in pixels |
+| `--help`, `-h` | flag | - | No | Show help message |
+
+## Usage
+
+### Basic Usage
+
+```bash
+# Generate genomic variation Circos plot
+python scripts/main.py --data variations.tsv --output genome.svg
+
+# Cell communication plot with custom colors
+python scripts/main.py --data cell_comm.tsv --type cell-communication --colors nature
+
+# Custom radius
+python scripts/main.py --data data.tsv --radius 500 --output large.svg
+```
+
+### Input Data Format
+
+**Variation data** (TSV format):
+```
+chromosome	position	value
+chr1	1000000	0.5
+chr1	2000000	-0.3
+chr2	500000	0.8
+```
+
+**Cell communication data** (TSV format):
+```
+cell_type1	cell_type2	interaction_strength
+T_cell	B_cell	0.75
+Macrophage	T_cell	0.60
+```
+
+## Risk Assessment
+
+| Risk Indicator | Assessment | Level |
+|----------------|------------|-------|
+| Code Execution | Python script executed locally | Low |
+| Network Access | No external API calls | Low |
+| File System Access | Read input data, write output SVG | Low |
+| Data Exposure | Processes genomic data | Low |
+| Resource Usage | Generates SVG files (can be large) | Low |
+
+## Security Checklist
+
+- [x] No hardcoded credentials or API keys
+- [x] No unauthorized file system access
+- [x] Input validation for file paths
+- [x] Output directory restricted
+- [x] Error messages sanitized
+- [x] Script execution in sandboxed environment
+- [x] No network connections
+
+## Prerequisites
+
+```bash
+# Python 3.7+
+# No external packages required (uses standard library)
+# Output: SVG format (viewable in web browsers)
+```
+
+## Evaluation Criteria
+
+### Success Metrics
+- [x] Successfully generates Circos configuration
+- [x] Creates valid SVG output files
+- [x] Supports multiple color schemes
+- [x] Handles both variation and cell communication data
+
+### Test Cases
+1. **Variation Plot**: Genomic data → Circular genome visualization
+2. **Cell Communication**: Interaction matrix → Cell-type network diagram
+3. **Custom Colors**: Data + color scheme → Styled visualization
+
+## Lifecycle Status
+
+- **Current Stage**: Active
+- **Next Review Date**: 2026-03-09
+- **Known Issues**: None
+- **Planned Improvements**:
+  - Add more plot types (methylation, expression)
+  - Support for interactive HTML output
+  - Integration with common genomic formats (VCF, BED)
+
 ---
 
 **Last Updated**: 2026-02-09  

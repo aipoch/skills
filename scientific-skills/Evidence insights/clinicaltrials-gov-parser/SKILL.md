@@ -41,6 +41,17 @@ Monitor and summarize competitor clinical trial status changes from ClinicalTria
 - **Recruitment Tracking**: Get updates on enrollment status
 - **Completion Alerts**: Monitor trial completion and results posting
 
+## Parameters
+
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--sponsor` | string | - | No | Trial sponsor name |
+| `--condition` | string | - | No | Medical condition/disease |
+| `--status` | string | - | No | Trial status (Recruiting, Completed, etc.) |
+| `--trials` | string | - | No | Comma-separated trial IDs (NCT numbers) |
+| `--output` | string | json | No | Output format (json, csv) |
+| `--days` | int | 30 | No | Number of days for monitoring |
+
 ## Usage
 
 ```python

@@ -25,6 +25,16 @@ Refactor messy R/Python scripts written by biologists into modular, documented, 
 ## Overview
 Common "one-off script" problems in bioinformatics research: scattered code, lack of documentation, chaotic dependencies, difficult to reproduce. This Skill transforms messy scripts into research code compliant with FAIR principles through a structured refactoring process.
 
+## Parameters
+
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--input` | string | - | Yes | Original script directory |
+| `--output` | string | - | Yes | Refactored output directory |
+| `--language` | string | python | No | Language (python, r) |
+| `--template` | string | nature | No | Journal template (nature, science, elife) |
+| `--requirements` | string | - | No | Dependency list file |
+
 ## Usage
 
 ```bash
