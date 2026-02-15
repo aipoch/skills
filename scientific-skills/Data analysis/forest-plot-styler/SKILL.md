@@ -43,27 +43,27 @@ python scripts/main.py --input <data.csv> [options]
 
 ### Parameters
 
-| Parameter | Short | Description | Default |
-|------|------|------|--------|
-| `--input` | `-i` | Input data file (CSV or Excel) | Required |
-| `--output` | `-o` | Output file path | `forest_plot.png` |
-| `--format` | `-f` | Output format: png/pdf/svg | `png` |
-| `--point-size` | | OR point size | `8` |
-| `--point-color` | | OR point color | `#2E86AB` |
-| `--ci-color` | | Confidence interval line color | `#2E86AB` |
-| `--ci-linewidth` | | Confidence interval line thickness | `2` |
-| `--ci-capwidth` | | Confidence interval endpoint width | `5` |
-| `--summary-color` | | Pooled effect point color | `#A23B72` |
-| `--summary-shape` | | Pooled effect point shape | `diamond` |
-| `--subgroup` | | Subgroup analysis column name | None |
-| `--title` | `-t` | Chart title | `Forest Plot` |
-| `--xlabel` | `-x` | X-axis label | `Odds Ratio (95% CI)` |
-| `--reference-line` | | Reference line position (usually 1) | `1` |
-| `--width` | `-W` | Image width (inches) | `12` |
-| `--height` | `-H` | Image height (inches) | Auto-calculate |
-| `--dpi` | | Image resolution | `300` |
-| `--font-size` | | Font size | `10` |
-| `--style` | `-s` | Preset style: default/minimal/dark | `default` |
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--input`, `-i` | string | - | Yes | Input data file (CSV or Excel) |
+| `--output`, `-o` | string | forest_plot.png | No | Output file path |
+| `--format`, `-f` | string | png | No | Output format (png/pdf/svg) |
+| `--point-size` | int | 8 | No | OR point size |
+| `--point-color` | string | #2E86AB | No | OR point color |
+| `--ci-color` | string | #2E86AB | No | Confidence interval line color |
+| `--ci-linewidth` | int | 2 | No | Confidence interval line thickness |
+| `--ci-capwidth` | int | 5 | No | Confidence interval endpoint width |
+| `--summary-color` | string | #A23B72 | No | Pooled effect point color |
+| `--summary-shape` | string | diamond | No | Pooled effect point shape |
+| `--subgroup` | string | - | No | Subgroup analysis column name |
+| `--title`, `-t` | string | Forest Plot | No | Chart title |
+| `--xlabel`, `-x` | string | Odds Ratio (95% CI) | No | X-axis label |
+| `--reference-line` | float | 1.0 | No | Reference line position |
+| `--width`, `-W` | int | 12 | No | Image width (inches) |
+| `--height`, `-H` | int | auto | No | Image height (inches) |
+| `--dpi` | int | 300 | No | Image resolution |
+| `--font-size` | int | 10 | No | Font size |
+| `--style`, `-s` | string | default | No | Preset style (default/minimal/dark) |
 
 ---
 
