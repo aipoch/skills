@@ -24,6 +24,12 @@ Specialized grammar checking for medical writing following AMA Manual of Style.
 python scripts/main.py --text "Your text here"
 ```
 
+## Parameters
+
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--text`, `-t` | string | - | Yes | Text to check for AMA style compliance |
+
 ## Features
 
 - Passive voice detection
