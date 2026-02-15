@@ -18,6 +18,14 @@ last_updated: '2026-02-06'
 
 Calculate temperature excursion risks for cold chain transport.
 
+## Parameters
+
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--route`, `-r` | string | - | Yes | Transport route description |
+| `--duration`, `-d` | int | - | Yes | Transport duration in hours |
+| `--packaging`, `-p` | string | dry-ice | No | Packaging type (dry-ice, liquid-nitrogen, gel-packs) |
+
 ## Usage
 
 ```bash
