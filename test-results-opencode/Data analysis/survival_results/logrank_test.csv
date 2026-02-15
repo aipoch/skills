@@ -1,0 +1,2 @@
+test_type,test_statistic,p_value,significant
+logrank_2group,3.850503638338532,0.04973105546370138,True

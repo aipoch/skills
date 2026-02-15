@@ -1,0 +1,97 @@
+{
+  "metadata": {
+    "generated_at": "2026-02-12T04:54:57.695903",
+    "total_papers": 5,
+    "total_citations": 4,
+    "center_paper": "paper1"
+  },
+  "nodes": [
+    {
+      "id": "paper1",
+      "label": "CRISPR-Cas9: A Programmable Dual-RNA-Guided DNA Endonuclease",
+      "title": "CRISPR-Cas9: A Programmable Dual-RNA-Guided DNA Endonuclease",
+      "year": 2012,
+      "authors": "Demo Author",
+      "venue": "",
+      "citation_count": 100,
+      "reference_count": 0,
+      "doi": "",
+      "pmid": "",
+      "is_center": true
+    },
+    {
+      "id": "paper2",
+      "label": "Multiplex Genome Engineering Using CRISPR-Cas Systems",
+      "title": "Multiplex Genome Engineering Using CRISPR-Cas Systems",
+      "year": 2013,
+      "authors": "Demo Author",
+      "venue": "",
+      "citation_count": 100,
+      "reference_count": 0,
+      "doi": "",
+      "pmid": "",
+      "is_center": false
+    },
+    {
+      "id": "paper3",
+      "label": "RNA-Guided Human Genome Engineering via Cas9",
+      "title": "RNA-Guided Human Genome Engineering via Cas9",
+      "year": 2013,
+      "authors": "Demo Author",
+      "venue": "",
+      "citation_count": 100,
+      "reference_count": 0,
+      "doi": "",
+      "pmid": "",
+      "is_center": false
+    },
+    {
+      "id": "paper4",
+      "label": "CRISPR-Cas Systems for Editing, Regulating and Targeting Genomes",
+      "title": "CRISPR-Cas Systems for Editing, Regulating and Targeting Genomes",
+      "year": 2014,
+      "authors": "Demo Author",
+      "venue": "",
+      "citation_count": 100,
+      "reference_count": 0,
+      "doi": "",
+      "pmid": "",
+      "is_center": false
+    },
+    {
+      "id": "paper5",
+      "label": "A programmable dual-RNA-guided DNA endonuclease in adaptive bacterial immunity",
+      "title": "A programmable dual-RNA-guided DNA endonuclease in adaptive bacterial immunity",
+      "year": 2012,
+      "authors": "Demo Author",
+      "venue": "",
+      "citation_count": 100,
+      "reference_count": 0,
+      "doi": "",
+      "pmid": "",
+      "is_center": false
+    }
+  ],
+  "edges": [
+    {
+      "source": "paper3",
+      "target": "paper1",
+      "relationship": "cites"
+    },
+    {
+      "source": "paper4",
+      "target": "paper2",
+      "relationship": "cites"
+    },
+    {
+      "source": "paper2",
+      "target": "paper1",
+      "relationship": "cites"
+    },
+    {
+      "source": "paper4",
+      "target": "paper3",
+      "relationship": "cites"
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+group,n_total,n_events,n_censored,median_survival
+Control,8,6,2,20.0
+Treatment,8,2,6,inf

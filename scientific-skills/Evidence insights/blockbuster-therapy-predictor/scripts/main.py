@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
 Blockbuster Therapy Predictor
-预测早期技术路线成为重磅炸弹疗法的潜力
+Predicts the potential of early-stage technology platforms to become blockbuster therapies.
 
-数据维度：临床试验 + 专利布局 + VC融资
+Data dimensions: Clinical trials + Patent landscape + VC funding
 """
 
 import json
@@ -16,45 +16,45 @@ import random
 
 
 class InvestmentRecommendation(Enum):
-    """投资建议等级"""
-    STRONG_BUY = "强烈推荐"
-    BUY = "推荐"
-    HOLD = "观望"
-    CAUTION = "谨慎"
+    """Investment recommendation levels"""
+    STRONG_BUY = "Strongly Recommended"
+    BUY = "Recommended"
+    HOLD = "Watch"
+    CAUTION = "Cautious"
 
 
 @dataclass
 class TechnologyRoute:
-    """技术路线数据模型"""
+    """Technology route data model"""
     name: str
     category: str
     description: str
     
-    # 临床试验数据
+    # Clinical trial data
     clinical_trials_phase1: int = 0
     clinical_trials_phase2: int = 0
     clinical_trials_phase3: int = 0
     clinical_success_rate: float = 0.0
-    avg_time_to_market: float = 0.0  # 年
+    avg_time_to_market: float = 0.0  # years
     indications_count: int = 0
     
-    # 专利数据
+    # Patent data
     patent_count: int = 0
-    patent_growth_rate: float = 0.0  # 年增长率
+    patent_growth_rate: float = 0.0  # annual growth rate
     core_patents: int = 0
-    geographic_coverage: int = 0  # 覆盖国家数
+    geographic_coverage: int = 0  # number of countries covered
     
-    # 融资数据
-    total_funding_usd: float = 0.0  # 百万美元
+    # Funding data
+    total_funding_usd: float = 0.0  # millions USD
     funding_rounds: int = 0
     top_vc_backed: bool = False
-    last_valuation_usd: float = 0.0  # 百万美元
+    last_valuation_usd: float = 0.0  # millions USD
     companies_count: int = 0
 
 
 @dataclass
 class PredictionResult:
-    """预测结果模型"""
+    """Prediction result model"""
     tech_name: str
     maturity_score: float
     market_potential_score: float
@@ -67,19 +67,19 @@ class PredictionResult:
 
 
 class ClinicalDataAnalyzer:
-    """临床试验数据分析器"""
+    """Clinical trial data analyzer"""
     
     @staticmethod
     def calculate_clinical_score(tech: TechnologyRoute) -> float:
-        """计算临床阶段评分 (0-100)"""
-        # 试验阶段权重
+        """Calculate clinical stage score (0-100)"""
+        # Trial phase weights
         phase_weights = {1: 0.2, 2: 0.5, 3: 0.8}
         total_trials = (tech.clinical_trials_phase1 + 
                        tech.clinical_trials_phase2 + 
                        tech.clinical_trials_phase3)
         
         if total_trials == 0:
-            return 10.0  # 基础分
+            return 10.0  # base score
         
         weighted_score = (
             tech.clinical_trials_phase1 * phase_weights[1] +
@@ -87,68 +87,68 @@ class ClinicalDataAnalyzer:
             tech.clinical_trials_phase3 * phase_weights[3]
         ) / total_trials * 100
         
-        # 成功率调整
+        # Success rate adjustment
         weighted_score *= (0.5 + tech.clinical_success_rate)
         
-        # 适应证多样性加成
+        # Indication diversity bonus
         indication_bonus = min(tech.indications_count * 2, 15)
         
         return min(weighted_score + indication_bonus, 100)
 
 
 class PatentAnalyzer:
-    """专利布局分析器"""
+    """Patent landscape analyzer"""
     
     @staticmethod
     def calculate_patent_depth_score(tech: TechnologyRoute) -> float:
-        """计算专利深度评分 (0-100)"""
+        """Calculate patent depth score (0-100)"""
         if tech.patent_count == 0:
             return 5.0
         
-        # 基础专利数量分
+        # Base patent quantity score
         patent_base = min(tech.patent_count / 10, 40)
         
-        # 核心专利质量分
+        # Core patent quality score
         core_quality = min(tech.core_patents * 3, 30)
         
-        # 增长率分
+        # Growth rate score
         growth_score = min(tech.patent_growth_rate * 2, 20)
         
-        # 地理覆盖分
+        # Geographic coverage score
         geo_score = min(tech.geographic_coverage * 2, 10)
         
         return min(patent_base + core_quality + growth_score + geo_score, 100)
 
 
 class FundingAnalyzer:
-    """融资数据分析器"""
+    """Funding data analyzer"""
     
     @staticmethod
     def calculate_funding_score(tech: TechnologyRoute) -> float:
-        """计算融资阶段评分 (0-100)"""
+        """Calculate funding stage score (0-100)"""
         if tech.total_funding_usd == 0:
             return 5.0
         
-        # 资金规模分
+        # Funding scale score
         funding_score = min(tech.total_funding_usd / 50, 40)
         
-        # 轮次成熟度分
+        # Round maturity score
         round_score = min(tech.funding_rounds * 8, 25)
         
-        # 顶级VC背书分
+        # Top-tier VC endorsement score
         vc_bonus = 20 if tech.top_vc_backed else 0
         
-        # 公司数量分（生态活跃度）
+        # Company count score (ecosystem activity)
         ecosystem_score = min(tech.companies_count * 3, 15)
         
         return min(funding_score + round_score + vc_bonus + ecosystem_score, 100)
 
 
 class MarketPotentialEvaluator:
-    """市场潜力评估器"""
+    """Market potential evaluator"""
     
     MARKET_SIZE_ESTIMATES = {
-        "PROTAC": 35.0,  # 2030年预估，十亿美元
+        "PROTAC": 35.0,  # 2030 estimate in billions USD
         "mRNA": 45.0,
         "CRISPR": 25.0,
         "CAR-T": 20.0,
@@ -161,10 +161,10 @@ class MarketPotentialEvaluator:
     }
     
     UNMET_NEED_SCORES = {
-        "PROTAC": 85,  # 难成药靶点突破
-        "mRNA": 90,    # 疫苗+肿瘤免疫
-        "CRISPR": 88,  # 遗传病治愈
-        "CAR-T": 75,   # 血液瘤已验证，实体瘤待突破
+        "PROTAC": 85,  # breakthrough for undruggable targets
+        "mRNA": 90,    # vaccines + tumor immunology
+        "CRISPR": 88,  # genetic disease cure
+        "CAR-T": 75,   # validated in hematological tumors, solid tumors pending
         "Bispecific": 80,
         "ADC": 78,
         "Cell Therapy": 72,
@@ -174,10 +174,10 @@ class MarketPotentialEvaluator:
     }
     
     COMPETITIVE_LANDSCORE = {
-        "PROTAC": 75,   # 中等竞争，差异化空间大
-        "mRNA": 65,     # 竞争激烈但市场大
-        "CRISPR": 70,   # 技术门槛高
-        "CAR-T": 60,    # 竞争激烈
+        "PROTAC": 75,   # moderate competition, large differentiation space
+        "mRNA": 65,     # intense competition but large market
+        "CRISPR": 70,   # high technical barrier
+        "CAR-T": 60,    # intense competition
         "Bispecific": 65,
         "ADC": 70,
         "Cell Therapy": 68,
@@ -188,25 +188,25 @@ class MarketPotentialEvaluator:
     
     @classmethod
     def calculate_market_potential(cls, tech_name: str) -> float:
-        """计算市场潜力评分 (0-100)"""
+        """Calculate market potential score (0-100)"""
         market_size = cls.MARKET_SIZE_ESTIMATES.get(tech_name, 10.0)
         unmet_need = cls.UNMET_NEED_SCORES.get(tech_name, 60)
         competitive = cls.COMPETITIVE_LANDSCORE.get(tech_name, 60)
         
-        # 市场规模标准化 (最大50分)
+        # Market size standardization (max 50 points)
         size_score = min(market_size / 50 * 50, 50)
         
-        # 未满足需求 (35分)
+        # Unmet need (35 points)
         need_score = unmet_need * 0.35
         
-        # 竞争格局 (15分)
+        # Competitive landscape (15 points)
         comp_score = competitive * 0.15
         
         return min(size_score + need_score + comp_score, 100)
 
 
 class BlockbusterPredictor:
-    """重磅炸弹疗法预测引擎"""
+    """Blockbuster therapy prediction engine"""
     
     def __init__(self):
         self.clinical_analyzer = ClinicalDataAnalyzer()
@@ -215,7 +215,7 @@ class BlockbusterPredictor:
         self.market_evaluator = MarketPotentialEvaluator()
     
     def calculate_maturity_score(self, tech: TechnologyRoute) -> float:
-        """计算技术成熟度评分"""
+        """Calculate technology maturity score"""
         clinical = self.clinical_analyzer.calculate_clinical_score(tech)
         patent = self.patent_analyzer.calculate_patent_depth_score(tech)
         funding = self.funding_analyzer.calculate_funding_score(tech)
@@ -223,10 +223,10 @@ class BlockbusterPredictor:
         return clinical * 0.4 + patent * 0.3 + funding * 0.3
     
     def calculate_momentum_score(self, tech: TechnologyRoute) -> float:
-        """计算发展势头评分"""
+        """Calculate development momentum score"""
         factors = []
         
-        # 专利增长势头
+        # Patent growth momentum
         if tech.patent_growth_rate > 30:
             factors.append(25)
         elif tech.patent_growth_rate > 15:
@@ -234,7 +234,7 @@ class BlockbusterPredictor:
         else:
             factors.append(5)
         
-        # 融资活跃度
+        # Funding activity
         if tech.funding_rounds >= 3:
             factors.append(25)
         elif tech.funding_rounds >= 2:
@@ -242,7 +242,7 @@ class BlockbusterPredictor:
         else:
             factors.append(5)
         
-        # 临床进展
+        # Clinical progress
         if tech.clinical_trials_phase3 > 0:
             factors.append(30)
         elif tech.clinical_trials_phase2 > 2:
@@ -252,14 +252,14 @@ class BlockbusterPredictor:
         else:
             factors.append(5)
         
-        # 生态活跃度
+        # Ecosystem activity
         eco_score = min(tech.companies_count * 5, 20)
         factors.append(eco_score)
         
         return sum(factors)
     
     def get_recommendation(self, index: float) -> str:
-        """根据指数给出投资建议"""
+        """Generate investment recommendation based on index"""
         if index >= 80:
             return InvestmentRecommendation.STRONG_BUY.value
         elif index >= 60:
@@ -270,67 +270,67 @@ class BlockbusterPredictor:
             return InvestmentRecommendation.CAUTION.value
     
     def identify_key_drivers(self, tech: TechnologyRoute, scores: Dict) -> List[str]:
-        """识别关键驱动因素"""
+        """Identify key driving factors"""
         drivers = []
         
         if tech.clinical_trials_phase3 > 0:
-            drivers.append("已有Phase III临床，接近商业化")
+            drivers.append("Phase III clinical trials ongoing, approaching commercialization")
         elif tech.clinical_trials_phase2 > 3:
-            drivers.append("多个Phase II临床推进中")
+            drivers.append("Multiple Phase II clinical trials in progress")
         
         if tech.patent_growth_rate > 25:
-            drivers.append("专利布局快速增长，技术护城河加深")
+            drivers.append("Rapid patent growth, strengthening technology moat")
         
         if tech.top_vc_backed:
-            drivers.append("获得顶级VC背书，资金支持充足")
+            drivers.append("Backed by top-tier VCs with sufficient funding")
         
         if tech.indications_count > 3:
-            drivers.append("多适应证布局，市场空间广阔")
+            drivers.append("Multi-indication portfolio with broad market potential")
         
         if tech.core_patents > 5:
-            drivers.append("核心专利数量领先")
+            drivers.append("Leading core patent portfolio")
         
-        return drivers if drivers else ["新兴技术路线，值得持续关注"]
+        return drivers if drivers else ["Emerging technology platform, worth continuous monitoring"]
     
     def identify_risks(self, tech: TechnologyRoute) -> List[str]:
-        """识别风险因素"""
+        """Identify risk factors"""
         risks = []
         
         if tech.clinical_trials_phase3 == 0 and tech.clinical_trials_phase2 == 0:
-            risks.append("尚处早期阶段，临床验证不足")
+            risks.append("Early-stage with insufficient clinical validation")
         
         if tech.clinical_success_rate < 0.3:
-            risks.append("历史成功率较低")
+            risks.append("Low historical success rate")
         
         if tech.patent_count < 10:
-            risks.append("专利布局相对薄弱")
+            risks.append("Relatively weak patent portfolio")
         
         if tech.total_funding_usd < 100:
-            risks.append("资金规模有限，可能影响研发进度")
+            risks.append("Limited funding scale may affect R&D progress")
         
         if tech.avg_time_to_market > 8:
-            risks.append("研发周期较长，不确定性高")
+            risks.append("Long development cycle with high uncertainty")
         
-        return risks if risks else ["常规研发风险"]
+        return risks if risks else ["Standard R&D risks"]
     
     def predict_timeline(self, tech: TechnologyRoute) -> str:
-        """预测商业化时间线"""
+        """Predict commercialization timeline"""
         if tech.clinical_trials_phase3 > 0:
-            return "预计2-4年内首个产品上市"
+            return "First product expected to launch in 2-4 years"
         elif tech.clinical_trials_phase2 > 2:
-            return "预计4-6年内有产品进入III期"
+            return "Expected to enter Phase III within 4-6 years"
         elif tech.clinical_trials_phase2 > 0:
-            return "预计5-7年内关键临床数据读出"
+            return "Key clinical data expected in 5-7 years"
         else:
-            return "预计7-10年内进入商业化阶段"
+            return "Expected to reach commercialization stage in 7-10 years"
     
     def predict(self, tech: TechnologyRoute) -> PredictionResult:
-        """执行完整预测"""
+        """Execute complete prediction"""
         maturity = self.calculate_maturity_score(tech)
         market_potential = self.market_evaluator.calculate_market_potential(tech.name)
         momentum = self.calculate_momentum_score(tech)
         
-        # 重磅炸弹指数计算
+        # Blockbuster index calculation
         blockbuster_index = (
             market_potential * 0.5 +
             maturity * 0.3 +
@@ -351,16 +351,16 @@ class BlockbusterPredictor:
 
 
 class DataLoader:
-    """数据加载器 - 模拟/真实数据源"""
+    """Data loader - mock/real data sources"""
     
     @staticmethod
     def load_mock_data() -> List[TechnologyRoute]:
-        """加载模拟数据用于演示"""
+        """Load mock data for demonstration"""
         technologies = [
             TechnologyRoute(
                 name="PROTAC",
-                category="蛋白降解",
-                description="蛋白降解靶向嵌合体技术",
+                category="Protein Degradation",
+                description="Proteolysis Targeting Chimera technology",
                 clinical_trials_phase1=15,
                 clinical_trials_phase2=8,
                 clinical_trials_phase3=2,
@@ -379,8 +379,8 @@ class DataLoader:
             ),
             TechnologyRoute(
                 name="mRNA",
-                category="核酸药物",
-                description="信使RNA疗法平台",
+                category="Nucleic Acid Drugs",
+                description="Messenger RNA therapy platform",
                 clinical_trials_phase1=25,
                 clinical_trials_phase2=12,
                 clinical_trials_phase3=5,
@@ -399,8 +399,8 @@ class DataLoader:
             ),
             TechnologyRoute(
                 name="CRISPR",
-                category="基因编辑",
-                description="CRISPR-Cas基因编辑技术",
+                category="Gene Editing",
+                description="CRISPR-Cas gene editing technology",
                 clinical_trials_phase1=12,
                 clinical_trials_phase2=6,
                 clinical_trials_phase3=2,
@@ -419,8 +419,8 @@ class DataLoader:
             ),
             TechnologyRoute(
                 name="CAR-T",
-                category="细胞治疗",
-                description="嵌合抗原受体T细胞疗法",
+                category="Cell Therapy",
+                description="Chimeric Antigen Receptor T-cell therapy",
                 clinical_trials_phase1=30,
                 clinical_trials_phase2=15,
                 clinical_trials_phase3=8,
@@ -439,8 +439,8 @@ class DataLoader:
             ),
             TechnologyRoute(
                 name="Bispecific",
-                category="抗体药物",
-                description="双特异性抗体技术",
+                category="Antibody Drugs",
+                description="Bispecific antibody technology",
                 clinical_trials_phase1=20,
                 clinical_trials_phase2=10,
                 clinical_trials_phase3=4,
@@ -459,8 +459,8 @@ class DataLoader:
             ),
             TechnologyRoute(
                 name="ADC",
-                category="抗体药物",
-                description="抗体药物偶联物",
+                category="Antibody Drugs",
+                description="Antibody-Drug Conjugate",
                 clinical_trials_phase1=22,
                 clinical_trials_phase2=12,
                 clinical_trials_phase3=6,
@@ -479,8 +479,8 @@ class DataLoader:
             ),
             TechnologyRoute(
                 name="RNAi",
-                category="核酸药物",
-                description="RNA干扰疗法",
+                category="Nucleic Acid Drugs",
+                description="RNA interference therapy",
                 clinical_trials_phase1=10,
                 clinical_trials_phase2=5,
                 clinical_trials_phase3=2,
@@ -499,8 +499,8 @@ class DataLoader:
             ),
             TechnologyRoute(
                 name="Gene Therapy",
-                category="基因治疗",
-                description="AAV载体基因治疗",
+                category="Gene Therapy",
+                description="AAV vector gene therapy",
                 clinical_trials_phase1=14,
                 clinical_trials_phase2=7,
                 clinical_trials_phase3=3,
@@ -519,8 +519,8 @@ class DataLoader:
             ),
             TechnologyRoute(
                 name="Allogeneic",
-                category="细胞治疗",
-                description="通用型/异体细胞治疗",
+                category="Cell Therapy",
+                description="Universal/Allogeneic cell therapy",
                 clinical_trials_phase1=8,
                 clinical_trials_phase2=4,
                 clinical_trials_phase3=1,
@@ -539,8 +539,8 @@ class DataLoader:
             ),
             TechnologyRoute(
                 name="Cell Therapy",
-                category="细胞治疗",
-                description="通用细胞治疗平台",
+                category="Cell Therapy",
+                description="General cell therapy platform",
                 clinical_trials_phase1=12,
                 clinical_trials_phase2=6,
                 clinical_trials_phase3=2,
@@ -562,56 +562,56 @@ class DataLoader:
 
 
 class ReportGenerator:
-    """报告生成器"""
+    """Report generator"""
     
     @staticmethod
     def generate_console_report(results: List[PredictionResult], threshold: float = 0):
-        """生成控制台报告"""
-        # 过滤并排序
+        """Generate console report"""
+        # Filter and sort
         filtered = [r for r in results if r.blockbuster_index >= threshold]
         sorted_results = sorted(filtered, key=lambda x: x.blockbuster_index, reverse=True)
         
         print("\n" + "=" * 100)
-        print("🏆 BLOCKBUSTER THERAPY PREDICTOR 报告".center(100))
+        print("🏆 BLOCKBUSTER THERAPY PREDICTOR Report".center(100))
         print("=" * 100)
-        print(f"生成时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        print(f"分析技术路线数: {len(sorted_results)}")
+        print(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        print(f"Technologies analyzed: {len(sorted_results)}")
         print("-" * 100)
         
-        # 排名表
-        print("\n📊 技术路线排名")
+        # Ranking table
+        print("\n📊 Technology Rankings")
         print("-" * 100)
-        print(f"{'排名':<6}{'技术路线':<15}{'重磅指数':<12}{'成熟度':<10}{'市场潜力':<10}{'发展势头':<10}{'投资建议':<10}")
+        print(f"{'Rank':<6}{'Technology':<15}{'Blockbuster Index':<20}{'Maturity':<12}{'Market Potential':<18}{'Momentum':<12}{'Recommendation':<15}")
         print("-" * 100)
         
         for i, r in enumerate(sorted_results, 1):
             emoji = "🥇" if i == 1 else "🥈" if i == 2 else "🥉" if i == 3 else "  "
-            print(f"{emoji} {i:<4}{r.tech_name:<15}{r.blockbuster_index:<12.1f}"
-                  f"{r.maturity_score:<10.1f}{r.market_potential_score:<10.1f}"
-                  f"{r.momentum_score:<10.1f}{r.recommendation:<10}")
+            print(f"{emoji} {i:<4}{r.tech_name:<15}{r.blockbuster_index:<20.1f}"
+                  f"{r.maturity_score:<12.1f}{r.market_potential_score:<18.1f}"
+                  f"{r.momentum_score:<12.1f}{r.recommendation:<15}")
         
         print("-" * 100)
         
-        # 详细分析
-        print("\n📋 详细评估报告")
+        # Detailed analysis
+        print("\n📋 Detailed Assessment Report")
         print("=" * 100)
         
-        for i, r in enumerate(sorted_results[:5], 1):  # 前5名详细报告
-            print(f"\n【{i}】{r.tech_name} - 重磅指数: {r.blockbuster_index:.1f}")
+        for i, r in enumerate(sorted_results[:5], 1):  # Top 5 detailed report
+            print(f"\n[{i}] {r.tech_name} - Blockbuster Index: {r.blockbuster_index:.1f}")
             print("-" * 80)
-            print(f"  📈 评分详情: 成熟度({r.maturity_score:.1f}) | 市场潜力({r.market_potential_score:.1f}) | 势头({r.momentum_score:.1f})")
-            print(f"  💡 关键驱动: {', '.join(r.key_drivers[:3])}")
-            print(f"  ⚠️  风险因素: {', '.join(r.risk_factors[:2])}")
-            print(f"  ⏰ 时间预测: {r.timeline_prediction}")
-            print(f"  🎯 投资建议: {r.recommendation}")
+            print(f"  📈 Score Details: Maturity({r.maturity_score:.1f}) | Market Potential({r.market_potential_score:.1f}) | Momentum({r.momentum_score:.1f})")
+            print(f"  💡 Key Drivers: {', '.join(r.key_drivers[:3])}")
+            print(f"  ⚠️  Risk Factors: {', '.join(r.risk_factors[:2])}")
+            print(f"  ⏰ Timeline Prediction: {r.timeline_prediction}")
+            print(f"  🎯 Investment Recommendation: {r.recommendation}")
         
         print("\n" + "=" * 100)
-        print("💡 投资建议分级: 强烈推荐(≥80) | 推荐(60-79) | 观望(40-59) | 谨慎(<40)")
+        print("💡 Investment Recommendation Levels: Strongly Recommended(≥80) | Recommended(60-79) | Watch(40-59) | Cautious(<40)")
         print("=" * 100)
     
     @staticmethod
     def generate_json_report(results: List[PredictionResult], threshold: float = 0) -> str:
-        """生成JSON报告"""
+        """Generate JSON report"""
         filtered = [r for r in results if r.blockbuster_index >= threshold]
         sorted_results = sorted(filtered, key=lambda x: x.blockbuster_index, reverse=True)
         
@@ -639,16 +639,16 @@ class ReportGenerator:
 
 
 def main():
-    """主函数"""
+    """Main function"""
     parser = argparse.ArgumentParser(
-        description="Blockbuster Therapy Predictor - 重磅炸弹疗法预测器",
+        description="Blockbuster Therapy Predictor",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
-示例:
-  python main.py                          # 运行完整分析
-  python main.py --tech PROTAC,mRNA       # 仅分析指定技术
-  python main.py --output json            # 输出JSON格式
-  python main.py --threshold 70           # 只显示指数≥70的技术
+Examples:
+  python main.py                          # Run complete analysis
+  python main.py --tech PROTAC,mRNA       # Analyze specified technologies only
+  python main.py --output json            # Output in JSON format
+  python main.py --threshold 70           # Show only technologies with index ≥70
         """
     )
     
@@ -656,65 +656,65 @@ def main():
         "--mode",
         choices=["full", "quick"],
         default="full",
-        help="分析模式: full=完整分析, quick=快速分析"
+        help="Analysis mode: full=complete analysis, quick=quick analysis"
     )
     parser.add_argument(
         "--tech",
         type=str,
-        help="指定分析的技术路线，逗号分隔，如: PROTAC,mRNA,CRISPR"
+        help="Specify technologies to analyze, comma-separated, e.g.: PROTAC,mRNA,CRISPR"
     )
     parser.add_argument(
         "--output",
         choices=["console", "json"],
         default="console",
-        help="输出格式"
+        help="Output format"
     )
     parser.add_argument(
         "--threshold",
         type=float,
         default=0,
-        help="最小重磅炸弹指数阈值 (0-100)"
+        help="Minimum blockbuster index threshold (0-100)"
     )
     parser.add_argument(
         "--save",
         type=str,
-        help="保存报告到文件路径"
+        help="Save report to file path"
     )
     
     args = parser.parse_args()
     
-    # 加载数据
-    print("📥 正在加载数据...")
+    # Load data
+    print("📥 Loading data...")
     all_techs = DataLoader.load_mock_data()
     
-    # 过滤指定技术
+    # Filter specified technologies
     if args.tech:
         target_techs = [t.strip() for t in args.tech.split(",")]
         all_techs = [t for t in all_techs if t.name in target_techs]
         if not all_techs:
-            print(f"❌ 未找到指定的技术路线: {args.tech}")
+            print(f"❌ Specified technologies not found: {args.tech}")
             return
     
-    # 执行预测
-    print(f"🔬 正在分析 {len(all_techs)} 个技术路线...")
+    # Execute prediction
+    print(f"🔬 Analyzing {len(all_techs)} technology routes...")
     predictor = BlockbusterPredictor()
     results = [predictor.predict(tech) for tech in all_techs]
     
-    # 生成报告
+    # Generate report
     if args.output == "json":
         report = ReportGenerator.generate_json_report(results, args.threshold)
         print(report)
         if args.save:
             with open(args.save, "w", encoding="utf-8") as f:
                 f.write(report)
-            print(f"\n✅ 报告已保存至: {args.save}")
+            print(f"\n✅ Report saved to: {args.save}")
     else:
         ReportGenerator.generate_console_report(results, args.threshold)
         if args.save:
             json_report = ReportGenerator.generate_json_report(results, args.threshold)
             with open(args.save, "w", encoding="utf-8") as f:
                 f.write(json_report)
-            print(f"\n✅ JSON报告已保存至: {args.save}")
+            print(f"\n✅ JSON report saved to: {args.save}")
 
 
 if __name__ == "__main__":

@@ -1,21 +1,27 @@
 ---
 name: adaptive-trial-simulator
-description: Design and simulate adaptive clinical trials with interim analyses, 
+description: "Design and simulate adaptive clinical trials with interim analyses, 
   sample size re-estimation, and early stopping rules. Evaluate Type I error control, 
-  power, and expected sample size via Monte Carlo simulation before trial initiation.
-allowed-tools: [Read, Write, Bash, Edit]
+  power, and expected sample size via Monte Carlo simulation before trial initiation."
+version: 1.0.0
+category: Clinical
+tags: ["clinical-trials", "adaptive-design", "statistics", "simulation", "biostatistics"]
+author: AIPOCH
 license: MIT
-metadata:
-    skill-author: AIPOCH
+status: Draft
+risk_level: Medium
+skill_type: Tool/Script
+owner: AIPOCH
+reviewer: ''
+last_updated: '2026-02-15'
 ---
 
 # Adaptive Trial Simulator
 
-## Overview
-
 Statistical simulation platform for designing and validating adaptive clinical trial designs in silico. Enables optimization of interim analysis strategies, sample size adaptation, and early stopping rules while maintaining Type I error control.
 
-**Key Capabilities:**
+## Features
+
 - **Design Simulation**: Monte Carlo validation of adaptive designs
 - **Sample Size Re-estimation**: Adapt sample size based on interim data
 - **Early Stopping Rules**: Futility and efficacy boundary optimization
@@ -23,426 +29,180 @@ Statistical simulation platform for designing and validating adaptive clinical t
 - **Multi-Arm Designs**: Drop-the-loser and seamless Phase II/III
 - **Power Optimization**: Identify designs with maximum power efficiency
 
-## When to Use
+## Usage
 
-**✅ Use this skill when:**
-- Designing adaptive clinical trials with interim analyses
-- Evaluating sample size re-estimation strategies
-- Optimizing early stopping boundaries for efficacy/futility
-- Comparing group sequential vs. adaptive designs
-- Validating Type I error control via simulation
-- Planning multi-arm multi-stage (MAMS) trials
-- Training biostatisticians on adaptive methods
-- Responding to regulatory questions about design validity
-
-**❌ Do NOT use when:**
-- Fixed-design trial is sufficient → Use `sample-size-power-calculator`
-- Simple A/B testing → Use standard power analysis
-- Trial already running (post-hoc adaptations) → Consult statistician
-- Basket or umbrella trial design → Use `master-protocol-designer`
-- Complex Bayesian adaptive designs → Use specialized Bayesian tools
-
-**Integration:**
-- **Upstream**: `sample-size-power-calculator` (initial sample size), `clinical-data-cleaner` (data prep)
-- **Downstream**: `regulatory-consultation-prep` (FDA briefing docs), `grant-proposal-assistant` (methods section)
-
-## Core Capabilities
-
-### 1. Group Sequential Design Simulation
-
-Simulate trials with planned interim analyses:
-
-```python
-from scripts.simulator import AdaptiveSimulator
-
-sim = AdaptiveSimulator()
-
-# Configure group sequential design
-config = {
-    "design_type": "group_sequential",
-    "sample_size_per_arm": 300,
-    "interim_looks": [0.33, 0.67],  # Information fractions
-    "alpha_spending": "obrien_fleming",
-    "effect_size": 0.3,
-    "alpha": 0.05,
-    "power": 0.80
-}
-
-# Run simulations
-results = sim.simulate(
-    config=config,
-    n_simulations=10000,
-    seed=42
-)
-
-print(f"Type I Error: {results.type_i_error:.4f}")
-print(f"Power: {results.power:.4f}")
-print(f"Expected Sample Size: {results.expected_n:.1f}")
-```
-
-**Boundary Types:**
-| Spending Function | Characteristics | Best For |
-|-------------------|----------------|----------|
-| **O'Brien-Fleming** | Conservative early, lenient late | Confirmatory trials |
-| **Pocock** | Aggressive early stopping | Early efficacy trials |
-| **Power Family** | Tunable flexibility | Custom designs |
-| **Lan-DeMets** | Flexible information rates | Variable enrollment |
-
-### 2. Sample Size Re-estimation
-
-Adapt sample size based on promising interim results:
-
-```python
-# Promising zone design
-ssr_config = {
-    "design_type": "adaptive_reestimate",
-    "initial_n": 200,
-    "max_n": 400,
-    "promising_zone": [0.1, 0.5],  # Conditional power range
-    "reestimate_method": "promising_zone"
-}
-
-results = sim.simulate(ssr_config, n_simulations=10000)
-
-# Output shows:
-# - Probability of SSR triggered
-# - Expected sample size under various true effects
-# - Type I error inflation (should be controlled)
-```
-
-**SSR Methods:**
-- **Promising Zone**: Increase N only if conditional power in 10-50% range
-- **Conditional Power**: Re-estimate to achieve target CP
-- **Inverse Normal**: Combination test for weighted evidence
-- **Weighted Statistics**: Adjust test statistic for adaptation
-
-### 3. Drop-the-Loser Design
-
-Simulate multi-arm adaptive selection:
-
-```python
-# Multi-arm multi-stage (MAMS)
-mams_config = {
-    "design_type": "drop_the_loser",
-    "n_arms": 3,
-    "selection_criteria": "best_response",
-    "seamless_phase23": True,
-    "control_arm": "shared"
-}
-
-results = sim.simulate_mams(mams_config)
-
-# Evaluates:
-# - Probability of selecting best arm
-# - Family-wise error rate control
-# - Expected sample size savings
-```
-
-**Applications:**
-- Phase II dose selection (seamless II/III)
-- Multiple treatment comparisons
-- Adaptive enrichment designs
-- Platform trial simulations
-
-### 4. Operating Characteristics Analysis
-
-Comprehensive evaluation of design performance:
-
-```python
-# Compare multiple designs under various scenarios
-scenarios = [
-    {"effect": 0.0, "label": "Null"},
-    {"effect": 0.2, "label": "Small"},
-    {"effect": 0.3, "label": "Expected"},
-    {"effect": 0.5, "label": "Large"}
-]
-
-comparison = sim.compare_designs(
-    designs=["fixed", "gs_obrien", "gs_pocock", "adaptive_ssr"],
-    scenarios=scenarios,
-    metrics=["power", "ess", "type_i_error", "early_stop_rate"]
-)
-
-comparison.generate_report("design_comparison.pdf")
-```
-
-## Common Patterns
-
-### Pattern 1: Confirmatory Trial with Early Stopping
-
-**Scenario**: Phase III trial where early efficacy claim is valuable.
+### Basic Usage
 
 ```bash
-# O'Brien-Fleming design for regulatory acceptance
-python scripts/main.py \
-  --design group_sequential \
-  --sample-size 400 \
-  --interim-looks 2 \
-  --spending-function obrien_fleming \
-  --alpha 0.025 \
-  --one-sided \
-  --n-simulations 50000 \
-  --output phase3_design.json
+# Run standard group sequential design
+python scripts/main.py
+
+# Adaptive design with sample size re-estimation
+python scripts/main.py --design adaptive_reestimate
+
+# Optimize design parameters
+python scripts/main.py --optimize
 ```
 
-**Design Features:**
-- Two interim looks (33% and 67% information)
-- Conservative O'Brien-Fleming boundaries
-- 2.5% one-sided alpha (regulatory standard)
-- High probability of early stop if large effect
+### Parameters
 
-**Expected Performance:**
-- Type I Error: ~2.5% (controlled)
-- Power: ~85% (slight loss vs. fixed design)
-- Expected N: ~320 (savings if early stop)
-- Early stop rate: ~40% under alternative
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--design` | str | group_sequential | No | Trial design type |
+| `--n-simulations` | int | 10000 | No | Number of Monte Carlo simulations |
+| `--sample-size` | int | 200 | No | Initial sample size per arm |
+| `--effect-size` | float | 0.3 | No | Effect size (Cohen's d) |
+| `--alpha` | float | 0.05 | No | Type I error rate |
+| `--power` | float | 0.80 | No | Target statistical power |
+| `--interim-looks` | int | 1 | No | Number of interim analyses |
+| `--spending-function` | str | obrien_fleming | No | Alpha spending function |
+| `--reestimate-method` | str | promising_zone | No | Sample size re-estimation method |
+| `--output` | str | results.json | No | Output file path |
+| `--visualize` | flag | False | No | Generate visualization charts |
+| `--optimize` | flag | False | No | Search for optimal design parameters |
 
-### Pattern 2: Promising Zone SSR
-
-**Scenario**: Uncertain effect size; want to increase power if interim results promising.
-
-```python
-config = {
-    "design_type": "adaptive_reestimate",
-    "initial_n": 150,
-    "max_n": 300,
-    "promising_zone": [0.15, 0.85],  # Conditional power
-    "min_effect_for_ssr": 0.15,  # Don't increase if CP < 15%
-    "target_cp": 0.90  # Re-estimate to achieve 90% CP
-}
-
-results = sim.simulate(config, n_simulations=100000)
-```
-
-**Key Metrics:**
-- SSR triggered: ~30% of trials
-- Type I error inflation: <0.5% (acceptable)
-- Expected N under H0: 152 (minimal inflation)
-- Expected N under H1: 215 (power boost)
-
-### Pattern 3: Seamless Phase II/III
-
-**Scenario**: Dose selection followed by confirmatory testing without stopping enrollment.
+### Advanced Usage
 
 ```bash
-# 3-arm dose selection design
-python scripts/main.py \
-  --design drop_the_loser \
-  --n-arms 3 \
-  --doses ["low", "medium", "high"] \
-  --selection-stage-n 100 \
-  --confirmatory-stage-n 200 \
-  --control-arm shared \
-  --selection-criteria best_response \
-  --mam-output seamless_phase23_report.pdf
-```
-
-**Advantages:**
-- No gap between Phase II and III
-- Shared control arm reduces sample size
-- Seamless transition if no safety concerns
-
-**Considerations:**
-- Family-wise error rate must be controlled
-- Selection bias if response endpoint ≠ confirmatory endpoint
-- Regulatory acceptance requires careful planning
-
-### Pattern 4: Futility Analysis Design
-
-**Scenario**: Want to stop early for lack of efficacy to save resources.
-
-```python
-# Conservative futility only
-config = {
-    "design_type": "group_sequential",
-    "boundaries": {
-        "efficacy": "none",  # No early efficacy claim
-        "futility": "binding"  # Mandatory stop if crossed
-    },
-    "futility_boundary": "hsd",  # Hwang-Shih-DeCani spending
-    "gamma": -4  # Conservative parameter
-}
-
-results = sim.simulate(config)
-```
-
-**Benefits:**
-- Stop unpromising trials early
-- Reallocate resources to other projects
-- Ethical: avoid exposing patients to ineffective treatment
-
-**Trade-offs:**
-- Power loss if futility boundary too aggressive
-- Must follow stopping rules (binding)
-- Requires strong evidence of futility
-
-## Complete Workflow Example
-
-**From design concept to regulatory submission:**
-
-```bash
-# Step 1: Simulate fixed design baseline
-python scripts/main.py \
-  --design fixed \
-  --sample-size 400 \
-  --effect-size 0.3 \
-  --n-simulations 10000 \
-  --output fixed_baseline.json
-
-# Step 2: Simulate adaptive alternatives
+# Full adaptive design with visualization
 python scripts/main.py \
   --design adaptive_reestimate \
-  --initial-n 300 \
-  --max-n 500 \
-  --promising-zone [0.1, 0.5] \
-  --n-simulations 10000 \
-  --output adaptive_design.json
-
-# Step 3: Compare operating characteristics
-python scripts/compare.py \
-  --designs fixed_baseline.json adaptive_design.json \
-  --metrics power,ess,type_i_error \
-  --output comparison_report.pdf
-
-# Step 4: Generate regulatory briefing document
-python scripts/regulatory_report.py \
-  --design adaptive_design.json \
-  --template fda_adaptive_guidance \
-  --output fda_briefing.pdf
+  --n-simulations 50000 \
+  --sample-size 250 \
+  --effect-size 0.35 \
+  --interim-looks 2 \
+  --spending-function obrien_fleming \
+  --visualize \
+  --output adaptive_results.json
 ```
 
-**Python API:**
+## Design Types
 
-```python
-from scripts.simulator import AdaptiveSimulator
-from scripts.visualizer import DesignVisualizer
-from scripts.regulatory import RegulatoryReport
+| Design Type | Description | Use Case |
+|-------------|-------------|----------|
+| **Group Sequential** | Fixed interim looks with stopping boundaries | Standard adaptive trials |
+| **Adaptive Re-estimate** | Sample size adjustment based on interim data | Uncertain effect size |
+| **Drop the Loser** | Multi-arm trials dropping inferior arms | Phase II dose selection |
 
-# Initialize
-sim = AdaptiveSimulator()
-viz = DesignVisualizer()
-reg = RegulatoryReport()
+## Spending Functions
 
-# Define candidate designs
-designs = {
-    "fixed": {"type": "fixed", "n": 400},
-    "gs_of": {"type": "gs", "spending": "obrien_fleming", "interims": 2},
-    "gs_pocock": {"type": "gs", "spending": "pocock", "interims": 2},
-    "adaptive": {"type": "ssr", "initial_n": 300, "max_n": 500}
+| Function | Characteristics | Early Boundary |
+|----------|----------------|----------------|
+| **O'Brien-Fleming** | Conservative early | High Z-scores early |
+| **Pocock** | Aggressive early | Lower Z-scores throughout |
+| **Power Family** | Moderate (ρ=3) | Balanced approach |
+
+## Output Example
+
+```json
+{
+  "design_config": {
+    "design_type": "adaptive_reestimate",
+    "sample_size_per_arm": 200,
+    "effect_size": 0.3,
+    "alpha": 0.05,
+    "target_power": 0.8
+  },
+  "simulation_results": {
+    "power": 0.8234,
+    "type_i_error": 0.0481,
+    "expected_sample_size": 385.2,
+    "early_stop_rate": {
+      "efficacy": 0.1523,
+      "futility": 0.0841
+    }
+  }
 }
-
-# Simulate all designs
-results = {}
-for name, config in designs.items():
-    results[name] = sim.simulate(config, n_simulations=50000)
-
-# Visualize comparison
-viz.plot_power_curves(results, output="power_comparison.png")
-viz.plot_ess_comparison(results, output="ess_comparison.png")
-
-# Generate regulatory report
-report = reg.generate(
-    design=results["adaptive"],
-    template="fda_adaptive_trial_guidance",
-    sponsor="Your Company",
-    indication="Indication X"
-)
-report.save("regulatory_submission.pdf")
 ```
 
-## Quality Checklist
+## Technical Difficulty: **HIGH**
 
-**Pre-Simulation:**
-- [ ] Effect size assumptions justified (literature, pilot data)
-- [ ] Alpha level appropriate (0.05 two-sided or 0.025 one-sided)
-- [ ] Power target realistic (usually 80-90%)
-- [ ] Interim timing feasible (accrual rate, data cleaning time)
+⚠️ **AI自主验收状态**: 需人工检查
 
-**During Simulation:**
-- [ ] Sufficient simulations (≥10,000 for Type I error, ≥5,000 for power)
-- [ ] Multiple seeds tested (reproducibility check)
-- [ ] Various effect sizes evaluated (null, small, expected, large)
-- [ ] Assumption sensitivity analyses (variance, dropout rates)
+This skill requires:
+- Python 3.8+ environment
+- NumPy, SciPy, and Matplotlib packages
+- Understanding of clinical trial statistics
 
-**Post-Simulation:**
-- [ ] Type I error controlled (≤ nominal alpha)
-- [ ] Power meets target (≥ planned power)
-- [ ] Expected sample size calculated under various scenarios
-- [ ] Early stopping probabilities reasonable
-- [ ] Boundary values clinically interpretable
+## Dependencies
 
-**Before Implementation:**
-- [ ] **CRITICAL**: Statistical analysis plan (SAP) drafted with adaptations
-- [ ] **CRITICAL**: Independent Data Safety Monitoring Board (DSMB) charter prepared
-- [ ] Regulatory pre-submission meeting conducted (if required)
-- [ ] Simulation code and results documented and archived
-- [ ] Independent statistician reviews design
+```bash
+pip install -r requirements.txt
+```
 
-## Common Pitfalls
+### Requirements
 
-**Statistical Issues:**
-- ❌ **Type I error inflation** → Uncontrolled alpha due to naive adaptations
-  - ✅ Always use proper alpha spending functions or combination tests
-  
-- ❌ **Over-optimistic assumptions** → Expected effect larger than realistic
-  - ✅ Simulate under range of plausible effect sizes
+```
+numpy>=1.20.0
+scipy>=1.7.0
+matplotlib>=3.4.0
+```
 
-- ❌ **Insufficient simulations** → Unstable operating characteristics
-  - ✅ Use ≥10,000 simulations for Type I error estimation
+## Risk Assessment
 
-**Design Issues:**
-- ❌ **Interim analysis timing unrealistic** → Data not ready when planned
-  - ✅ Account for data cleaning and database lock time
+| Risk Indicator | Assessment | Level |
+|----------------|------------|-------|
+| Code Execution | Python scripts with mathematical calculations | Medium |
+| Network Access | No network access | Low |
+| File System Access | Writes simulation results | Low |
+| Instruction Tampering | Statistical parameters could affect results | Medium |
+| Data Exposure | No sensitive data exposure | Low |
 
-- ❌ **Sample size re-estimation too aggressive** → Large Type I error inflation
-  - ✅ Limit maximum sample size increase (e.g., 2× initial N)
+## Security Checklist
 
-- ❌ **Ignoring overruns** → Patients enrolled between interim and decision
-  - ✅ Account for accrual during decision-making period
+- [x] No hardcoded credentials or API keys
+- [x] No unauthorized file system access
+- [x] Output does not expose sensitive information
+- [x] Input parameters validated
+- [x] Error messages sanitized
+- [x] Dependencies audited
 
-**Implementation Issues:**
-- ❌ **Unblinded interim analysis** → Bias in trial conduct
-  - ✅ Use independent statistician for interim analyses
+## Prerequisites
 
-- ❌ **Changing primary endpoint post-hoc** → Invalidates design
-  - ✅ Lock primary endpoint and adaptations in protocol/SAP
+```bash
+pip install -r requirements.txt
+python scripts/main.py --help
+```
 
-- ❌ **Not following stopping rules** → Operating characteristics void
-  - ✅ Make stopping rules binding; document any deviations
+## Evaluation Criteria
+
+### Success Metrics
+- [ ] Simulations run without errors
+- [ ] Type I error controlled at nominal level
+- [ ] Power estimates are accurate
+- [ ] Visualizations generated correctly
+
+### Test Cases
+1. **Basic Simulation**: Default parameters → Valid results
+2. **Different Designs**: All design types → Appropriate behavior
+3. **Optimization Mode**: --optimize flag → Finds optimal parameters
+4. **Visualization**: --visualize flag → Charts generated
+
+## Lifecycle Status
+
+- **Current Stage**: Draft
+- **Next Review Date**: 2026-03-15
+- **Known Issues**: Type checking warnings with numpy arrays
+- **Planned Improvements**: 
+  - Bayesian adaptive designs
+  - Multi-arm multi-stage (MAMS) support
+  - Enhanced visualization options
 
 ## References
 
-Available in `references/` directory:
-
-- `group_sequential_theory.md` - O'Brien-Fleming, Pocock, spending functions
-- `adaptive_design_methods.md` - SSR, combination tests, conditional power
-- `regulatory_guidance.md` - FDA, EMA adaptive trial guidance documents
-- `simulation_best_practices.md` - Monte Carlo methodology
-- `mams_designs.md` - Multi-arm multi-stage methodology
-- `software_comparison.md` - Comparison with East, ADDPLAN, rpact
-
-## Scripts
-
-Located in `scripts/` directory:
-
-- `main.py` - CLI interface for simulations
-- `simulator.py` - Core Monte Carlo simulation engine
-- `boundaries.py` - Alpha spending function calculations
-- `ssr_methods.py` - Sample size re-estimation algorithms
-- `mams_simulator.py` - Multi-arm multi-stage simulations
-- `visualizer.py` - Boundary plots, power curves, OC comparisons
-- `regulatory_report.py` - FDA/EMA briefing document generation
-- `validator.py` - Type I error validation and bias assessment
+Available in `references/`:
+- Adaptive design statistical theory
+- Regulatory guidance documents
+- Alpha spending function literature
+- Sample size re-estimation methods
 
 ## Limitations
 
-- **Frequentist Focus**: Designed for frequentist adaptive methods; Bayesian designs require different tools
-- **Normal Endpoint**: Optimized for continuous endpoints; binary/survival may need adjustments
-- **Two-Arm Focus**: Multi-arm simulations available but more complex
-- **No Covariate Adjustment**: Standard analyses; adaptive covariate adjustment not implemented
-- **Computational Intensity**: Large simulations (100K+) may take hours
-- **Regulatory Acceptance**: Designs must be vetted with regulators; tool provides simulation, not regulatory approval
+- **Statistical Complexity**: Requires biostatistics expertise
+- **Simulation Time**: Large simulations may take hours
+- **Simplified Models**: Does not capture all real-world complexities
+- **Regulatory Consultation**: Results should be validated with regulators
 
 ---
 
-**📊 Remember: Adaptive designs offer flexibility but require careful planning and rigorous validation. Always conduct thorough simulations and engage regulators early in the design process.**
+**⚠️ DISCLAIMER: This tool provides simulation results for research and planning purposes only. All clinical trial designs should be reviewed by qualified biostatisticians and regulatory experts before implementation.**

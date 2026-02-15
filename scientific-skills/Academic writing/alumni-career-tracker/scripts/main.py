@@ -9,7 +9,7 @@ import json
 import os
 import sys
 import argparse
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field as dataclass_field, asdict
 from typing import List, Dict, Optional, Any
 from datetime import datetime
 from collections import defaultdict
@@ -44,8 +44,8 @@ class AlumniRecord:
     field: str = ""
     salary_range: str = ""
     notes: str = ""
-    created_at: str = field(default_factory=lambda: datetime.now().isoformat())
-    updated_at: str = field(default_factory=lambda: datetime.now().isoformat())
+    created_at: str = dataclass_field(default_factory=lambda: datetime.now().isoformat())
+    updated_at: str = dataclass_field(default_factory=lambda: datetime.now().isoformat())
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
@@ -68,7 +68,7 @@ class AnalysisReport:
     field_distribution: Dict[str, int]
     location_distribution: Dict[str, int]
     recommendations: List[str]
-    generated_at: str = field(default_factory=lambda: datetime.now().isoformat())
+    generated_at: str = dataclass_field(default_factory=lambda: datetime.now().isoformat())
 
     def to_json(self, indent: int = 2) -> str:
         return json.dumps(asdict(self), ensure_ascii=False, indent=indent)
