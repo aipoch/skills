@@ -25,18 +25,52 @@ Reviewer conflict detection tool.
 - Compliance verification
 
 ## Parameters
-- `author_list`: Manuscript authors
-- `suggested_reviewers`: Proposed reviewers
-- `years`: Collaboration lookback
+
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--authors`, `-a` | string | - | Yes | Comma-separated author names |
+| `--reviewers`, `-r` | string | - | Yes | Comma-separated reviewer names |
+| `--publications`, `-p` | string | - | No | CSV file with publication records |
+
+### CSV Format
+
+```csv
+author,reviewer,paper_id
+Smith,Brown,paper1
+Smith,Jones,paper2
+```
+
+## Usage
+
+```bash
+# Check with demo data
+python scripts/main.py --authors "Smith,Jones,Lee" --reviewers "Brown,Davis,Wilson"
+
+# Check with publication records
+python scripts/main.py --authors "Smith,Jones" --reviewers "Brown,Davis" --publications pubs.csv
+```
 
 ## Returns
-- Conflict flagging
+- Conflict flagging (coauthorship, institutional)
 - Shared publication list
 - Recommendation: Accept/Recuse
 - Alternative reviewer suggestions
 
-## Example
-Flags: Dr. Smith co-authored with Author A in 2022
+### Example Output
+
+```
+⚠ Found 2 potential conflict(s):
+
+1. COAUTHORSHIP CONFLICT
+   Reviewer: Brown
+   Author: Smith
+   Shared papers: paper1
+
+2. COAUTHORSHIP CONFLICT
+   Reviewer: Wilson
+   Author: Smith
+   Shared papers: paper2
+```
 
 ## Risk Assessment
 
