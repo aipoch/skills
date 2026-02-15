@@ -52,6 +52,17 @@ Build a "digital twin" model of a patient, integrating genotype, clinical histor
 python scripts/main.py --patient patient_data.json --drug drug_profile.json --doses "[50, 100, 150]"
 ```
 
+## Parameters
+
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--patient` | string | - | Yes | Path to patient data JSON file |
+| `--drug` | string | - | Yes | Path to drug profile JSON file |
+| `--doses` | string | - | Yes | Dose range to test (JSON array format) |
+| `--output`, `-o` | string | - | No | Output file path for simulation results |
+| `--simulation-days` | int | 30 | No | Number of days to simulate |
+| `--timestep` | float | 0.5 | No | Simulation timestep in days |
+
 ### Python API
 
 ```python
