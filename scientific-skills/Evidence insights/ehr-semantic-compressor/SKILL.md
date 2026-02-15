@@ -83,13 +83,15 @@ python scripts/main.py --input ehr_document.txt --output summary.json
 }
 ```
 
-### Parameters
+## Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| ehr_text | string | Yes | Full EHR document text |
-| max_length | number | No | Maximum summary length in words (default: 300) |
-| extract_sections | array | No | Sections to extract (default: all) |
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--input`, `-i` | string | - | Yes | Input EHR document text file path |
+| `--output`, `-o` | string | - | No | Output JSON file path |
+| `--max-length` | int | 300 | No | Maximum summary length in words |
+| `--extract-sections` | string | all | No | Comma-separated sections to extract |
+| `--format` | string | json | No | Output format (json, markdown, text) |
 
 ## Technical Details
 
