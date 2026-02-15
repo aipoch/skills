@@ -55,9 +55,13 @@ result = check_interactions(["Metformin", "Simvastatin", "Amlodipine"])
 
 ## Parameters
 
-- `drugs`: List of drug names (generic or brand names accepted)
-- `include_mechanism`: Include pharmacological mechanism (default: True)
-- `include_management`: Include clinical recommendations (default: True)
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--drugs` | list | - | Yes | List of drug names (generic or brand names accepted) |
+| `--format` | string | text | No | Output format (text, json, markdown) |
+| `--include-mechanism` | flag | true | No | Include pharmacological mechanism |
+| `--include-management` | flag | true | No | Include clinical recommendations |
+| `--output`, `-o` | string | - | No | Output file path |
 
 ## Output Format
 
