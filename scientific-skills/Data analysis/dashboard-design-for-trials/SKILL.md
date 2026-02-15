@@ -32,17 +32,17 @@ Design layout sketches for clinical trial data monitoring panels, displaying rec
 python scripts/main.py [options]
 ```
 
-### Parameters
+## Parameters
 
-| Parameter | Description | Default |
-|------|------|--------|
-| `--study-id` | Study ID | STUDY-001 |
-| `--study-name` | Study Name | "Clinical Trial A" |
-| `--sites` | Number of sites | 10 |
-| `--target-enrollment` | Target enrollment count | 100 |
-| `--current-enrollment` | Current enrollment count | 45 |
-| `--ae-count` | Adverse event count | 12 |
-| `--output` | Output HTML file path | dashboard.html |
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--study-id` | string | STUDY-001 | No | Study ID |
+| `--study-name` | string | Clinical Trial A | No | Study Name |
+| `--sites` | int | 10 | No | Number of sites |
+| `--target-enrollment` | int | 100 | No | Target enrollment count |
+| `--current-enrollment` | int | 45 | No | Current enrollment count |
+| `--ae-count` | int | 12 | No | Adverse event count |
+| `--output` | string | dashboard.html | No | Output HTML file path |
 
 ### Examples
 
