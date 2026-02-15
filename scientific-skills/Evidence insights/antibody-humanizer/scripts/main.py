@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Antibody Humanizer - AI驱动的抗体人源化工具
-基于鼠源抗体序列预测最佳人源框架，生成人源化序列
+Antibody Humanizer - AI-powered antibody humanization tool
+Predicts optimal human frameworks from murine antibody sequences and generates humanized sequences
 
 Usage:
     python3 main.py --vh <VH_SEQUENCE> --vl <VL_SEQUENCE> --name <NAME>
@@ -18,7 +18,7 @@ from enum import Enum
 
 
 class NumberingScheme(Enum):
-    """抗体编号方案"""
+    """Antibody numbering schemes"""
     KABAT = "kabat"
     CHOTHIA = "chothia"
     IMGT = "imgt"
@@ -26,7 +26,7 @@ class NumberingScheme(Enum):
 
 @dataclass
 class CDRRegion:
-    """CDR区域定义"""
+    """CDR region definition"""
     name: str
     start: int
     end: int
@@ -43,7 +43,7 @@ class CDRRegion:
 
 @dataclass
 class BackMutation:
-    """回复突变定义"""
+    """Back mutation definition"""
     position: str
     from_aa: str
     to_aa: str
@@ -60,7 +60,7 @@ class BackMutation:
 
 @dataclass
 class HumanizationCandidate:
-    """人源化候选结果"""
+    """Humanization candidate result"""
     rank: int
     framework_source: str
     human_homology: float
@@ -83,7 +83,7 @@ class HumanizationCandidate:
         }
 
 
-# 人源种系基因数据库（简化版）
+# Human germline gene database (simplified version)
 HUMAN_GERMLINE_VH = {
     "IGHV1-2*02": "QVQLVQSGAEVKKPGASVKVSCKASGYTFTSYYMHWVRQAPGQGLEWMGWINPNSGGTNYAQKFQGRVTMTRDTSISTAYMELSRLRSDDTAVYYCAR",
     "IGHV1-46*01": "QVQLVQSGAEVKKPGASVKVSCKASGYTFTSYWIHWVRQAPGQGLEWMGEINPNSGSTNYAQKFQGRVTMTRDTSISTAYMELSRLRSDDTAVYYCAR",
@@ -100,7 +100,7 @@ HUMAN_GERMLINE_VL = {
     "IGKV4-1*01":  "DIQMTQSPSSLSASVGDRVTITCKASQDVSTAVAWYQQKPGQSPKLLIYSASYRYTGVPDRFTGSGSGTDFTLTISSLQAEDVAVYYC",
 }
 
-# CDR位置定义（Chothia编号方案）
+# CDR position definitions (Chothia numbering scheme)
 CDR_POSITIONS_CHOTHIA = {
     "VH": {
         "CDR-H1": (26, 32),
@@ -114,7 +114,7 @@ CDR_POSITIONS_CHOTHIA = {
     }
 }
 
-# Kabat编号方案
+# Kabat numbering scheme
 CDR_POSITIONS_KABAT = {
     "VH": {
         "CDR-H1": (31, 35),
@@ -128,7 +128,7 @@ CDR_POSITIONS_KABAT = {
     }
 }
 
-# IMGT编号方案
+# IMGT numbering scheme
 CDR_POSITIONS_IMGT = {
     "VH": {
         "CDR-H1": (27, 38),
@@ -142,22 +142,22 @@ CDR_POSITIONS_IMGT = {
     }
 }
 
-# 关键框架残基（Vernier区和Interface残基）
+# Critical framework residues (Vernier and Interface residues)
 CRITICAL_RESIDUES = {
-    "VH": [2, 4, 24, 27, 29, 48, 71, 73, 78, 93],  # 基于Chothia编号
+    "VH": [2, 4, 24, 27, 29, 48, 71, 73, 78, 93],  # Based on Chothia numbering
     "VL": [2, 4, 35, 36, 46, 47, 49, 64, 71, 87]
 }
 
 
 class AntibodyHumanizer:
-    """抗体人源化核心类"""
+    """Core antibody humanization class"""
     
     def __init__(self, scheme: NumberingScheme = NumberingScheme.CHOTHIA):
         self.scheme = scheme
         self.cdr_positions = self._get_cdr_positions()
         
     def _get_cdr_positions(self) -> Dict:
-        """获取CDR位置定义"""
+        """Get CDR position definitions"""
         if self.scheme == NumberingScheme.KABAT:
             return CDR_POSITIONS_KABAT
         elif self.scheme == NumberingScheme.IMGT:
@@ -165,32 +165,32 @@ class AntibodyHumanizer:
         return CDR_POSITIONS_CHOTHIA
     
     def validate_sequence(self, sequence: str) -> Tuple[bool, str]:
-        """验证氨基酸序列"""
+        """Validate amino acid sequence"""
         valid_aa = set("ACDEFGHIKLMNPQRSTVWY")
         sequence = sequence.upper().replace(" ", "").replace("\n", "")
         
         if not sequence:
-            return False, "序列为空"
+            return False, "Empty sequence"
         
         invalid_chars = set(sequence) - valid_aa
         if invalid_chars:
-            return False, f"包含无效氨基酸字符: {invalid_chars}"
+            return False, f"Invalid amino acid characters: {invalid_chars}"
         
         if len(sequence) < 80:
-            return False, f"序列长度({len(sequence)})过短，可变区通常>80个氨基酸"
+            return False, f"Sequence length ({len(sequence)}) too short, variable region typically >80 amino acids"
         
         if len(sequence) > 150:
-            return False, f"序列长度({len(sequence)})过长，可变区通常<150个氨基酸"
+            return False, f"Sequence length ({len(sequence)}) too long, variable region typically <150 amino acids"
         
         return True, sequence
     
     def extract_cdrs(self, sequence: str, chain_type: str) -> Dict[str, CDRRegion]:
-        """从序列中提取CDR区域"""
+        """Extract CDR regions from sequence"""
         cdrs = {}
         positions = self.cdr_positions.get(chain_type, {})
         
         for cdr_name, (start, end) in positions.items():
-            # 转换为0-based索引
+            # Convert to 0-based indexing
             seq_start = start - 1
             seq_end = min(end, len(sequence))
             
@@ -206,42 +206,42 @@ class AntibodyHumanizer:
         return cdrs
     
     def extract_frameworks(self, sequence: str, chain_type: str) -> Dict[str, str]:
-        """提取框架区域序列"""
+        """Extract framework region sequences"""
         cdr_positions = self.cdr_positions.get(chain_type, {})
         frameworks = {}
         
-        # FR1: 序列开始到CDR1前
+        # FR1: From sequence start to before CDR1
         cdr1_start = cdr_positions.get(f"CDR-{chain_type[0]}1", (1, 1))[0]
         frameworks["FR1"] = sequence[:cdr1_start-1]
         
-        # FR2: CDR1后到CDR2前
+        # FR2: From after CDR1 to before CDR2
         cdr1_end = cdr_positions.get(f"CDR-{chain_type[0]}1", (1, 1))[1]
         cdr2_start = cdr_positions.get(f"CDR-{chain_type[0]}2", (1, 1))[0]
         frameworks["FR2"] = sequence[cdr1_end:cdr2_start-1]
         
-        # FR3: CDR2后到CDR3前
+        # FR3: From after CDR2 to before CDR3
         cdr2_end = cdr_positions.get(f"CDR-{chain_type[0]}2", (1, 1))[1]
         cdr3_start = cdr_positions.get(f"CDR-{chain_type[0]}3", (1, 1))[0]
         frameworks["FR3"] = sequence[cdr2_end:cdr3_start-1]
         
-        # FR4: CDR3后到序列结束
+        # FR4: From after CDR3 to sequence end
         cdr3_end = cdr_positions.get(f"CDR-{chain_type[0]}3", (1, 1))[1]
         frameworks["FR4"] = sequence[cdr3_end:]
         
         return frameworks
     
     def calculate_similarity(self, seq1: str, seq2: str) -> float:
-        """计算两个序列的相似度（基于身份和保守替换）"""
-        # 保守替换组（BLOSUM62简化版）
+        """Calculate similarity between two sequences (based on identity and conservative substitutions)"""
+        # Conservative substitution groups (simplified BLOSUM62)
         conservative_groups = [
-            set("ILMV"),  # 疏水脂肪族
-            set("FWY"),   # 芳香族
-            set("DE"),    # 酸性
-            set("KRH"),   # 碱性
-            set("STNQ"),  # 极性
-            set("AG"),    # 小非极性
-            set("C"),     # 半胱氨酸（特殊）
-            set("P"),     # 脯氨酸（特殊）
+            set("ILMV"),  # Hydrophobic aliphatic
+            set("FWY"),   # Aromatic
+            set("DE"),    # Acidic
+            set("KRH"),   # Basic
+            set("STNQ"),  # Polar
+            set("AG"),    # Small non-polar
+            set("C"),     # Cysteine (special)
+            set("P"),     # Proline (special)
         ]
         
         min_len = min(len(seq1), len(seq2))
@@ -252,29 +252,29 @@ class AntibodyHumanizer:
         for i in range(min_len):
             aa1, aa2 = seq1[i], seq2[i]
             if aa1 == aa2:
-                matches += 1.0  # 完全匹配
+                matches += 1.0  # Exact match
             else:
-                # 检查是否为保守替换
+                # Check for conservative substitution
                 for group in conservative_groups:
                     if aa1 in group and aa2 in group:
-                        matches += 0.5  # 保守替换给予部分分数
+                        matches += 0.5  # Conservative substitution gets partial score
                         break
         
-        # 长度惩罚（较短的比较序列）
+        # Length penalty (shorter comparison sequence)
         length_penalty = min_len / max(len(seq1), len(seq2))
         
         return (matches / min_len) * length_penalty
     
     def find_best_frameworks(self, sequence: str, chain_type: str, 
                             top_n: int = 3) -> List[Tuple[str, float, str]]:
-        """找到最佳匹配的人源框架"""
+        """Find best matching human frameworks"""
         
         if chain_type == "VH":
             germline_db = HUMAN_GERMLINE_VH
         else:
             germline_db = HUMAN_GERMLINE_VL
         
-        # 提取框架区域
+        # Extract framework regions
         source_frameworks = self.extract_frameworks(sequence, chain_type)
         source_cdrs = self.extract_cdrs(sequence, chain_type)
         
@@ -283,7 +283,7 @@ class AntibodyHumanizer:
             germline_frameworks = self.extract_frameworks(germline_seq, chain_type)
             germline_cdrs = self.extract_cdrs(germline_seq, chain_type)
             
-            # 计算框架相似性
+            # Calculate framework similarity
             fr_similarities = []
             for fr_name in ["FR1", "FR2", "FR3", "FR4"]:
                 if fr_name in source_frameworks and fr_name in germline_frameworks:
@@ -293,34 +293,34 @@ class AntibodyHumanizer:
                     )
                     fr_similarities.append(sim)
             
-            # 整体框架相似性
+            # Overall framework similarity
             avg_similarity = sum(fr_similarities) / len(fr_similarities) if fr_similarities else 0
             
-            # 构建人源化序列（保留原始CDR）
+            # Build humanized sequence (keep original CDRs)
             humanized = self._build_humanized_sequence(
                 source_frameworks, source_cdrs, germline_frameworks
             )
             
             scores.append((germline_name, avg_similarity, humanized))
         
-        # 排序并返回前N个
+        # Sort and return top N
         scores.sort(key=lambda x: x[1], reverse=True)
         return scores[:top_n]
     
     def _build_humanized_sequence(self, source_frs: Dict[str, str], 
                                    source_cdrs: Dict[str, CDRRegion],
                                    germline_frs: Dict[str, str]) -> str:
-        """构建人源化序列（人源FR + 原始CDR）"""
-        # 简化的构建方法
+        """Build humanized sequence (human FR + original CDR)"""
+        # Simplified construction method
         fr_order = ["FR1", "CDR1", "FR2", "CDR2", "FR3", "CDR3", "FR4"]
         
         result = []
         for region in fr_order:
             if region.startswith("FR"):
-                # 使用人源框架
+                # Use human framework
                 result.append(germline_frs.get(region, source_frs.get(region, "")))
             else:
-                # 使用原始CDR
+                # Use original CDR
                 cdr_key = f"CDR-{region[-1]}"
                 for cdr_name, cdr in source_cdrs.items():
                     if cdr_name.endswith(region[-1]):
@@ -331,14 +331,14 @@ class AntibodyHumanizer:
     
     def predict_back_mutations(self, mouse_seq: str, humanized_seq: str, 
                                chain_type: str) -> List[BackMutation]:
-        """预测需要的回复突变"""
+        """Predict required back mutations"""
         mutations = []
         critical_pos = CRITICAL_RESIDUES.get(chain_type, [])
         
         min_len = min(len(mouse_seq), len(humanized_seq))
         
         for pos in critical_pos:
-            idx = pos - 1  # 转换为0-based
+            idx = pos - 1  # Convert to 0-based
             if idx < min_len:
                 mouse_aa = mouse_seq[idx]
                 human_aa = humanized_seq[idx]
@@ -355,10 +355,10 @@ class AntibodyHumanizer:
         return mutations
     
     def _classify_mutation_reason(self, position: int, chain_type: str) -> str:
-        """分类突变原因"""
+        """Classify mutation reason"""
         vernier_positions = [35, 36, 47, 48, 49] if chain_type == "VL" else [24, 27, 29, 71, 78]
         interface_positions = [34, 36, 38, 44, 46, 87] if chain_type == "VL" else [37, 39, 45, 47, 91]
-        packing_positions = [2, 4]  # 疏水核心
+        packing_positions = [2, 4]  # Hydrophobic core
         
         if position in vernier_positions:
             return "Vernier region - affects CDR conformation"
@@ -372,7 +372,7 @@ class AntibodyHumanizer:
     def calculate_humanness_score(self, sequence: str, 
                                    germline_name: str, 
                                    chain_type: str) -> Tuple[float, float, str]:
-        """计算人源化评分"""
+        """Calculate humanization score"""
         
         if chain_type == "VH":
             germline_seq = HUMAN_GERMLINE_VH.get(germline_name, "")
@@ -382,17 +382,17 @@ class AntibodyHumanizer:
         if not germline_seq:
             return 0.0, 0.0, "Unknown"
         
-        # 计算与人源种系的相似度
+        # Calculate similarity to human germline
         similarity = self.calculate_similarity(sequence, germline_seq)
         
-        # T20评分模拟（基于20mer肽段的人源化程度）
-        # 实际应用中需要完整的T20数据库
+        # T20 score simulation (based on 20mer peptide humanization degree)
+        # In real application, would need complete T20 database
         t20_score = similarity * 100
         
-        # 归一化到0-100分
+        # Normalize to 0-100 scale
         humanness_score = min(100, similarity * 110)
         
-        # 风险分级
+        # Risk classification
         if humanness_score >= 85:
             risk_level = "Low"
         elif humanness_score >= 70:
@@ -404,40 +404,40 @@ class AntibodyHumanizer:
     
     def humanize(self, vh_sequence: str, vl_sequence: str, 
                  antibody_name: str = "", top_n: int = 3) -> Dict:
-        """执行完整的人源化分析"""
+        """Execute complete humanization analysis"""
         
-        # 验证序列
+        # Validate sequences
         vh_valid, vh_result = self.validate_sequence(vh_sequence)
         if not vh_valid:
-            raise ValueError(f"VH序列错误: {vh_result}")
+            raise ValueError(f"VH sequence error: {vh_result}")
         vh_sequence = vh_result
         
         vl_valid, vl_result = self.validate_sequence(vl_sequence)
         if not vl_valid:
-            raise ValueError(f"VL序列错误: {vl_result}")
+            raise ValueError(f"VL sequence error: {vl_result}")
         vl_sequence = vl_result
         
-        # 提取CDR
+        # Extract CDRs
         vh_cdrs = self.extract_cdrs(vh_sequence, "VH")
         vl_cdrs = self.extract_cdrs(vl_sequence, "VL")
         
-        # 查找最佳人源框架
+        # Find best human frameworks
         vh_candidates = self.find_best_frameworks(vh_sequence, "VH", top_n)
         vl_candidates = self.find_best_frameworks(vl_sequence, "VL", top_n)
         
-        # 生成人源化候选
+        # Generate humanization candidates
         candidates = []
         rank = 1
         
         for vh_name, vh_sim, vh_humanized in vh_candidates:
             for vl_name, vl_sim, vl_humanized in vl_candidates:
-                # 计算综合评分
+                # Calculate composite score
                 avg_similarity = (vh_sim + vl_sim) / 2
                 _, humanness_score, risk_level = self.calculate_humanness_score(
                     vh_humanized + vl_humanized, vh_name, "VH"
                 )
                 
-                # 预测回复突变
+                # Predict back mutations
                 vh_mutations = self.predict_back_mutations(vh_sequence, vh_humanized, "VH")
                 vl_mutations = self.predict_back_mutations(vl_sequence, vl_humanized, "VL")
                 all_mutations = vh_mutations + vl_mutations
@@ -455,12 +455,12 @@ class AntibodyHumanizer:
                 candidates.append(candidate)
                 rank += 1
         
-        # 按评分排序
+        # Sort by score
         candidates.sort(key=lambda x: x.humanness_score, reverse=True)
         for i, c in enumerate(candidates, 1):
             c.rank = i
         
-        # 构建输出
+        # Build output
         best_candidate = candidates[0] if candidates else None
         
         result = {
@@ -488,54 +488,54 @@ class AntibodyHumanizer:
 
 
 def parse_args():
-    """解析命令行参数"""
+    """Parse command line arguments"""
     parser = argparse.ArgumentParser(
-        description="Antibody Humanizer - AI驱动的抗体人源化工具"
+        description="Antibody Humanizer - AI-powered antibody humanization tool"
     )
     
-    # 输入选项
+    # Input options
     input_group = parser.add_mutually_exclusive_group(required=True)
-    input_group.add_argument("--vh", type=str, help="鼠源VH序列（氨基酸）")
-    input_group.add_argument("--input", "-i", type=str, help="输入JSON文件路径")
+    input_group.add_argument("--vh", type=str, help="Murine VH sequence (amino acids)")
+    input_group.add_argument("--input", "-i", type=str, help="Input JSON file path")
     
-    parser.add_argument("--vl", type=str, help="鼠源VL序列（氨基酸）")
-    parser.add_argument("--name", "-n", type=str, help="抗体名称", default="")
-    parser.add_argument("--output", "-o", type=str, help="输出文件路径")
+    parser.add_argument("--vl", type=str, help="Murine VL sequence (amino acids)")
+    parser.add_argument("--name", "-n", type=str, help="Antibody name", default="")
+    parser.add_argument("--output", "-o", type=str, help="Output file path")
     parser.add_argument("--format", "-f", type=str, 
                        choices=["json", "fasta", "csv"],
-                       default="json", help="输出格式")
+                       default="json", help="Output format")
     parser.add_argument("--scheme", "-s", type=str,
                        choices=["kabat", "chothia", "imgt"],
-                       default="chothia", help="编号方案")
+                       default="chothia", help="Numbering scheme")
     parser.add_argument("--top-n", type=int, default=3,
-                       help="返回最佳人源框架数量")
+                       help="Number of best human frameworks to return")
     
     return parser.parse_args()
 
 
 def read_input_file(filepath: str) -> Dict:
-    """从文件读取输入"""
+    """Read input from file"""
     with open(filepath, 'r') as f:
         return json.load(f)
 
 
-def write_output(result: Dict, filepath: str = None, fmt: str = "json"):
-    """输出结果"""
+def write_output(result: Dict, filepath: Optional[str] = None, fmt: str = "json"):
+    """Output results"""
     output = json.dumps(result, indent=2, ensure_ascii=False)
     
     if filepath:
         with open(filepath, 'w') as f:
             f.write(output)
-        print(f"结果已保存到: {filepath}")
+        print(f"Results saved to: {filepath}")
     else:
         print(output)
 
 
 def main():
-    """主函数"""
+    """Main function"""
     args = parse_args()
     
-    # 确定输入
+    # Determine input
     if args.input:
         input_data = read_input_file(args.input)
         vh_sequence = input_data.get("vh_sequence", "")
@@ -549,10 +549,10 @@ def main():
         scheme_str = args.scheme
         
         if not vl_sequence:
-            print("错误: 使用--vh时必须同时提供--vl序列")
+            print("Error: --vl sequence must be provided when using --vh")
             sys.exit(1)
     
-    # 确定编号方案
+    # Determine numbering scheme
     scheme_map = {
         "kabat": NumberingScheme.KABAT,
         "chothia": NumberingScheme.CHOTHIA,
@@ -560,7 +560,7 @@ def main():
     }
     scheme = scheme_map.get(scheme_str.lower(), NumberingScheme.CHOTHIA)
     
-    # 执行人源化
+    # Execute humanization
     try:
         humanizer = AntibodyHumanizer(scheme=scheme)
         result = humanizer.humanize(
@@ -570,14 +570,14 @@ def main():
             top_n=args.top_n
         )
         
-        # 输出结果
+        # Output results
         write_output(result, args.output, args.format)
         
     except ValueError as e:
-        print(f"输入错误: {e}")
+        print(f"Input error: {e}")
         sys.exit(1)
     except Exception as e:
-        print(f"处理错误: {e}")
+        print(f"Processing error: {e}")
         import traceback
         traceback.print_exc()
         sys.exit(1)

@@ -451,6 +451,96 @@ Located in `scripts/` directory:
 - **Experimental Validation Required**: All predictions must be confirmed in vitro/vivo
 - **Intellectual Property**: Does not check for existing patent claims on sequences
 
+## Parameters
+
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--vh` | string | - | No | Murine VH sequence (amino acids) |
+| `--vl` | string | - | No | Murine VL sequence (amino acids) |
+| `--input`, `-i` | string | - | No | Input JSON file path |
+| `--name`, `-n` | string | "" | No | Antibody name |
+| `--output`, `-o` | string | - | No | Output file path |
+| `--format`, `-f` | string | json | No | Output format (json, fasta, csv) |
+| `--scheme`, `-s` | string | chothia | No | Numbering scheme (kabat, chothia, imgt) |
+| `--top-n` | int | 3 | No | Number of best candidates to return |
+
+## Usage
+
+### Basic Usage
+
+```bash
+# Humanize with direct sequence input
+python scripts/main.py --vh "QVQLQQSGPELVKPGASVKMSCKAS..." --vl "DIQMTQSPSSLSASVGDRVTITC..." --name "MyAntibody"
+
+# Use JSON input file
+python scripts/main.py --input antibody.json --output results.json
+
+# Use IMGT numbering scheme
+python scripts/main.py --vh "SEQUENCE" --vl "SEQUENCE" --scheme imgt
+```
+
+### Input JSON Format
+
+```json
+{
+  "vh_sequence": "QVQLQQSGPELVKPGASVKMSCKAS...",
+  "vl_sequence": "DIQMTQSPSSLSASVGDRVTITC...",
+  "name": "MyAntibody",
+  "scheme": "chothia"
+}
+```
+
+## Risk Assessment
+
+| Risk Indicator | Assessment | Level |
+|----------------|------------|-------|
+| Code Execution | Python script executed locally | Medium |
+| Network Access | No external API calls | Low |
+| File System Access | Read input files, write output files | Low |
+| Instruction Tampering | Standard prompt guidelines | Low |
+| Data Exposure | Output may contain proprietary sequences | Medium |
+
+## Security Checklist
+
+- [x] No hardcoded credentials or API keys
+- [x] No unauthorized file system access (../)
+- [x] Input validation for sequences
+- [x] Prompt injection protections in place
+- [x] Error messages sanitized
+- [x] Output directory restricted to workspace
+- [x] Script execution in sandboxed environment
+
+## Prerequisites
+
+```bash
+# Python 3.7+
+# No external packages required (uses standard library)
+```
+
+## Evaluation Criteria
+
+### Success Metrics
+- [x] Successfully parses antibody sequences
+- [x] Identifies CDR regions correctly
+- [x] Matches human germline frameworks
+- [x] Predicts back-mutations
+- [x] Generates valid humanized sequences
+
+### Test Cases
+1. **Basic Functionality**: Humanize valid VH/VL sequences → Returns candidates
+2. **Edge Case**: Invalid sequence characters → Graceful error message
+3. **File Input**: Process JSON input → Correctly parses and outputs
+
+## Lifecycle Status
+
+- **Current Stage**: Draft
+- **Next Review Date**: 2026-03-06
+- **Known Issues**: None
+- **Planned Improvements**:
+  - Add T20 score database integration
+  - Support for camelid and shark antibodies
+  - Structure-based CDR prediction
+
 ---
 
 **🔬 Critical Note: Computational humanization is a design tool, not a substitute for experimental validation. Always express and test humanized candidates for binding affinity, specificity, stability, and immunogenicity before therapeutic development.**

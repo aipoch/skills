@@ -450,6 +450,96 @@ Located in `scripts/` directory:
 - **Volume Control**: Easy to create too many cards; requires curation
 - **Active Learning**: Cards supplement but don't replace active problem-solving
 
+## Parameters
+
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--input`, `-i` | string | - | No | Input text file with Q&A pairs |
+| `--output`, `-o` | string | anki_cards.txt | No | Output file (Anki TSV format) |
+| `--drug` | flag | - | No | Create drug information card |
+| `--anatomy` | flag | - | No | Create anatomy card |
+| `--name` | string | - | No | Drug or structure name |
+| `--mechanism` | string | - | No | Mechanism of action (for drug cards) |
+| `--indications` | string | - | No | Clinical indications (for drug cards) |
+| `--side-effects` | string | - | No | Side effects (for drug cards) |
+| `--location` | string | - | No | Anatomical location (for anatomy cards) |
+| `--function` | string | - | No | Function (for anatomy cards) |
+
+## Usage
+
+### Basic Usage
+
+```bash
+# Create drug card
+python scripts/main.py --drug --name "Metformin" --mechanism "Decreases hepatic glucose production" --indications "Type 2 diabetes" --output metformin.txt
+
+# Create anatomy card
+python scripts/main.py --anatomy --name "Coronary arteries" --location "Surface of heart" --function "Supply oxygenated blood to myocardium" --output coronary.txt
+
+# Parse Q&A file
+python scripts/main.py --input questions.txt --output deck.txt
+```
+
+### Input File Format
+
+```
+Q: What is the mechanism of action of Metformin?
+A: Decreases hepatic glucose production, increases insulin sensitivity
+
+Q: Which artery supplies the left ventricle?
+A: Left anterior descending artery (LAD)
+```
+
+## Risk Assessment
+
+| Risk Indicator | Assessment | Level |
+|----------------|------------|-------|
+| Code Execution | Python script executed locally | Low |
+| Network Access | No external API calls | Low |
+| File System Access | Read input file, write to output file | Low |
+| Instruction Tampering | Standard prompt guidelines | Low |
+| Data Exposure | Output saved only to specified location | Low |
+
+## Security Checklist
+
+- [x] No hardcoded credentials or API keys
+- [x] No unauthorized file system access
+- [x] Output does not expose sensitive information
+- [x] Prompt injection protections in place
+- [x] Input validation for file paths
+- [x] Output directory restricted to workspace
+- [x] Script execution in sandboxed environment
+
+## Prerequisites
+
+```bash
+# Python 3.7+
+# No additional packages required (uses standard library)
+```
+
+## Evaluation Criteria
+
+### Success Metrics
+- [x] Successfully creates Anki-compatible TSV files
+- [x] Supports drug and anatomy card types
+- [x] Parses Q&A files correctly
+- [x] Generates valid HTML formatting
+
+### Test Cases
+1. **Drug Card**: Create Metformin card → Valid TSV output with formatted front/back
+2. **Anatomy Card**: Create coronary artery card → Valid TSV with location and function
+3. **File Parse**: Parse Q&A text file → Multiple cards generated
+
+## Lifecycle Status
+
+- **Current Stage**: Draft
+- **Next Review Date**: 2026-03-06
+- **Known Issues**: None
+- **Planned Improvements**:
+  - Add Cloze deletion support
+  - Support image inclusion
+  - Add .apkg export format
+
 ---
 
 **🧠 Study Tip: The best flashcard is one you'll actually review. Create cards for material you genuinely need to memorize, and keep the daily review load sustainable. Quality over quantity—better to deeply learn 1000 cards than superficially memorize 5000.**

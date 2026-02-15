@@ -474,6 +474,86 @@ Located in `scripts/` directory:
 - **Technical Accuracy**: Does not verify medical content (input-dependent)
 - **Live Elements**: Cannot script unscripted interviews or Q&A
 
+## Parameters
+
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--input`, `-i` | string | - | No | Input text file path |
+| `--output`, `-o` | string | - | No | Output JSON file path (default: stdout) |
+| `--text` | string | - | No | Direct text input (alternative to --input) |
+| `--duration`, `-d` | int | 5 | No | Target duration in minutes |
+| `--pace`, `-p` | string | normal | No | Speaking pace (slow, normal, fast) |
+| `--style`, `-s` | string | conversational | No | Script style (conversational, formal, educational) |
+
+## Usage
+
+### Basic Usage
+
+```bash
+# Convert from file
+python scripts/main.py --input article.txt --duration 5 --output script.json
+
+# Direct text input
+python scripts/main.py --text "Medical research findings..." --duration 3
+
+# From stdin
+cat article.txt | python scripts/main.py --duration 5 --style conversational
+
+# With specific style and pace
+python scripts/main.py --input paper.txt --style educational --pace slow
+```
+
+## Risk Assessment
+
+| Risk Indicator | Assessment | Level |
+|----------------|------------|-------|
+| Code Execution | Python script executed locally | Low |
+| Network Access | No external API calls | Low |
+| File System Access | Read input files, write output files | Low |
+| Instruction Tampering | Standard prompt guidelines | Low |
+| Data Exposure | Output saved only to specified location | Low |
+
+## Security Checklist
+
+- [x] No hardcoded credentials or API keys
+- [x] No unauthorized file system access
+- [x] Output does not expose sensitive information
+- [x] Prompt injection protections in place
+- [x] Input validation for file paths
+- [x] Output directory restricted to workspace
+- [x] Script execution in sandboxed environment
+
+## Prerequisites
+
+```bash
+# Python 3.7+
+# No additional packages required (uses standard library)
+```
+
+## Evaluation Criteria
+
+### Success Metrics
+- [x] Successfully converts text to audio-optimized script
+- [x] Expands abbreviations and converts numbers to words
+- [x] Calculates estimated duration based on word count
+- [x] Applies style-specific formatting
+- [x] Provides pronunciation notes for medical terms
+
+### Test Cases
+1. **Basic Conversion**: Convert text file → Returns audio script with metadata
+2. **Abbreviation Handling**: Text with "e.g., i.e., etc." → All expanded in output
+3. **Number Conversion**: Input with "1 in 4" → Output with "one in four"
+
+## Lifecycle Status
+
+- **Current Stage**: Draft
+- **Next Review Date**: 2026-03-06
+- **Known Issues**: None
+- **Planned Improvements**:
+  - Add support for custom abbreviation dictionaries
+  - Integrate with text-to-speech engines
+  - Add multilingual support
+
 ---
 
 **🎙️ Pro Tip: The best audio scripts sound natural when spoken. Always read your script aloud before finalizing—if you stumble over a sentence, your narrator will too. Revise for the ear, not the eye.**

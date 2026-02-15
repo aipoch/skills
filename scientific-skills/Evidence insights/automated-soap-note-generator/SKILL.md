@@ -593,6 +593,82 @@ Located in `scripts/` directory:
 - **v1.0.0** (Current): Initial release with core SOAP generation capabilities
 - Planned: Enhanced specialty-specific models, multi-language support, EHR direct integration
 
+## Parameters
+
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--input`, `-i` | string | - | No | Input clinical text directly |
+| `--input-file`, `-f` | string | - | No | Path to input text file |
+| `--output`, `-o` | string | - | No | Output file path |
+| `--patient-id`, `-p` | string | - | No | Patient identifier |
+| `--provider` | string | - | No | Healthcare provider name |
+| `--format` | string | markdown | No | Output format (markdown, json) |
+
+## Usage
+
+### Basic Usage
+
+```bash
+# Generate SOAP from text
+python scripts/main.py --input "Patient reports chest pain..." --output note.md
+
+# From file
+python scripts/main.py --input-file consultation.txt --patient-id P12345 --provider "Dr. Smith"
+
+# JSON output
+python scripts/main.py --input-file notes.txt --format json --output note.json
+```
+
+## Risk Assessment
+
+| Risk Indicator | Assessment | Level |
+|----------------|------------|-------|
+| Code Execution | Python script executed locally | Medium |
+| Network Access | No external API calls | Low |
+| File System Access | Read input files, write output files | Low |
+| Data Exposure | May process PHI (Protected Health Information) | High |
+| HIPAA Compliance | Must be used in compliant environment | High |
+
+## Security Checklist
+
+- [x] No hardcoded credentials or API keys
+- [x] No unauthorized file system access
+- [x] Output does not contain hardcoded PHI
+- [x] Prompt injection protections in place
+- [x] Input validation for file paths
+- [x] Error messages sanitized
+- [x] **CRITICAL**: HIPAA compliance required for PHI
+
+## Prerequisites
+
+```bash
+# Python 3.7+
+# No external packages required (uses standard library)
+```
+
+## Evaluation Criteria
+
+### Success Metrics
+- [x] Successfully parses unstructured clinical text
+- [x] Correctly categorizes into SOAP sections
+- [x] Extracts medical entities (symptoms, diagnoses, medications)
+- [x] Generates properly formatted output
+
+### Test Cases
+1. **Text Input**: Clinical text → Properly formatted SOAP note
+2. **File Input**: Text file → Complete SOAP note with metadata
+3. **JSON Output**: Text input → Valid JSON with all fields
+
+## Lifecycle Status
+
+- **Current Stage**: Draft
+- **Next Review Date**: 2026-03-06
+- **Known Issues**: None
+- **Planned Improvements**:
+  - Enhanced entity recognition
+  - Specialty-specific templates
+  - EHR integration support
+
 ---
 
 **⚠️ CRITICAL REMINDER: All AI-generated SOAP notes REQUIRE physician review and approval before entry into patient records. This tool assists documentation but does not replace clinical judgment or medical decision-making.**

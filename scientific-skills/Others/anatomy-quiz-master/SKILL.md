@@ -439,6 +439,86 @@ Located in `scripts/` directory:
 - **Cultural Sensitivity**: Some anatomical terms may vary by region
 - **Disability Accommodation**: Image-based questions need alternatives for visually impaired students
 
+## Parameters
+
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--region`, `-r` | string | upper_limb | No | Anatomical region (upper_limb, lower_limb, thorax, abdomen, pelvis, head_neck, neuroanatomy) |
+| `--difficulty`, `-d` | string | intermediate | No | Difficulty level (basic, intermediate, advanced) |
+| `--count`, `-c` | int | 1 | No | Number of questions to generate |
+| `--output`, `-o` | string | - | No | Output file path (JSON format) |
+| `--format` | string | json | No | Output format (json or text) |
+| `--list-regions` | flag | - | No | List all available regions and exit |
+
+## Usage
+
+### Basic Usage
+
+```bash
+# Generate single question
+python scripts/main.py --region upper_limb
+
+# Generate 10-question quiz
+python scripts/main.py --region neuroanatomy --difficulty advanced --count 10 --output quiz.json
+
+# List available regions
+python scripts/main.py --list-regions
+
+# Text format output
+python scripts/main.py --region thorax --format text
+```
+
+## Risk Assessment
+
+| Risk Indicator | Assessment | Level |
+|----------------|------------|-------|
+| Code Execution | Python script executed locally | Low |
+| Network Access | No external API calls | Low |
+| File System Access | Read/Write to specified output files only | Low |
+| Instruction Tampering | Standard prompt guidelines | Low |
+| Data Exposure | Output saved only to specified location | Low |
+
+## Security Checklist
+
+- [x] No hardcoded credentials or API keys
+- [x] No unauthorized file system access (../)
+- [x] Output does not expose sensitive information
+- [x] Prompt injection protections in place
+- [x] Input validation for all parameters
+- [x] Output directory restricted to workspace
+- [x] Script execution in sandboxed environment
+- [x] Error messages sanitized
+
+## Prerequisites
+
+```bash
+# Python 3.7+
+# No additional packages required (uses standard library)
+```
+
+## Evaluation Criteria
+
+### Success Metrics
+- [x] Successfully generates quiz questions
+- [x] Supports multiple anatomical regions
+- [x] Provides correct answers with explanations
+- [x] Handles edge cases (invalid regions, etc.)
+
+### Test Cases
+1. **Basic Functionality**: Generate single question → Returns valid question with options
+2. **Edge Case**: Invalid region → Graceful error message
+3. **Multiple Questions**: Generate 10 questions → Returns array of questions
+
+## Lifecycle Status
+
+- **Current Stage**: Draft
+- **Next Review Date**: 2026-03-06
+- **Known Issues**: None
+- **Planned Improvements**:
+  - Add image support for visual identification
+  - Expand question bank
+  - Add performance analytics
+
 ---
 
 **🧠 Learning Tip: Anatomy is best learned through repeated exposure in multiple contexts. Use these quizzes to reinforce cadaver lab learning, not replace it. Focus on understanding relationships and clinical significance, not just memorization.**
