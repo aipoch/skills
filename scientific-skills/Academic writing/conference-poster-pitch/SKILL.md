@@ -18,15 +18,31 @@ last_updated: '2026-02-06'
 
 Generate elevator pitches for academic poster sessions.
 
+## Parameters
+
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--poster-title`, `-t` | string | - | Yes | Poster title |
+| `--duration`, `-d` | int | 60 | No | Pitch duration in seconds (30, 60, or 180) |
+
 ## Usage
 
 ```bash
-python scripts/main.py --poster-title "Your Title" --duration 60
+# Generate 60-second pitch
+python scripts/main.py --poster-title "CRISPR Therapy for Sickle Cell Disease" --duration 60
+
+# Generate quick 30-second pitch
+python scripts/main.py --poster-title "Novel Biomarkers in Cancer" --duration 30
+
+# Generate detailed 3-minute pitch
+python scripts/main.py --poster-title "AI in Drug Discovery" --duration 180
 ```
 
 ## Output
 
-30s, 60s, and 3-minute pitch scripts.
+- 30s, 60s, and 3-minute pitch scripts
+- Structured elevator pitch format
+- Ready-to-practice delivery text
 
 ## Risk Assessment
 
