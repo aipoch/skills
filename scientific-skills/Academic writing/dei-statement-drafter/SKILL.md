@@ -26,9 +26,12 @@ python scripts/main.py --template faculty --experiences experiences.txt
 
 ## Parameters
 
-- `--template`: Statement type (faculty/postdoc/grant)
-- `--experiences`: File with DEI-related experiences
-- `--output`: Output file
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--template`, `-t` | string | faculty | No | Statement template (faculty, postdoc, grant) |
+| `--experiences`, `-e` | string | - | No | File with DEI-related experiences |
+| `--output`, `-o` | string | - | No | Output file path |
+| `--best-practices`, `-b` | flag | - | No | Show DEI statement best practices |
 
 ## Statement Components
 
