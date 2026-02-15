@@ -1100,6 +1100,78 @@ Located in `scripts/` directory:
 - Campus EHS: [Insert local number]
 - Chemical Spill Hotline: [Insert local number]
 
+## Parameters
+
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--chemicals`, `-c` | string | - | No | Comma-separated chemical list |
+| `--check` | string | - | No | Check compatibility with another chemical |
+| `--list-groups`, `-l` | flag | - | No | List storage groups |
+
+## Usage
+
+### Basic Usage
+
+```bash
+# Sort list of chemicals
+python scripts/main.py --chemicals "HCl,NaOH,ethanol,H2O2"
+
+# Check compatibility between two chemicals
+python scripts/main.py --chemicals "HCl" --check "NaOH"
+
+# List all storage groups
+python scripts/main.py --list-groups
+```
+
+## Risk Assessment
+
+| Risk Indicator | Assessment | Level |
+|----------------|------------|-------|
+| Code Execution | Python script executed locally | Low |
+| Network Access | No external API calls | Low |
+| File System Access | No file access | Low |
+| Data Exposure | No sensitive data | Low |
+| Safety Risk | Provides chemical safety guidance | Medium |
+
+## Security Checklist
+
+- [x] No hardcoded credentials or API keys
+- [x] No file system access
+- [x] Input validation for chemical names
+- [x] Output does not expose sensitive information
+- [x] Error messages sanitized
+- [x] Script execution in sandboxed environment
+
+## Prerequisites
+
+```bash
+# Python 3.7+
+# No additional packages required (uses standard library)
+```
+
+## Evaluation Criteria
+
+### Success Metrics
+- [x] Successfully classifies chemicals into storage groups
+- [x] Identifies incompatible chemical pairs
+- [x] Provides storage recommendations
+- [x] Lists all available storage groups
+
+### Test Cases
+1. **Chemical List**: Input list → Sorted by compatibility groups
+2. **Compatibility Check**: Two chemicals → Compatible/Incompatible result
+3. **Unknown Chemical**: Unrecognized name → General group assignment
+
+## Lifecycle Status
+
+- **Current Stage**: Active
+- **Next Review Date**: 2026-03-09
+- **Known Issues**: None
+- **Planned Improvements**:
+  - Expand chemical database
+  - Add SDS integration
+  - Support for custom storage rules
+
 ---
 
 **Last Updated**: 2026-02-09  
