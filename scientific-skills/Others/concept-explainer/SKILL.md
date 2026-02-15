@@ -29,12 +29,30 @@ Explains medical concepts using everyday analogies.
 - Multiple explanation levels
 - Visual description support
 
-## Input Parameters
+## Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `concept` | str | Yes | Medical concept to explain |
-| `audience` | str | No | "child", "patient", "student" |
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--concept`, `-c` | string | - | Yes | Medical concept to explain |
+| `--audience`, `-a` | string | patient | No | Target audience (child, patient, student) |
+| `--list`, `-l` | flag | - | No | List all available concepts |
+| `--output`, `-o` | string | - | No | Output JSON file path |
+
+## Usage
+
+```bash
+# Explain thrombosis to a patient
+python scripts/main.py --concept "thrombosis"
+
+# Explain to a child
+python scripts/main.py --concept "immune system" --audience child
+
+# Explain to a medical student
+python scripts/main.py --concept "antibiotic resistance" --audience student
+
+# List all available concepts
+python scripts/main.py --list
+```
 
 ## Output Format
 
