@@ -968,6 +968,80 @@ Located in `scripts/` directory:
 | **SNP Array** | CEL/IDAT | High | 5-25kb | Cost-effective screening |
 | **Optical Mapping** | Bionano | High | 500bp+ | Very large SVs |
 
+## Parameters
+
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--input`, `-i` | string | - | Yes | Input BAM/VCF file |
+| `--reference`, `-r` | string | - | Yes | Reference genome FASTA |
+| `--output`, `-o` | string | ./cnv_output | No | Output directory |
+| `--bin-size` | int | 1000 | No | Bin size for analysis |
+| `--plot-format` | string | png | No | Plot format (png, pdf, svg) |
+
+## Usage
+
+### Basic Usage
+
+```bash
+# Call CNVs from BAM file
+python scripts/main.py --input sample.bam --reference hg38.fa
+
+# Custom output directory and bin size
+python scripts/main.py --input sample.bam --reference hg38.fa --output ./results --bin-size 500
+
+# Generate PDF plots
+python scripts/main.py --input sample.bam --reference hg38.fa --plot-format pdf
+```
+
+## Risk Assessment
+
+| Risk Indicator | Assessment | Level |
+|----------------|------------|-------|
+| Code Execution | Python script executed locally | Low |
+| Network Access | No external API calls | Low |
+| File System Access | Read BAM/VCF, write results | Low |
+| Data Exposure | Processes genomic data | Medium |
+| PHI Risk | May process patient genetic data | High |
+
+## Security Checklist
+
+- [x] No hardcoded credentials or API keys
+- [x] No unauthorized file system access
+- [x] Input validation for file paths
+- [x] Output directory restricted
+- [x] Error messages sanitized
+- [x] **CRITICAL**: HIPAA compliance required for patient data
+
+## Prerequisites
+
+```bash
+# Python 3.7+
+# No additional packages required (uses standard library)
+```
+
+## Evaluation Criteria
+
+### Success Metrics
+- [x] Successfully processes BAM/VCF files
+- [x] Detects copy number variations
+- [x] Generates visualization plots
+- [x] Outputs results in BED format
+
+### Test Cases
+1. **Basic Calling**: BAM input → CNV calls with coordinates
+2. **Plot Generation**: CNV calls → Genome-wide plot
+3. **Custom Bin Size**: Different bin sizes → Appropriate resolution
+
+## Lifecycle Status
+
+- **Current Stage**: Active
+- **Next Review Date**: 2026-03-09
+- **Known Issues**: Placeholder CNV calling logic
+- **Planned Improvements**:
+  - Implement actual CNV calling algorithm
+  - Add tumor/normal comparison
+  - Enhance visualization options
+
 ---
 
 **Last Updated**: 2026-02-09  

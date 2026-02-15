@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-CO2 Tank Monitor - 二氧化碳气瓶监控系统
-模拟物联网监控，预测气瓶耗尽时间，防止周末断气。
+CO2 Tank Monitor - CO2 gas cylinder monitoring system
+Simulates IoT monitoring to predict tank depletion time and prevent weekend outages.
 """
 
 import argparse
@@ -11,13 +11,13 @@ from datetime import datetime, timedelta
 
 
 def get_current_time() -> datetime:
-    """获取当前时间（方便测试时mock）"""
+    """Get current time (easy to mock for testing)"""
     return datetime.now()
 
 
 def simulate_sensor_data():
-    """模拟传感器读取数据"""
-    # 模拟40L气瓶，满压约15MPa，工作压力8-10MPa，报警压力约2MPa
+    """Simulate sensor data reading"""
+    # Simulate 40L cylinder, full pressure ~15MPa, working pressure 8-10MPa, alarm pressure ~2MPa
     pressure = round(random.uniform(2.5, 12.0), 2)
     capacity = random.choice([10, 40])
     daily_consumption = round(random.uniform(0.5, 3.0), 2)
@@ -25,39 +25,39 @@ def simulate_sensor_data():
 
 
 def calculate_remaining_days(pressure: float, daily_consumption: float) -> float:
-    """计算剩余天数"""
+    """Calculate remaining days"""
     if daily_consumption <= 0:
         return float('inf')
     return pressure / daily_consumption
 
 
 def calculate_depletion_time(remaining_days: float) -> datetime:
-    """计算预计耗尽时间"""
+    """Calculate estimated depletion time"""
     return get_current_time() + timedelta(days=remaining_days)
 
 
 def is_weekend(dt: datetime) -> bool:
-    """判断是否为周末（周六或周日）"""
-    return dt.weekday() >= 5  # 5=周六, 6=周日
+    """Check if weekend (Saturday or Sunday)"""
+    return dt.weekday() >= 5  # 5=Saturday, 6=Sunday
 
 
 def will_deplete_on_weekend(depletion_time: datetime, alert_days: int) -> bool:
-    """检查是否会在周末期间耗尽"""
+    """Check if depletion occurs during weekend"""
     now = get_current_time()
     
-    # 计算预警开始时间
+    # Calculate alert start time
     alert_start = now + timedelta(days=alert_days)
     
-    # 如果耗尽时间在预警期内且在周末
+    # If depletion time is within alert period and on weekend
     if depletion_time <= alert_start:
         return is_weekend(depletion_time)
     
-    # 检查是否会跨越周末
+    # Check if it spans across weekend
     days_until_depletion = (depletion_time - now).days
     for i in range(int(days_until_depletion) + 1):
         check_day = now + timedelta(days=i)
         if is_weekend(check_day) and check_day <= depletion_time:
-            # 如果在周末期间耗尽
+            # If depletes during weekend
             weekend_start = check_day.replace(hour=0, minute=0, second=0)
             weekend_end = weekend_start + timedelta(days=2)
             if weekend_start <= depletion_time <= weekend_end:
@@ -68,32 +68,32 @@ def will_deplete_on_weekend(depletion_time: datetime, alert_days: int) -> bool:
 
 def get_status(remaining_days: float, alert_days: int, depletion_time: datetime) -> tuple:
     """
-    获取状态码和描述
-    返回: (status_code, status_icon, status_text, recommendations)
+    Get status code and description
+    Returns: (status_code, status_icon, status_text, recommendations)
     """
     if remaining_days <= 0:
-        return 2, "🔴", "已耗尽", ["⚠️  气瓶已空！请立即更换！"]
+        return 2, "🔴", "DEPLETED", ["⚠️  Tank is empty! Replace immediately!"]
     
     weekend_risk = will_deplete_on_weekend(depletion_time, alert_days)
     
     if remaining_days <= alert_days or weekend_risk:
         recommendations = []
         if remaining_days <= alert_days:
-            recommendations.append(f"⚠️  气瓶将在 {remaining_days:.1f} 天内耗尽")
+            recommendations.append(f"⚠️  Tank will deplete in {remaining_days:.1f} days")
         if weekend_risk:
-            recommendations.append("⚠️  气瓶将在周末耗尽！")
-        recommendations.append("💡 建议: 请立即更换气瓶或安排周末值班")
-        return 2, "🔴", "危险", recommendations
+            recommendations.append("⚠️  Tank will deplete on weekend!")
+        recommendations.append("💡 Recommendation: Replace tank immediately or arrange weekend monitoring")
+        return 2, "🔴", "DANGER", recommendations
     
     if remaining_days <= alert_days + 2:
-        return 1, "🟡", "注意", [
-            f"⏰ 剩余时间: {remaining_days:.1f} 天",
-            "💡 建议: 请关注气瓶状态，准备更换"
+        return 1, "🟡", "WARNING", [
+            f"⏰ Remaining time: {remaining_days:.1f} days",
+            "💡 Recommendation: Monitor tank status, prepare for replacement"
         ]
     
-    return 0, "🟢", "正常", [
-        f"✅ 剩余时间充足: {remaining_days:.1f} 天",
-        "💡 无需特别行动"
+    return 0, "🟢", "OK", [
+        f"✅ Sufficient remaining time: {remaining_days:.1f} days",
+        "💡 No immediate action required"
     ]
 
 
@@ -108,30 +108,30 @@ def format_report(
     status_text: str,
     recommendations: list
 ) -> str:
-    """格式化报告"""
+    """Format report"""
     now = get_current_time()
     
-    # 格式化耗尽时间，显示星期
-    weekdays = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
+    # Format depletion time with weekday
+    weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
     weekday_str = weekdays[depletion_time.weekday()]
     depletion_str = depletion_time.strftime(f"%Y-%m-%d %H:%M ({weekday_str})")
     
     report_lines = [
         "=" * 40,
-        "       CO2 气瓶监控报告",
+        "       CO2 Tank Monitor Report",
         "=" * 40,
-        f"📅 当前时间: {now.strftime('%Y-%m-%d %H:%M:%S')}",
+        f"📅 Current Time: {now.strftime('%Y-%m-%d %H:%M:%S')}",
         "",
-        "📊 传感器数据:",
-        f"   当前压力: {pressure:.2f} MPa",
-        f"   气瓶容量: {capacity} L",
-        f"   日均消耗: {daily_consumption:.2f} MPa/day",
+        "📊 Sensor Data:",
+        f"   Current Pressure: {pressure:.2f} MPa",
+        f"   Tank Capacity: {capacity} L",
+        f"   Daily Consumption: {daily_consumption:.2f} MPa/day",
         "",
-        "⏱️  预测分析:",
-        f"   预计剩余天数: {remaining_days:.1f} 天",
-        f"   预计耗尽时间: {depletion_str}",
+        "⏱️  Prediction Analysis:",
+        f"   Estimated Remaining Days: {remaining_days:.1f} days",
+        f"   Estimated Depletion Time: {depletion_str}",
         "",
-        f"🚨 预警状态: {status_icon} {status_text}",
+        f"🚨 Alert Status: {status_icon} {status_text}",
     ]
     
     for rec in recommendations:
@@ -144,47 +144,47 @@ def format_report(
 
 def main():
     parser = argparse.ArgumentParser(
-        description="CO2 Tank Monitor - 监控二氧化碳气瓶状态，防止周末断气"
+        description="CO2 Tank Monitor - Monitor CO2 gas cylinder status to prevent weekend outages"
     )
     parser.add_argument(
         "--pressure", "-p",
         type=float,
         default=8.0,
-        help="当前气瓶压力 (MPa)，默认 8.0"
+        help="Current tank pressure (MPa), default 8.0"
     )
     parser.add_argument(
         "--capacity", "-c",
         type=int,
         default=40,
         choices=[10, 40],
-        help="气瓶容量 (L)，默认 40"
+        help="Tank capacity (L), default 40"
     )
     parser.add_argument(
         "--daily-consumption", "-d",
         type=float,
         default=1.5,
-        help="日均消耗量 (MPa/day)，默认 1.5"
+        help="Daily consumption rate (MPa/day), default 1.5"
     )
     parser.add_argument(
         "--alert-days", "-a",
         type=int,
         default=2,
-        help="提前预警天数，默认 2"
+        help="Alert threshold in days, default 2"
     )
     parser.add_argument(
         "--simulate", "-s",
         action="store_true",
-        help="启用模拟模式（随机生成数据）"
+        help="Enable simulation mode (random data generation)"
     )
     parser.add_argument(
         "--quiet", "-q",
         action="store_true",
-        help="静默模式，仅输出返回码"
+        help="Quiet mode, output only return code"
     )
     
     args = parser.parse_args()
     
-    # 获取数据
+    # Get data
     if args.simulate:
         pressure, capacity, daily_consumption = simulate_sensor_data()
     else:
@@ -192,16 +192,16 @@ def main():
         capacity = args.capacity
         daily_consumption = args.daily_consumption
     
-    # 计算
+    # Calculate
     remaining_days = calculate_remaining_days(pressure, daily_consumption)
     depletion_time = calculate_depletion_time(remaining_days)
     
-    # 获取状态
+    # Get status
     status_code, status_icon, status_text, recommendations = get_status(
         remaining_days, args.alert_days, depletion_time
     )
     
-    # 输出报告
+    # Output report
     if not args.quiet:
         report = format_report(
             pressure, capacity, daily_consumption,
@@ -210,7 +210,7 @@ def main():
         )
         print(report)
     
-    # 返回状态码
+    # Return status code
     sys.exit(status_code)
 
 

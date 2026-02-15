@@ -913,6 +913,79 @@ Located in `scripts/` directory:
 | KH2PO4 | KH2PO4 | 136.09 | Phosphate buffer |
 | SDS | C12H25NaO4S | 288.38 | Detergent |
 
+## Parameters
+
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `buffer` | string | - | Yes | Buffer type (PBS, RIPA, TAE) |
+| `--volume`, `-v` | float | - | No | Final volume in mL |
+| `--concentration`, `-c` | float | 1.0 | No | Concentration (X) |
+| `--list`, `-l` | flag | - | No | List available buffers |
+
+## Usage
+
+### Basic Usage
+
+```bash
+# Calculate PBS buffer (1X, 500 mL)
+python scripts/main.py PBS --volume 500
+
+# Calculate 10X PBS
+python scripts/main.py PBS --volume 500 --concentration 10
+
+# List all available buffers
+python scripts/main.py --list
+```
+
+## Risk Assessment
+
+| Risk Indicator | Assessment | Level |
+|----------------|------------|-------|
+| Code Execution | Python script executed locally | Low |
+| Network Access | No external API calls | Low |
+| File System Access | No file access | Low |
+| Data Exposure | No sensitive data | Low |
+| Clinical Risk | Used for lab calculations | Low |
+
+## Security Checklist
+
+- [x] No hardcoded credentials or API keys
+- [x] No file system access
+- [x] Input validation for buffer types
+- [x] Output does not expose sensitive information
+- [x] Error messages sanitized
+- [x] Script execution in sandboxed environment
+
+## Prerequisites
+
+```bash
+# Python 3.7+
+# No additional packages required (uses standard library)
+```
+
+## Evaluation Criteria
+
+### Success Metrics
+- [x] Successfully calculates buffer recipes
+- [x] Provides accurate mass measurements
+- [x] Supports multiple buffer types
+- [x] Handles concentration scaling
+
+### Test Cases
+1. **PBS Calculation**: PBS, 500mL, 1X → Correct masses for all components
+2. **10X Concentration**: PBS, 500mL, 10X → 10x mass values
+3. **List Buffers**: --list → Shows all available buffer types
+
+## Lifecycle Status
+
+- **Current Stage**: Active
+- **Next Review Date**: 2026-03-09
+- **Known Issues**: None
+- **Planned Improvements**:
+  - Add more buffer recipes
+  - Add pH calculation support
+  - Add custom buffer creation
+
 ---
 
 **Last Updated**: 2026-02-09  
