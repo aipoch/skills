@@ -30,13 +30,38 @@ Creates tailored cover letters for academic and medical positions.
 - Fellowship application letters
 - Customizable templates
 
-## Input Parameters
+## Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `purpose` | str | Yes | "journal", "job", "fellowship" |
-| `recipient` | str | Yes | Target journal or institution |
-| `key_points` | list | Yes | Main points to highlight |
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--purpose` | string | job | No | Cover letter type (journal, job, fellowship) |
+| `--recipient`, `-r` | string | - | Yes | Target journal or institution |
+| `--key-points`, `-k` | string | - | Yes | Comma-separated key points to highlight |
+| `--title` | string | - | No | Manuscript title (for journal submissions) |
+| `--significance` | string | - | No | Significance statement (for journal submissions) |
+| `--author`, `--applicant`, `-a` | string | Applicant | No | Author or applicant name |
+| `--position` | string | - | No | Position title (for job applications) |
+| `--fellowship` | string | - | No | Fellowship name (for fellowship applications) |
+| `--output`, `-o` | string | - | No | Output JSON file path |
+
+## Usage
+
+```bash
+# Journal submission cover letter
+python scripts/main.py --purpose journal --recipient "Nature Medicine" \
+  --key-points "Novel findings,Clinical relevance" \
+  --title "Study X" --significance "major advance" --author "Dr. Smith"
+
+# Job application cover letter
+python scripts/main.py --purpose job --recipient "Harvard Medical School" \
+  --key-points "10 years experience,Published 20 papers" \
+  --position "Assistant Professor" --applicant "Dr. Jones"
+
+# Fellowship application
+python scripts/main.py --purpose fellowship --recipient "NIH" \
+  --key-points "Research excellence,Leadership skills" \
+  --fellowship "K99" --applicant "Dr. Lee"
+```
 
 ## Output Format
 
