@@ -18,6 +18,13 @@ last_updated: '2026-02-06'
 
 Beautify flow cytometry gating plots for publication.
 
+## Parameters
+
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--data`, `-d` | string | - | Yes | FCS file path |
+| `--style`, `-s` | string | contour | No | Plot style (contour, density, dot) |
+
 ## Usage
 
 ```bash
