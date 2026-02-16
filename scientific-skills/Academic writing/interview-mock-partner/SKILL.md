@@ -29,12 +29,15 @@ Simulates medical job interview scenarios.
 - Common scenarios
 - Improvement tips
 
-## Input Parameters
+## Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `position` | str | Yes | Target position |
-| `experience_level` | str | Yes | "entry", "mid", "senior" |
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--position` | string | - | Yes | Target position title |
+| `--experience-level` | string | entry | No | Experience level (entry, mid, senior) |
+| `--specialty` | string | - | No | Medical specialty area |
+| `--questions` | int | 5 | No | Number of questions to generate |
+| `--output`, `-o` | string | stdout | No | Output file path |
 
 ## Output Format
 
