@@ -25,9 +25,14 @@ Financial runway calculator.
 - No-cost extension planning
 
 ## Parameters
-- `current_balance`: Remaining funds
-- `monthly_burn`: Regular expenses
-- `upcoming_costs`: One-time purchases
+
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--current-balance` | float | - | Yes | Remaining funds in dollars |
+| `--monthly-burn` | float | - | Yes | Monthly expenses |
+| `--upcoming-costs` | float | 0 | No | One-time upcoming purchases |
+| `--currency` | string | USD | No | Currency code |
+| `--output`, `-o` | string | stdout | No | Output file path |
 
 ## Returns
 - Runway projection
