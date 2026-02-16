@@ -25,10 +25,14 @@ Scientific cover art prompt engineering.
 - Press release images
 
 ## Parameters
-- `abstract`: Paper summary
-- `key_finding`: Main discovery
-- `visual_style`: Realistic/abstract/artistic
-- `journal_target`: Cell/Nature/Science
+
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--abstract` | string | - | Yes | Paper abstract or summary |
+| `--key-finding` | string | - | Yes | Main discovery or key result |
+| `--visual-style` | string | artistic | No | Visual style (realistic, abstract, artistic) |
+| `--journal-target` | string | - | No | Target journal (Cell, Nature, Science) |
+| `--output`, `-o` | string | stdout | No | Output file path |
 
 ## Returns
 - Midjourney prompt
