@@ -44,14 +44,14 @@ python scripts/main.py --input paper.pdf --visualize --output report.json
 
 ## Parameters
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `--input` | str | required | Input PDF file or image folder path |
-| `--output` | str | `report.json` | Output report path |
-| `--threshold` | float | `0.85` | Similarity threshold (0-1), higher is stricter |
-| `--detect-tampering` | bool | `false` | Enable tampering/PS trace detection |
-| `--visualize` | bool | `false` | Generate visualization comparison images |
-| `--temp-dir` | str | `./temp` | Temporary file directory |
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--input` | string | - | Yes | Input PDF file or image folder path |
+| `--output` | string | report.json | No | Output report path |
+| `--threshold` | float | 0.85 | No | Similarity threshold (0-1), higher is stricter |
+| `--detect-tampering` | flag | false | No | Enable tampering/PS trace detection |
+| `--visualize` | flag | false | No | Generate visualization comparison images |
+| `--temp-dir` | string | ./temp | No | Temporary file directory |
 
 ## Output Format
 
