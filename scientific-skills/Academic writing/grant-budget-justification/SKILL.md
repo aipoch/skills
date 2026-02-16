@@ -25,8 +25,14 @@ Narrative budget explanations for grant proposals.
 - Travel and dissemination
 
 ## Parameters
-- `budget_items`: List of expenses
-- `justification_type`: Equipment/Personnel/Other
+
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--input`, `-i` | string | - | Yes | Path to budget items file (JSON/CSV) |
+| `--justification-type` | string | - | Yes | Type of justification (Equipment, Personnel, Other) |
+| `--agency` | string | NIH | No | Funding agency (NIH, NSF) |
+| `--output`, `-o` | string | stdout | No | Output file path |
+| `--format` | string | text | No | Output format (text, markdown, docx) |
 
 ## Returns
 - Narrative justification text
