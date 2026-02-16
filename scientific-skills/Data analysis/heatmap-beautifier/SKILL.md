@@ -102,6 +102,25 @@ hb.create_heatmap(
 )
 ```
 
+## Parameters
+
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--data-path`, `-d` | string | - | Yes | Path to input data file (CSV) |
+| `--output-path`, `-o` | string | heatmap.png | No | Output file path |
+| `--title` | string | Gene Expression Heatmap | No | Heatmap title |
+| `--cmap` | string | RdBu_r | No | Color map |
+| `--center` | float | 0 | No | Color center value |
+| `--vmin` | float | -2 | No | Minimum value for color scale |
+| `--vmax` | float | 2 | No | Maximum value for color scale |
+| `--row-cluster` | bool | true | No | Enable row clustering |
+| `--col-cluster` | bool | true | No | Enable column clustering |
+| `--standard-scale` | string | None | No | Standardization: row, col, None |
+| `--z-score` | int | None | No | Z-score: 0 (row), 1 (col), None |
+| `--figsize` | tuple | (12, 10) | No | Figure size (width, height) |
+| `--dpi` | int | 300 | No | Resolution (dots per inch) |
+| `--format` | string | pdf | No | Output format (pdf, png, svg) |
+
 ## Input Data Format
 
 ### Expression Matrix (CSV)
