@@ -25,9 +25,14 @@ Key Opinion Leader analysis tool.
 - Advisory board planning
 
 ## Parameters
-- `therapeutic_area`: Disease field
-- `geography`: Regional scope
-- `metrics`: H-index, citations, centrality
+
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--therapeutic-area` | string | - | Yes | Disease field or therapeutic area |
+| `--geography` | string | global | No | Regional scope (global, US, EU, Asia) |
+| `--metrics` | string | h-index | No | Metrics to analyze (h-index, citations, centrality, all) |
+| `--output`, `-o` | string | stdout | No | Output file path |
+| `--format` | string | json | No | Output format (json, csv, html)
 
 ## Returns
 - Ranked KOL list
