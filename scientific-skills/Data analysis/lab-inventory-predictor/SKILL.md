@@ -86,6 +86,37 @@ print(f"Predicted depletion time: {prediction['depletion_date']}")
 alerts = predictor.get_alerts()
 ```
 
+## Parameters
+
+### Global Parameters
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--action` | string | - | Yes | Action to perform (status, add-reagent, record-usage, alerts, report) |
+| `--data-file` | string | ~/.openclaw/workspace/data/lab-inventory.json | No | Path to inventory data file |
+
+### add-reagent Action
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--name` | string | - | Yes | Reagent name |
+| `--current-stock` | float | - | Yes | Current stock quantity |
+| `--unit` | string | - | Yes | Unit of measurement (ml, mg, etc.) |
+| `--safety-days` | int | 7 | No | Safety buffer days |
+| `--lead-time-days` | int | 3 | No | Expected delivery time |
+| `--safety-stock` | float | - | No | Safety stock threshold |
+
+### record-usage Action
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--name` | string | - | Yes | Reagent name |
+| `--amount` | float | - | Yes | Amount consumed |
+| `--experiment` | string | - | No | Experiment identifier |
+
+### report Action
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--output`, `-o` | string | stdout | No | Output file path |
+| `--format` | string | text | No | Output format (text, json, csv) |
+
 ## Data Structure
 
 ### Reagent Record
