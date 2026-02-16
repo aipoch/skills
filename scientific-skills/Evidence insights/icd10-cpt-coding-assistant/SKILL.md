@@ -49,6 +49,16 @@ print(result.icd10_codes)
 print(result.cpt_codes)
 ```
 
+## Parameters
+
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--input`, `-i` | string | - | Yes | Path to clinical note file |
+| `--format`, `-f` | string | json | No | Output format (json, text) |
+| `--output`, `-o` | string | stdout | No | Output file path |
+| `--confidence-threshold` | float | 0.7 | No | Minimum confidence score (0.0-1.0) |
+| `--include-alternatives` | flag | false | No | Include alternative code suggestions |
+
 ## Input Format
 
 Accepts clinical notes in various formats:
