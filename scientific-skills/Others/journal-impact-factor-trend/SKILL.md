@@ -27,10 +27,12 @@ python scripts/main.py --journal-list journals.txt
 
 ## Parameters
 
-- `--journal`: Journal name
-- `--journal-list`: File with journal names
-- `--years`: Number of years to analyze (default: 5)
-- `--output`: Output format (table/plot)
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--journal` | string | - | No | Journal name (single journal) |
+| `--journal-list` | string | - | No | Path to file with journal names |
+| `--years` | int | 5 | No | Number of years to analyze |
+| `--output` | string | table | No | Output format (table, plot) |
 
 ## Output
 
