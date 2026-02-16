@@ -25,9 +25,15 @@ Ethics committee application support.
 - Multi-site ethics coordination
 
 ## Parameters
-- `study_type`: Observational/Interventional
-- `population`: Vulnerable groups?
-- `procedures`: Research activities
+
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--study-type` | string | - | Yes | Study type (Observational or Interventional) |
+| `--population` | string | - | Yes | Target population description |
+| `--vulnerable-groups` | flag | false | No | Whether vulnerable populations are involved |
+| `--procedures` | string | - | Yes | Research procedures/activities |
+| `--output`, `-o` | string | stdout | No | Output file path |
+| `--format` | string | text | No | Output format (text, markdown, docx) |
 
 ## Returns
 - Risk/benefit analysis text
