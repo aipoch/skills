@@ -41,12 +41,12 @@ python scripts/main.py <input_file> [options]
 
 ### Parameters
 
-| Parameter | Description | Required |
-|------|------|------|
-| `input_file` | IB document path (PDF/Word/TXT) | Yes |
-| `-o, --output` | Output file path (default: stdout) | No |
-| `-f, --format` | Output format: json/markdown/text (default: markdown) | No |
-| `-l, --language` | Output language: zh/en (default: zh) | No |
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `input_file` | string | - | Yes | IB document path (PDF/Word/TXT) |
+| `-o, --output` | string | stdout | No | Output file path |
+| `-f, --format` | string | markdown | No | Output format (json, markdown, text) |
+| `-l, --language` | string | zh | No | Output language (zh, en) |
 
 ### Examples
 
