@@ -26,11 +26,13 @@ python scripts/main.py --milestones milestones.csv --duration 36 --output gantt.
 
 ## Parameters
 
-- `--milestones`: Milestone data file
-- `--duration`: Project duration in months
-- `--start-date`: Project start date
-- `--output`: Output file
-- `--format`: Output format (png/pdf/svg)
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--milestones` | string | - | Yes | Path to milestone data file (CSV) |
+| `--duration` | int | 36 | No | Project duration in months |
+| `--start-date` | string | - | No | Project start date (YYYY-MM-DD) |
+| `--output`, `-o` | string | gantt.png | No | Output file path |
+| `--format` | string | png | No | Output format (png, pdf, svg) |
 
 ## Features
 
