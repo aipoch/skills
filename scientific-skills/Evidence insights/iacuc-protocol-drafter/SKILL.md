@@ -35,6 +35,15 @@ python skills/iacuc-protocol-drafter/scripts/main.py --input protocol_input.json
 cat protocol_input.json | python skills/iacuc-protocol-drafter/scripts/main.py
 ```
 
+## Parameters
+
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--input`, `-i` | string | - | Yes | Path to input JSON file with protocol details |
+| `--output`, `-o` | string | stdout | No | Output file path for generated protocol |
+| `--template` | string | standard | No | Template type (standard, minimal, detailed) |
+| `--format` | string | text | No | Output format (text, markdown, docx) |
+
 ## Input Format (JSON)
 
 ```json
