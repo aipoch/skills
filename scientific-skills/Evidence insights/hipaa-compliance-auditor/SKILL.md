@@ -54,15 +54,15 @@ print(result.detected_pii)  # List of found PII entities
 
 ## Parameters
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `input` | string | - | Path to input text file |
-| `text` | string | - | Direct text input (alternative to file) |
-| `output` | string | - | Path for de-identified output file |
-| `audit-log` | string | - | Path for JSON audit log |
-| `confidence` | float | 0.7 | Minimum confidence threshold (0.0-1.0) |
-| `preserve-structure` | bool | true | Maintain document structure (paragraphs, lists) |
-| `custom-patterns` | string | - | Path to custom regex patterns JSON |
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--input`, `-i` | string | - | No | Path to input text file |
+| `--text` | string | - | No | Direct text input (alternative to file) |
+| `--output`, `-o` | string | - | No | Path for de-identified output file |
+| `--audit-log` | string | - | No | Path for JSON audit log |
+| `--confidence` | float | 0.7 | No | Minimum confidence threshold (0.0-1.0) |
+| `--preserve-structure` | bool | true | No | Maintain document structure |
+| `--custom-patterns` | string | - | No | Path to custom regex patterns JSON |
 
 ## HIPAA Identifier Categories Detected
 
