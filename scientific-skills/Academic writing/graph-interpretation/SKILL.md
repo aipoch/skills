@@ -29,12 +29,15 @@ Describes graphs in academic language.
 - Academic phrasing
 - Figure caption support
 
-## Input Parameters
+## Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `graph_type` | str | Yes | "bar", "line", "scatter" |
-| `data_description` | str | Yes | Key data features |
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--type`, `-t` | string | - | Yes | Graph type (bar, line, scatter, box, heatmap) |
+| `--input`, `-i` | string | - | Yes | Path to data file or graph image |
+| `--data-description` | string | - | No | Additional data context |
+| `--output`, `-o` | string | stdout | No | Output file path |
+| `--format` | string | text | No | Output format (text, json, markdown) |
 
 ## Output Format
 
