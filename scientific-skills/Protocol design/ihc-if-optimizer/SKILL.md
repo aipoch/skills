@@ -25,9 +25,14 @@ Immunostaining protocol optimization.
 - Fluorescence panel design
 
 ## Parameters
-- `tissue_type`: Brain/Liver/Kidney/etc
-- `antigen`: Target protein
-- `detection_method`: IHC or IF
+
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `--tissue-type` | string | - | Yes | Tissue type (Brain, Liver, Kidney, etc.) |
+| `--antigen` | string | - | Yes | Target protein/antigen name |
+| `--detection-method` | string | IHC | No | Detection method (IHC or IF) |
+| `--output`, `-o` | string | stdout | No | Output file path |
+| `--format` | string | text | No | Output format (text, json, markdown) |
 
 ## Returns
 - Recommended retrieval method
