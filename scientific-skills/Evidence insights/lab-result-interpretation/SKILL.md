@@ -61,6 +61,14 @@ python scripts/main.py --file lab_report.txt
 python scripts/main.py --interactive
 ```
 
+## Parameters
+
+| Name | Type | Default | Required | Description |
+|------|------|---------|----------|-------------|
+| file | string | "" | No | Path to lab report file to process |
+| interactive | boolean | false | No | Enable interactive mode for manual input |
+| input | string | "" | No | Direct lab test input string for interpretation |
+
 ## Input Format
 
 Accepts flexible formats:
