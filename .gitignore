@@ -1,67 +1,57 @@
-# macOS
-.DS_Store
-.AppleDouble
-.LSOverride
+# 测试文件和目录
+test_*
+test_data/
+test_output/
+examples/
+output/
 
-# Thumbnails
-._*
+# 生成的报告和临时文件
+*.report.json
+*.report.txt
+REPORT.txt
+COMPLETION_REPORT.md
+SECURITY_REVIEW.md
 
-# Files that might appear in the root of a volume
-.DocumentRevisions-V100
-.fseventsd
-.Spotlight-V100
-.TemporaryItems
-.Trashes
-.VolumeIcon.icns
-.com.apple.timemachine.donotpresent
+# 二进制测试文件
+*.jpg
+*.jpeg
+*.png
+*.pdf
+*.html
 
-# Directories potentially created on remote AFP share
-.AppleDB
-.AppleDesktop
-Network Trash Folder
-Temporary Items
-.apdisk
-
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-env/
-venv/
-ENV/
-*.egg-info/
-dist/
-build/
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# Logs
-*.log
-
-# Temporary zip files
+# 临时 zip 文件
 *.zip
 
-# Development/Internal files
-validate_skills.py
-validation_report.json
-REVISION_LOG.md
-TASK_HANDOVER.md
-SKILL_WRITING_STANDARD.md
+# 忽略根目录下的项目管理工作文件（保留在本地）
+/.openclaw/
+/AGENTS.md
+/BOOTSTRAP.md
+/DAILY_SKILL_CHECKLIST.md
+/HEARTBEAT.md
+/IDENTITY.md
+/MEMORY.md
+/OPENCODE_API_GUIDE.md
+/PLAN_2025-02-15.md
+/PROJECT_REPORT_174_SKILLS.md
+/SKILL_FORMAT_CHECKLIST.md
+/SKILL_PROCESSING_SOP.md
+/SKILL_QUALITY_CHECKLIST.md
+/SOUL.md
+/TOOLS.md
+/USER.md
+/check-opencode.sh
+/discord/
+/memory/
+/quality_reports/
+/reference-kdense-skills/
+/scripts/
 
-# Quality check reports (local only)
-BATCH1_QUALITY_REPORT*.md
-CORRECTED_REPORT.md
-DELIVERY_REPORT.md
-NETWORK_CORRECTION.txt
-SKILL_CONSISTENCY_REPORT.md
-*_REPORT*.md
-
-# OS files
+# IDE 和系统文件
 .DS_Store
+.vscode/
+.idea/
+__pycache__/
+*.pyc
+
+# 日志文件
+*.log
